@@ -9,7 +9,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
         
-        /* Login */
         #loginScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #1a237e, #0d47a1);
@@ -36,7 +35,6 @@
         .login-error { color: #c62828; text-align: center; margin-top: 10px; display: none; }
         .login-info { text-align: center; margin-top: 15px; color: #666; font-size: 0.9em; }
 
-        /* Sidebar */
         .sidebar {
             width: 250px; height: 100vh;
             background: linear-gradient(135deg, #1a237e, #0d47a1);
@@ -58,7 +56,6 @@
             padding: 2px 8px; font-size: 0.7em; margin-left: 5px;
         }
 
-        /* Main Content */
         .main-content { margin-left: 250px; padding: 20px; }
         .header {
             background: white; padding: 20px; border-radius: 10px;
@@ -140,9 +137,12 @@
         
         .qr-container { text-align: center; padding: 20px; }
 
-        /* Publicidad */
+        /* Publicidad Dashboard - 5 espacios */
         .ad-container {
-            display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 15px;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 15px;
             margin: 15px 0;
         }
         .ad-item {
@@ -151,6 +151,12 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             position: relative;
         }
+        .ad-item:nth-child(1) { grid-column: 1; grid-row: 1; }
+        .ad-item:nth-child(2) { grid-column: 2; grid-row: 1; }
+        .ad-item:nth-child(3) { grid-column: 3; grid-row: 1; }
+        .ad-item:nth-child(4) { grid-column: 1; grid-row: 2; }
+        .ad-item:nth-child(5) { grid-column: 3; grid-row: 2; }
+        
         .ad-item img, .ad-item video {
             width: 100%; height: auto; max-height: 200px; object-fit: cover;
         }
@@ -159,6 +165,40 @@
         }
         .ad-item a {
             display: block; width: 100%; text-decoration: none;
+        }
+
+        /* Publicidad Pedidos - 3 espacios */
+        .order-ads {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px; margin: 15px 0;
+        }
+        .order-ad-item {
+            background: #f5f5f5; border-radius: 8px; overflow: hidden;
+            border: 1px solid #ddd; min-height: 80px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .order-ad-item img, .order-ad-item video {
+            width: 100%; height: auto; max-height: 100px; object-fit: cover;
+        }
+        .order-ad-item .ad-placeholder {
+            color: #999; font-size: 0.8em; padding: 10px; text-align: center;
+        }
+        .order-ad-item a {
+            display: block; width: 100%; text-decoration: none;
+        }
+
+        /* Gestión de Publicidad */
+        .ad-manager-item {
+            border: 1px solid #ddd; padding: 15px; border-radius: 8px;
+            background: #fafafa;
+        }
+        .ad-manager-item input, .ad-manager-item textarea {
+            font-size: 0.9em; margin: 5px 0;
+        }
+        .ad-manager-item .preview-thumb {
+            max-width: 100%; max-height: 80px; border-radius: 4px;
+            margin-top: 5px;
         }
 
         /* Sistema de Pedidos */
@@ -210,76 +250,32 @@
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
         }
 
-        /* Botones de envío mejorados */
-        .btn-envio-whatsapp {
-            background: #25D366; color: white; padding: 15px 20px;
-            border: none; border-radius: 8px; font-size: 1.1em;
+        /* Botón WhatsApp Directo */
+        .btn-whatsapp-directo {
+            background: #25D366; color: white; padding: 18px 20px;
+            border: none; border-radius: 8px; font-size: 1.3em;
             cursor: pointer; width: 100%; margin-top: 10px;
             transition: 0.3s; display: flex; align-items: center;
             justify-content: center; gap: 10px;
+            text-decoration: none;
         }
-        .btn-envio-whatsapp:hover { opacity: 0.9; transform: scale(1.02); }
-        .btn-envio-email {
+        .btn-whatsapp-directo:hover { opacity: 0.9; transform: scale(1.02); }
+
+        .btn-email-directo {
             background: #D44638; color: white; padding: 15px 20px;
             border: none; border-radius: 8px; font-size: 1.1em;
             cursor: pointer; width: 100%; margin-top: 10px;
             transition: 0.3s; display: flex; align-items: center;
             justify-content: center; gap: 10px;
+            text-decoration: none;
         }
-        .btn-envio-email:hover { opacity: 0.9; transform: scale(1.02); }
-        .btn-copiar {
-            background: #0d47a1; color: white; padding: 15px 20px;
-            border: none; border-radius: 8px; font-size: 1.1em;
-            cursor: pointer; width: 100%; margin-top: 10px;
-            transition: 0.3s; display: flex; align-items: center;
-            justify-content: center; gap: 10px;
-        }
-        .btn-copiar:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-email-directo:hover { opacity: 0.9; transform: scale(1.02); }
 
         .mensaje-preview {
             background: #f5f5f5; padding: 15px; border-radius: 8px;
             margin: 15px 0; max-height: 200px; overflow-y: auto;
             white-space: pre-wrap; font-family: monospace; font-size: 0.9em;
             border: 1px solid #ddd;
-        }
-
-        .alert-success {
-            background: #d4edda; color: #155724; padding: 15px;
-            border-radius: 8px; margin: 10px 0; border: 1px solid #c3e6cb;
-        }
-
-        /* Ads en pedido */
-        .order-ads {
-            display: grid; grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px; margin: 15px 0;
-        }
-        .order-ad-item {
-            background: #f5f5f5; border-radius: 8px; overflow: hidden;
-            border: 1px solid #ddd; min-height: 80px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative;
-        }
-        .order-ad-item img, .order-ad-item video {
-            width: 100%; height: auto; max-height: 100px; object-fit: cover;
-        }
-        .order-ad-item .ad-placeholder {
-            color: #999; font-size: 0.8em; padding: 10px; text-align: center;
-        }
-        .order-ad-item a {
-            display: block; width: 100%; text-decoration: none;
-        }
-
-        /* Gestión de Ads */
-        .ad-manager-item {
-            border: 1px solid #ddd; padding: 15px; border-radius: 8px;
-            background: #fafafa;
-        }
-        .ad-manager-item input, .ad-manager-item textarea {
-            font-size: 0.9em; margin: 5px 0;
-        }
-        .ad-manager-item .preview-thumb {
-            max-width: 100%; max-height: 80px; border-radius: 4px;
-            margin-top: 5px;
         }
 
         /* Reportes */
@@ -294,9 +290,6 @@
             padding: 8px 10px; border-bottom: 1px solid #eee;
         }
         .report-table tr:hover { background: #f5f5f5; }
-        .report-total {
-            font-weight: bold; background: #e3f2fd;
-        }
         .report-summary {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px; margin: 15px 0;
@@ -317,7 +310,11 @@
             .header div { margin-top: 10px; }
             .client-item { flex-direction: column; align-items: flex-start; }
             .client-item .client-actions { margin-top: 5px; }
-            .ad-container { grid-template-columns: 1fr; }
+            .ad-container { grid-template-columns: 1fr; grid-template-rows: auto; }
+            .ad-item:nth-child(1), .ad-item:nth-child(2), .ad-item:nth-child(3),
+            .ad-item:nth-child(4), .ad-item:nth-child(5) {
+                grid-column: 1; grid-row: auto;
+            }
             .order-ads { grid-template-columns: 1fr; }
             .report-table { font-size: 0.7em; }
             .report-table th, .report-table td { padding: 5px; }
@@ -346,7 +343,7 @@
             <div class="logo">💧 AguaMagica</div>
             <h3 style="text-align:center;">Haz tu Pedido</h3>
             
-            <!-- Ads en pedido - 3 espacios -->
+            <!-- 3 Espacios Publicitarios en Pedidos -->
             <div id="orderAdsContainer" class="order-ads"></div>
 
             <div id="productListOrder">
@@ -488,30 +485,24 @@
 
                 <div class="total-display" id="totalDisplayOrder">Total: $0.00</div>
 
-                <!-- Preview del mensaje -->
-                <div id="mensajePreviewContainer" style="display:none;">
-                    <h4>📋 Vista previa del mensaje:</h4>
-                    <div class="mensaje-preview" id="mensajePreview"></div>
-                </div>
-
-                <!-- Botones de envío - NUEVA ESTRATEGIA -->
-                <button class="btn-envio-whatsapp" onclick="generarYEnviarWhatsApp()">
+                <!-- BOTÓN DIRECTO A WHATSAPP -->
+                <a href="#" id="whatsappDirectLink" target="_blank" class="btn-whatsapp-directo">
                     <i class="fab fa-whatsapp" style="font-size:1.5em;"></i> 
-                    <span>📱 Generar y Enviar por WhatsApp</span>
-                </button>
+                    📱 ENVIAR PEDIDO POR WHATSAPP
+                </a>
 
-                <button class="btn-copiar" onclick="generarYCopiarMensaje()">
-                    <i class="fas fa-copy" style="font-size:1.5em;"></i> 
-                    <span>📋 Copiar Mensaje (Pégalo donde quieras)</span>
-                </button>
-
-                <button class="btn-envio-email" onclick="generarYEnviarEmail()">
+                <!-- BOTÓN DE EMAIL -->
+                <a href="#" id="emailDirectLink" target="_blank" class="btn-email-directo">
                     <i class="fas fa-envelope" style="font-size:1.5em;"></i> 
-                    <span>📧 Generar y Enviar por Email</span>
-                </button>
+                    📧 ENVIAR PEDIDO POR EMAIL
+                </a>
 
-                <div id="mensajeExito" style="display:none;" class="alert-success">
-                    ✅ Mensaje generado exitosamente. Haz clic en el botón correspondiente para enviarlo.
+                <div style="margin-top:15px;padding:15px;background:#fff3cd;border-radius:8px;border:1px solid #ffc107;">
+                    <p style="font-size:0.9em;color:#856404;text-align:center;">
+                        <i class="fas fa-info-circle"></i> 
+                        Haz clic en el botón verde para abrir WhatsApp con el mensaje listo.
+                        <br>Si no se abre, haz clic en el enlace que aparecerá abajo.
+                    </p>
                 </div>
             </div>
 
@@ -560,7 +551,7 @@
                     <div class="stat-card"><h3>Alertas</h3><p id="alertCount" class="alert-count">0</p></div>
                 </div>
                 
-                <!-- Publicidad en Dashboard - 5 espacios -->
+                <!-- 5 Espacios Publicitarios en Dashboard -->
                 <div class="card">
                     <h3>📢 Publicidad</h3>
                     <div class="ad-container" id="dashboardAds"></div>
@@ -659,7 +650,7 @@
                 </div>
             </div>
 
-            <!-- PUBLICIDAD -->
+            <!-- PUBLICIDAD - GESTIÓN -->
             <div id="publicidad" class="tab">
                 <div class="card">
                     <h3><i class="fas fa-ad"></i> Gestión de Publicidad</h3>
@@ -883,8 +874,11 @@
         limpiarCamposPedido();
         document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${getTasaBCV().toFixed(2)} Bs`;
         document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
-        document.getElementById('mensajePreviewContainer').style.display = 'none';
-        document.getElementById('mensajeExito').style.display = 'none';
+        // Limpiar los enlaces
+        document.getElementById('whatsappDirectLink').href = '#';
+        document.getElementById('whatsappDirectLink').style.display = 'none';
+        document.getElementById('emailDirectLink').href = '#';
+        document.getElementById('emailDirectLink').style.display = 'none';
     }
 
     function limpiarCamposPedido() {
@@ -960,10 +954,13 @@
             document.getElementById('montoBs').textContent = `${totalBs.toFixed(2)} Bs`;
             document.getElementById('paidAmount').value = totalBs.toFixed(2);
         }
+        
+        // Actualizar enlaces cuando se cambia el total
+        actualizarEnlaces();
     }
 
     // =============================================
-    // FUNCIÓN PARA GENERAR MENSAJE
+    // GENERAR MENSAJE Y ENLACES
     // =============================================
     function generarMensaje() {
         const clientName = document.getElementById('clientNameOrder').value.trim();
@@ -1068,9 +1065,16 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     }
 
     // =============================================
-    // GUARDAR PEDIDO EN DB
+    // ACTUALIZAR ENLACES
     // =============================================
-    function guardarPedido(orderData) {
+    function actualizarEnlaces() {
+        const resultado = generarMensaje();
+        if (!resultado) return;
+
+        const { message, orderData } = resultado;
+        
+        // Guardar en DB
+        orderData.message = message;
         db.orders.push(orderData);
 
         const existingClient = db.clients.find(c => c.phone === orderData.clientPhone);
@@ -1096,172 +1100,80 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
             client: orderData.clientName,
             phone: orderData.clientPhone,
             email: orderData.clientEmail,
-            message: orderData.message || '',
+            message: message,
             date: new Date().toISOString(),
             type: 'pedido',
             order: orderData
         });
 
         saveDB();
-    }
 
-    // =============================================
-    // GENERAR Y ENVIAR POR WHATSAPP - NUEVA ESTRATEGIA
-    // =============================================
-    function generarYEnviarWhatsApp() {
-        const resultado = generarMensaje();
-        if (!resultado) return;
-
-        const { message, orderData } = resultado;
-        orderData.message = message;
-        orderData.status = 'enviado_whatsapp';
-        guardarPedido(orderData);
-
-        // Mostrar preview
-        document.getElementById('mensajePreview').textContent = message;
-        document.getElementById('mensajePreviewContainer').style.display = 'block';
-        document.getElementById('mensajeExito').style.display = 'block';
-
-        // Crear un enlace directo que el usuario puede hacer clic
+        // Crear enlace de WhatsApp
         const empresaPhone = CONFIG.whatsappNumber;
         const whatsappUrl = `https://wa.me/${empresaPhone}?text=${encodeURIComponent(message)}`;
         
-        // Mostrar el enlace en un botón que el usuario puede hacer clic manualmente
-        const confirmar = confirm(
-            '✅ Mensaje generado exitosamente.\n\n' +
-            'Haz clic en "Aceptar" para abrir WhatsApp y enviar el mensaje.\n' +
-            'Si no se abre, copia el mensaje manualmente.'
-        );
-
-        if (confirmar) {
-            // Intentar abrir
-            const ventana = window.open(whatsappUrl, '_blank');
-            if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
-                // Si falla, mostrar el enlace para copiar manualmente
-                alert(
-                    '⚠️ No se pudo abrir WhatsApp automáticamente.\n\n' +
-                    'Copia este enlace y pégalo en tu navegador:\n' +
-                    whatsappUrl + '\n\n' +
-                    'O copia el mensaje y pégalo manualmente en WhatsApp.'
-                );
-                // Copiar al portapapeles
-                copiarAlPortapapeles(message);
-            }
-        } else {
-            // Si el usuario cancela, copiar al portapapeles
-            copiarAlPortapapeles(message);
-            alert('📋 Mensaje copiado al portapapeles. Pégalo donde quieras.');
-        }
-
-        closeOrderScreen();
-    }
-
-    // =============================================
-    // GENERAR Y COPIAR MENSAJE
-    // =============================================
-    function generarYCopiarMensaje() {
-        const resultado = generarMensaje();
-        if (!resultado) return;
-
-        const { message, orderData } = resultado;
-        orderData.message = message;
-        orderData.status = 'copiado';
-        guardarPedido(orderData);
-
-        // Mostrar preview
-        document.getElementById('mensajePreview').textContent = message;
-        document.getElementById('mensajePreviewContainer').style.display = 'block';
-        document.getElementById('mensajeExito').style.display = 'block';
-
-        copiarAlPortapapeles(message);
-        alert('📋 Mensaje copiado al portapapeles exitosamente!\n\nPégalo donde quieras (WhatsApp, Email, SMS, etc.)');
-        
-        closeOrderScreen();
-    }
-
-    // =============================================
-    // GENERAR Y ENVIAR POR EMAIL - NUEVA ESTRATEGIA
-    // =============================================
-    function generarYEnviarEmail() {
-        const resultado = generarMensaje();
-        if (!resultado) return;
-
-        const { message, orderData } = resultado;
-        orderData.message = message;
-        orderData.status = 'enviado_email';
-        guardarPedido(orderData);
-
-        // Mostrar preview
-        document.getElementById('mensajePreview').textContent = message;
-        document.getElementById('mensajePreviewContainer').style.display = 'block';
-        document.getElementById('mensajeExito').style.display = 'block';
-
+        // Crear enlace de Email
         const emailSubject = `Pedido AguaMagica - ${orderData.clientName}`;
         const emailTo = CONFIG.email;
         const emailCC = orderData.clientEmail;
-        
-        // Crear el cuerpo del email en texto plano (sin markdown)
         const emailBody = message.replace(/\*/g, '').replace(/_/g, '');
-        
         const mailtoLink = `mailto:${emailTo}?cc=${encodeURIComponent(emailCC)}&subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+
+        // Actualizar botones
+        const whatsappBtn = document.getElementById('whatsappDirectLink');
+        whatsappBtn.href = whatsappUrl;
+        whatsappBtn.style.display = 'flex';
+        whatsappBtn.innerHTML = `
+            <i class="fab fa-whatsapp" style="font-size:1.5em;"></i> 
+            📱 ENVIAR PEDIDO POR WHATSAPP (${orderData.clientName})
+        `;
+
+        const emailBtn = document.getElementById('emailDirectLink');
+        emailBtn.href = mailtoLink;
+        emailBtn.style.display = 'flex';
+        emailBtn.innerHTML = `
+            <i class="fas fa-envelope" style="font-size:1.5em;"></i> 
+            📧 ENVIAR PEDIDO POR EMAIL (${orderData.clientName})
+        `;
+
+        // Mostrar mensaje de éxito
+        const mensajeExito = document.createElement('div');
+        mensajeExito.className = 'alert-success';
+        mensajeExito.style.marginTop = '15px';
+        mensajeExito.innerHTML = `
+            ✅ Pedido generado exitosamente para <strong>${orderData.clientName}</strong>
+            <br>Haz clic en el botón verde para enviar a WhatsApp
+            <br>o en el botón rojo para enviar por Email.
+        `;
         
-        const confirmar = confirm(
-            '✅ Mensaje generado exitosamente.\n\n' +
-            'Haz clic en "Aceptar" para abrir tu cliente de email.\n' +
-            'Si no se abre, copia el mensaje manualmente.'
-        );
+        // Remover mensajes anteriores
+        const oldMessages = document.querySelectorAll('.alert-success');
+        oldMessages.forEach(el => el.remove());
+        
+        const container = document.getElementById('orderForm');
+        container.appendChild(mensajeExito);
 
-        if (confirmar) {
-            const ventana = window.open(mailtoLink, '_blank');
-            if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
-                // Si falla, copiar al portapapeles
-                const emailContent = `Para: ${emailTo}\nCC: ${emailCC}\nAsunto: ${emailSubject}\n\n${emailBody}`;
-                copiarAlPortapapeles(emailContent);
-                alert(
-                    '⚠️ No se pudo abrir el email automáticamente.\n\n' +
-                    'El contenido del email ha sido copiado al portapapeles.\n' +
-                    'Pégalo en tu cliente de email.'
-                );
-            }
-        } else {
-            // Copiar al portapapeles
-            const emailContent = `Para: ${emailTo}\nCC: ${emailCC}\nAsunto: ${emailSubject}\n\n${emailBody}`;
-            copiarAlPortapapeles(emailContent);
-            alert('📋 Contenido del email copiado al portapapeles.');
-        }
-
-        closeOrderScreen();
+        // Cerrar pantalla después de 5 segundos
+        setTimeout(() => {
+            closeOrderScreen();
+        }, 8000);
     }
 
     // =============================================
-    // COPIAR AL PORTAPAPELES
+    // FUNCIÓN PRINCIPAL - GENERAR Y ENVIAR
     // =============================================
-    function copiarAlPortapapeles(texto) {
-        // Usar el API moderno de clipboard
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(texto).catch(function() {
-                // Fallback
-                copiarTextoFallback(texto);
-            });
-        } else {
-            // Fallback para navegadores antiguos
-            copiarTextoFallback(texto);
+    function generarYEnviar() {
+        const resultado = generarMensaje();
+        if (!resultado) return;
+        
+        // Actualizar enlaces y guardar
+        actualizarEnlaces();
+        
+        // Abrir WhatsApp automáticamente
+        const whatsappBtn = document.getElementById('whatsappDirectLink');
+        if (whatsappBtn.href && whatsappBtn.href !== '#') {
+            window.open(whatsappBtn.href, '_blank');
         }
-    }
-
-    function copiarTextoFallback(texto) {
-        const textarea = document.createElement('textarea');
-        textarea.value = texto;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        try {
-            document.execCommand('copy');
-        } catch (e) {
-            console.error('Error al copiar:', e);
-        }
-        document.body.removeChild(textarea);
     }
 
     // =============================================
@@ -1385,11 +1297,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                 break;
         }
         
-        const ventana = window.open(url, '_blank');
-        if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
-            copiarAlPortapapeles(message);
-            alert('📋 Mensaje copiado al portapapeles. Pégalo manualmente.');
-        }
+        window.open(url, '_blank');
         
         db.responses.push({
             client: name, phone: phone,
@@ -1464,6 +1372,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     }
 
     function renderAdsManager() {
+        // Dashboard Ads Manager - 5 espacios
         const dashboardDiv = document.getElementById('dashboardAdsManager');
         dashboardDiv.innerHTML = '<div class="grid-5">';
         db.ads.dashboard.forEach((ad, index) => {
@@ -1482,6 +1391,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         });
         dashboardDiv.innerHTML += '</div>';
 
+        // Order Ads Manager - 3 espacios
         const orderDiv = document.getElementById('orderAdsManager');
         orderDiv.innerHTML = '<div class="grid-3">';
         db.ads.order.forEach((ad, index) => {
@@ -1625,31 +1535,19 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     }
 
     function openWhatsApp(phone) {
-        const ventana = window.open(`https://wa.me/${phone}`, '_blank');
-        if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
-            alert('⚠️ No se pudo abrir WhatsApp. Abre la app manualmente.');
-        }
+        window.open(`https://wa.me/${phone}`, '_blank');
     }
 
     function callClient(phone) {
-        const ventana = window.open(`tel:${phone}`, '_blank');
-        if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
-            alert('⚠️ No se pudo realizar la llamada. Marca manualmente.');
-        }
+        window.open(`tel:${phone}`, '_blank');
     }
 
     function smsClient(phone) {
-        const ventana = window.open(`sms:${phone}`, '_blank');
-        if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
-            alert('⚠️ No se pudo abrir SMS. Abre la app manualmente.');
-        }
+        window.open(`sms:${phone}`, '_blank');
     }
 
     function emailClient(email) {
-        const ventana = window.open(`mailto:${email}`, '_blank');
-        if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
-            alert('⚠️ No se pudo abrir el email. Abre tu cliente de email manualmente.');
-        }
+        window.open(`mailto:${email}`, '_blank');
     }
 
     function addBulkClients() {
@@ -1817,10 +1715,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
             if (client) {
                 const fullMessage = `${greeting} *${client.name}*,\n\n${message}`;
                 const url = `https://wa.me/${client.phone}?text=${encodeURIComponent(fullMessage)}`;
-                const ventana = window.open(url, '_blank');
-                if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
-                    copiarAlPortapapeles(fullMessage);
-                }
+                window.open(url, '_blank');
                 db.responses.push({
                     client: client.name, phone: client.phone,
                     email: client.email || '',
@@ -2235,7 +2130,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     // =============================================
     // INICIALIZACIÓN
     // =============================================
-    console.log('💧 AguaMagica v6.0 - Nueva estrategia de envío');
+    console.log('💧 AguaMagica v7.0 - Envío Directo a WhatsApp');
     console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
     console.log('📧 Email:', CONFIG.email);
     console.log('🔑 Contraseña:', CONFIG.password);
@@ -2249,6 +2144,21 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
             updateAlerts();
         }
     }, 30000);
+
+    // Al cargar la página de pedidos, actualizar enlaces cuando cambien los campos
+    document.addEventListener('DOMContentLoaded', function() {
+        const campos = ['clientNameOrder', 'clientPhoneOrder', 'clientEmailOrder', 'peopleCountOrder', 
+                       'productSelectOrder', 'quantityOrder', 'deliveryAddressOrder', 'deliveryTimeOrder',
+                       'paymentMethodOrder', 'instructionsOrder', 'bankIssuer', 'referenceNumber', 'paidAmount'];
+        
+        campos.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('change', actualizarEnlaces);
+                el.addEventListener('keyup', actualizarEnlaces);
+            }
+        });
+    });
     </script>
 </body>
 </html>
