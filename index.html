@@ -167,7 +167,6 @@
             display: block; width: 100%; text-decoration: none;
         }
 
-        /* Publicidad Pedidos - 3 espacios */
         .order-ads {
             display: grid; grid-template-columns: 1fr 1fr 1fr;
             gap: 10px; margin: 15px 0;
@@ -188,7 +187,6 @@
             display: block; width: 100%; text-decoration: none;
         }
 
-        /* Gestión de Publicidad */
         .ad-manager-item {
             border: 1px solid #ddd; padding: 15px; border-radius: 8px;
             background: #fafafa;
@@ -201,7 +199,6 @@
             margin-top: 5px;
         }
 
-        /* Sistema de Pedidos */
         #clientOrderScreen {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%; background: rgba(0,0,0,0.8);
@@ -250,7 +247,6 @@
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
         }
 
-        /* Botón WhatsApp Directo */
         .btn-whatsapp-directo {
             background: #25D366; color: white; padding: 18px 20px;
             border: none; border-radius: 8px; font-size: 1.3em;
@@ -261,24 +257,6 @@
         }
         .btn-whatsapp-directo:hover { opacity: 0.9; transform: scale(1.02); }
 
-        .btn-email-directo {
-            background: #D44638; color: white; padding: 15px 20px;
-            border: none; border-radius: 8px; font-size: 1.1em;
-            cursor: pointer; width: 100%; margin-top: 10px;
-            transition: 0.3s; display: flex; align-items: center;
-            justify-content: center; gap: 10px;
-            text-decoration: none;
-        }
-        .btn-email-directo:hover { opacity: 0.9; transform: scale(1.02); }
-
-        .mensaje-preview {
-            background: #f5f5f5; padding: 15px; border-radius: 8px;
-            margin: 15px 0; max-height: 200px; overflow-y: auto;
-            white-space: pre-wrap; font-family: monospace; font-size: 0.9em;
-            border: 1px solid #ddd;
-        }
-
-        /* Reportes */
         .report-table {
             width: 100%; border-collapse: collapse; margin: 10px 0;
             font-size: 0.9em;
@@ -324,7 +302,7 @@
 </head>
 <body>
 
-    <!-- ===== LOGIN ===== -->
+    <!-- LOGIN -->
     <div id="loginScreen">
         <div class="login-box">
             <h2>💧 AguaMagica</h2>
@@ -336,14 +314,13 @@
         </div>
     </div>
 
-    <!-- ===== SISTEMA DE PEDIDOS ===== -->
+    <!-- SISTEMA DE PEDIDOS -->
     <div id="clientOrderScreen">
         <div class="order-container">
             <span class="close-order-btn" onclick="closeOrderScreen()">&times;</span>
             <div class="logo">💧 AguaMagica</div>
             <h3 style="text-align:center;">Haz tu Pedido</h3>
             
-            <!-- 3 Espacios Publicitarios en Pedidos -->
             <div id="orderAdsContainer" class="order-ads"></div>
 
             <div id="productListOrder">
@@ -354,18 +331,18 @@
             <div id="orderForm">
                 <div class="form-group">
                     <label>Nombre y Apellido <span class="required">*</span></label>
-                    <input type="text" id="clientNameOrder" placeholder="Ej: Juan Pérez" required>
+                    <input type="text" id="clientNameOrder" placeholder="Ej: Juan Pérez">
                 </div>
 
                 <div class="form-group">
                     <label>Teléfono <span class="required">*</span></label>
-                    <input type="tel" id="clientPhoneOrder" placeholder="Ej: 04141234567" required>
+                    <input type="tel" id="clientPhoneOrder" placeholder="Ej: 04141234567">
                     <div class="help-text">📱 Incluye código de área sin el 0</div>
                 </div>
 
                 <div class="form-group">
                     <label>Correo Electrónico <span class="required">*</span></label>
-                    <input type="email" id="clientEmailOrder" placeholder="Ej: cliente@email.com" required>
+                    <input type="email" id="clientEmailOrder" placeholder="Ej: cliente@email.com">
                     <div class="help-text">📧 Para conciliación de pagos</div>
                 </div>
 
@@ -380,7 +357,7 @@
 
                 <div class="form-group">
                     <label>Número de integrantes/personas <span class="required">*</span></label>
-                    <input type="number" id="peopleCountOrder" min="1" value="1" required>
+                    <input type="number" id="peopleCountOrder" min="1" value="1">
                     <div class="help-text">👥 Para calcular el consumo estimado de agua</div>
                 </div>
 
@@ -403,7 +380,6 @@
                     <button type="button" class="location-btn" onclick="shareLocation()">
                         <i class="fas fa-location-dot"></i> Compartir Ubicación
                     </button>
-                    <div class="help-text">📍 Haz clic para compartir tu ubicación (se coloca automáticamente en el campo)</div>
                 </div>
 
                 <div class="form-group">
@@ -485,25 +461,11 @@
 
                 <div class="total-display" id="totalDisplayOrder">Total: $0.00</div>
 
-                <!-- BOTÓN DIRECTO A WHATSAPP -->
+                <!-- BOTÓN WHATSAPP DIRECTO -->
                 <a href="#" id="whatsappDirectLink" target="_blank" class="btn-whatsapp-directo">
                     <i class="fab fa-whatsapp" style="font-size:1.5em;"></i> 
                     📱 ENVIAR PEDIDO POR WHATSAPP
                 </a>
-
-                <!-- BOTÓN DE EMAIL -->
-                <a href="#" id="emailDirectLink" target="_blank" class="btn-email-directo">
-                    <i class="fas fa-envelope" style="font-size:1.5em;"></i> 
-                    📧 ENVIAR PEDIDO POR EMAIL
-                </a>
-
-                <div style="margin-top:15px;padding:15px;background:#fff3cd;border-radius:8px;border:1px solid #ffc107;">
-                    <p style="font-size:0.9em;color:#856404;text-align:center;">
-                        <i class="fas fa-info-circle"></i> 
-                        Haz clic en el botón verde para abrir WhatsApp con el mensaje listo.
-                        <br>Si no se abre, haz clic en el enlace que aparecerá abajo.
-                    </p>
-                </div>
             </div>
 
             <div style="text-align:center;margin-top:20px;">
@@ -514,7 +476,7 @@
         </div>
     </div>
 
-    <!-- ===== PANEL DE CONTROL ===== -->
+    <!-- PANEL DE CONTROL -->
     <div id="mainApp" style="display:none;">
         <div class="sidebar">
             <h2>💧 AguaMagica</h2>
@@ -790,9 +752,6 @@
             localStorage.setItem('aguamagica_tasa', val.toString());
             saveDB();
             document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${val.toFixed(2)} Bs`;
-            alert('✅ Tasa actualizada!');
-        } else {
-            alert('⚠️ Ingresa un valor válido');
         }
     }
 
@@ -853,14 +812,11 @@
                     const lng = position.coords.longitude;
                     const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
                     document.getElementById('deliveryAddressOrder').value = `📍 Ubicación: ${mapsUrl}`;
-                    alert('✅ Ubicación agregada al campo de dirección');
                 },
                 function() {
-                    alert('⚠️ No se pudo obtener la ubicación. Ingresa la dirección manualmente.');
+                    // Silencioso
                 }
             );
-        } else {
-            alert('⚠️ Tu navegador no soporta geolocalización.');
         }
     }
 
@@ -874,11 +830,7 @@
         limpiarCamposPedido();
         document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${getTasaBCV().toFixed(2)} Bs`;
         document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
-        // Limpiar los enlaces
-        document.getElementById('whatsappDirectLink').href = '#';
-        document.getElementById('whatsappDirectLink').style.display = 'none';
-        document.getElementById('emailDirectLink').href = '#';
-        document.getElementById('emailDirectLink').style.display = 'none';
+        actualizarEnlaceWhatsApp();
     }
 
     function limpiarCamposPedido() {
@@ -915,6 +867,7 @@
         } else {
             infoDiv.classList.remove('active');
         }
+        actualizarEnlaceWhatsApp();
     }
 
     function loadProductsOrder() {
@@ -954,36 +907,26 @@
             document.getElementById('montoBs').textContent = `${totalBs.toFixed(2)} Bs`;
             document.getElementById('paidAmount').value = totalBs.toFixed(2);
         }
-        
-        // Actualizar enlaces cuando se cambia el total
-        actualizarEnlaces();
+        actualizarEnlaceWhatsApp();
     }
 
     // =============================================
-    // GENERAR MENSAJE Y ENLACES
+    // GENERAR MENSAJE Y ENLACE WHATSAPP
     // =============================================
     function generarMensaje() {
-        const clientName = document.getElementById('clientNameOrder').value.trim();
-        const clientPhone = document.getElementById('clientPhoneOrder').value.trim();
-        const clientEmail = document.getElementById('clientEmailOrder').value.trim();
+        const clientName = document.getElementById('clientNameOrder').value.trim() || 'Cliente';
+        const clientPhone = document.getElementById('clientPhoneOrder').value.trim() || 'No especificado';
+        const clientEmail = document.getElementById('clientEmailOrder').value.trim() || 'No especificado';
         const segment = document.querySelector('input[name="segment"]:checked')?.value || 'Hogar';
-        const peopleCount = document.getElementById('peopleCountOrder').value;
+        const peopleCount = document.getElementById('peopleCountOrder').value || '1';
         const productSelect = document.getElementById('productSelectOrder');
-        const productName = productSelect.options[productSelect.selectedIndex]?.text || '';
-        const quantity = document.getElementById('quantityOrder').value;
-        const deliveryAddress = document.getElementById('deliveryAddressOrder').value.trim();
-        const deliveryTime = document.getElementById('deliveryTimeOrder').value;
-        const paymentMethod = document.getElementById('paymentMethodOrder').value;
-        const instructions = document.getElementById('instructionsOrder').value.trim();
-        const total = document.getElementById('totalDisplayOrder').textContent;
-
-        // Validaciones
-        if (!clientName) { alert('⚠️ Ingresa tu nombre'); return null; }
-        if (!clientPhone) { alert('⚠️ Ingresa tu teléfono'); return null; }
-        if (!clientEmail) { alert('⚠️ Ingresa tu correo electrónico'); return null; }
-        if (!productSelect.value) { alert('⚠️ Selecciona un producto'); return null; }
-        if (!deliveryAddress) { alert('⚠️ Ingresa la dirección'); return null; }
-        if (!paymentMethod) { alert('⚠️ Selecciona método de pago'); return null; }
+        const productName = productSelect.options[productSelect.selectedIndex]?.text || 'No seleccionado';
+        const quantity = document.getElementById('quantityOrder').value || '0';
+        const deliveryAddress = document.getElementById('deliveryAddressOrder').value.trim() || 'No especificada';
+        const deliveryTime = document.getElementById('deliveryTimeOrder').value || 'No especificada';
+        const paymentMethod = document.getElementById('paymentMethodOrder').value || 'No especificado';
+        const instructions = document.getElementById('instructionsOrder').value.trim() || 'Sin instrucciones';
+        const total = document.getElementById('totalDisplayOrder').textContent || '$0.00';
 
         const hour = new Date().getHours();
         let greeting = '';
@@ -992,7 +935,7 @@
         else greeting = '🌙 Buenas noches';
 
         const price = parseFloat(productSelect.value) || 0;
-        const totalUsd = price * parseInt(quantity);
+        const totalUsd = price * parseInt(quantity) || 0;
         const totalBs = getMontoBs(totalUsd);
 
         let message = `💧 *NUEVO PEDIDO - AGUAMAGICA*
@@ -1043,137 +986,19 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         if (instructions) message += `\n\n📝 *Instrucciones:* ${instructions}`;
         message += `\n\n📸 ${CONFIG.instagramLink}\n\n¡Gracias por confiar en AguaMagica! 🚀`;
 
-        return {
-            message: message,
-            orderData: {
-                clientName, clientPhone, clientEmail, segment,
-                peopleCount: parseInt(peopleCount),
-                product: productName, quantity: parseInt(quantity),
-                total, totalBs: totalBs.toFixed(2),
-                deliveryAddress, deliveryTime, paymentMethod, instructions,
-                paymentDetails: paymentMethod === 'PagoMóvil' ? {
-                    bankIssuer: document.getElementById('bankIssuer').value || '',
-                    reference: document.getElementById('referenceNumber').value || '',
-                    paymentDate: document.getElementById('paymentDate').value || '',
-                    paidAmount: document.getElementById('paidAmount').value || '0'
-                } : null,
-                date: new Date().toISOString(),
-                status: 'generado',
-                nextOrderDays: parseInt(peopleCount) * CONFIG.consumptionRate
-            }
-        };
+        return message;
     }
 
     // =============================================
-    // ACTUALIZAR ENLACES
+    // ACTUALIZAR ENLACE WHATSAPP
     // =============================================
-    function actualizarEnlaces() {
-        const resultado = generarMensaje();
-        if (!resultado) return;
-
-        const { message, orderData } = resultado;
-        
-        // Guardar en DB
-        orderData.message = message;
-        db.orders.push(orderData);
-
-        const existingClient = db.clients.find(c => c.phone === orderData.clientPhone);
-        if (!existingClient) {
-            db.clients.push({
-                name: orderData.clientName,
-                phone: orderData.clientPhone,
-                email: orderData.clientEmail,
-                segment: orderData.segment,
-                peopleCount: orderData.peopleCount,
-                history: [], responses: [],
-                firstOrder: new Date().toISOString(),
-                lastOrder: new Date().toISOString()
-            });
-        } else {
-            existingClient.lastOrder = new Date().toISOString();
-            existingClient.peopleCount = orderData.peopleCount;
-            existingClient.segment = orderData.segment;
-            existingClient.email = orderData.clientEmail;
-        }
-
-        db.responses.push({
-            client: orderData.clientName,
-            phone: orderData.clientPhone,
-            email: orderData.clientEmail,
-            message: message,
-            date: new Date().toISOString(),
-            type: 'pedido',
-            order: orderData
-        });
-
-        saveDB();
-
-        // Crear enlace de WhatsApp
+    function actualizarEnlaceWhatsApp() {
+        const message = generarMensaje();
         const empresaPhone = CONFIG.whatsappNumber;
         const whatsappUrl = `https://wa.me/${empresaPhone}?text=${encodeURIComponent(message)}`;
         
-        // Crear enlace de Email
-        const emailSubject = `Pedido AguaMagica - ${orderData.clientName}`;
-        const emailTo = CONFIG.email;
-        const emailCC = orderData.clientEmail;
-        const emailBody = message.replace(/\*/g, '').replace(/_/g, '');
-        const mailtoLink = `mailto:${emailTo}?cc=${encodeURIComponent(emailCC)}&subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-
-        // Actualizar botones
-        const whatsappBtn = document.getElementById('whatsappDirectLink');
-        whatsappBtn.href = whatsappUrl;
-        whatsappBtn.style.display = 'flex';
-        whatsappBtn.innerHTML = `
-            <i class="fab fa-whatsapp" style="font-size:1.5em;"></i> 
-            📱 ENVIAR PEDIDO POR WHATSAPP (${orderData.clientName})
-        `;
-
-        const emailBtn = document.getElementById('emailDirectLink');
-        emailBtn.href = mailtoLink;
-        emailBtn.style.display = 'flex';
-        emailBtn.innerHTML = `
-            <i class="fas fa-envelope" style="font-size:1.5em;"></i> 
-            📧 ENVIAR PEDIDO POR EMAIL (${orderData.clientName})
-        `;
-
-        // Mostrar mensaje de éxito
-        const mensajeExito = document.createElement('div');
-        mensajeExito.className = 'alert-success';
-        mensajeExito.style.marginTop = '15px';
-        mensajeExito.innerHTML = `
-            ✅ Pedido generado exitosamente para <strong>${orderData.clientName}</strong>
-            <br>Haz clic en el botón verde para enviar a WhatsApp
-            <br>o en el botón rojo para enviar por Email.
-        `;
-        
-        // Remover mensajes anteriores
-        const oldMessages = document.querySelectorAll('.alert-success');
-        oldMessages.forEach(el => el.remove());
-        
-        const container = document.getElementById('orderForm');
-        container.appendChild(mensajeExito);
-
-        // Cerrar pantalla después de 5 segundos
-        setTimeout(() => {
-            closeOrderScreen();
-        }, 8000);
-    }
-
-    // =============================================
-    // FUNCIÓN PRINCIPAL - GENERAR Y ENVIAR
-    // =============================================
-    function generarYEnviar() {
-        const resultado = generarMensaje();
-        if (!resultado) return;
-        
-        // Actualizar enlaces y guardar
-        actualizarEnlaces();
-        
-        // Abrir WhatsApp automáticamente
-        const whatsappBtn = document.getElementById('whatsappDirectLink');
-        if (whatsappBtn.href && whatsappBtn.href !== '#') {
-            window.open(whatsappBtn.href, '_blank');
-        }
+        const link = document.getElementById('whatsappDirectLink');
+        link.href = whatsappUrl;
     }
 
     // =============================================
@@ -1219,7 +1044,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
             return;
         }
         
-        alertDiv.innerHTML = alerts.map((alert, index) => `
+        alertDiv.innerHTML = alerts.map((alert) => `
             <div style="border:1px solid #ff6b6b;border-radius:8px;padding:15px;margin-bottom:10px;background:#fff5f5;">
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
                     <div>
@@ -1309,12 +1134,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
 
     function sendAlerts(method) {
         const alerts = checkRecompraAlerts();
-        if (alerts.length === 0) {
-            alert('✅ No hay alertas pendientes');
-            return;
-        }
-        
-        if (!confirm(`¿Enviar ${alerts.length} alertas por ${method.toUpperCase()}?`)) return;
+        if (alerts.length === 0) return;
         
         alerts.forEach(alert => {
             sendAlertToClient(
@@ -1324,8 +1144,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                 method
             );
         });
-        
-        alert(`✅ ${alerts.length} alertas enviadas por ${method.toUpperCase()}`);
     }
 
     // =============================================
@@ -1420,7 +1238,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         saveDB();
         renderDashboardAds();
         renderAdsManager();
-        alert('✅ Publicidad actualizada!');
     }
 
     function saveOrderAd(index) {
@@ -1432,7 +1249,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         saveDB();
         renderOrderAds();
         renderAdsManager();
-        alert('✅ Publicidad actualizada!');
     }
 
     // =============================================
@@ -1577,9 +1393,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         if (added > 0) {
             saveDB();
             document.getElementById('clientBulkInput').value = '';
-            alert(`✅ ${added} clientes agregados!`);
-        } else {
-            alert('⚠️ Verifica el formato (Nombre, Teléfono, Email, Segmento)');
         }
     }
 
@@ -1645,10 +1458,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                 db.messages.push({ name, content, date: new Date().toISOString() });
                 saveDB();
                 document.getElementById('messageEditor').value = '';
-                alert('✅ Mensaje guardado!');
             }
-        } else {
-            alert('⚠️ Escribe un mensaje');
         }
     }
 
@@ -1672,10 +1482,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
 
     function syncToGitHub() {
         const content = document.getElementById('messageEditor').value;
-        if (!content) {
-            alert('⚠️ Escribe un mensaje');
-            return;
-        }
+        if (!content) return;
         db.messages.push({
             name: `Sync ${new Date().toLocaleString()}`,
             content: content,
@@ -1683,7 +1490,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
             date: new Date().toISOString()
         });
         saveDB();
-        alert(`✅ Mensaje sincronizado con GitHub!\nUsuario: ${CONFIG.githubUser}\nRepositorio: ${CONFIG.repoName}`);
     }
 
     // =============================================
@@ -1691,16 +1497,10 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     // =============================================
     function sendBulkMessage() {
         const selected = document.querySelectorAll('.client-item input[type="checkbox"]:checked');
-        if (selected.length === 0) {
-            alert('⚠️ Selecciona al menos un cliente');
-            return;
-        }
+        if (selected.length === 0) return;
         
         const message = document.getElementById('messageEditor').value;
-        if (!message) {
-            alert('⚠️ Escribe un mensaje');
-            return;
-        }
+        if (!message) return;
 
         const hour = new Date().getHours();
         let greeting = '';
@@ -1708,7 +1508,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
         else greeting = '🌙 Buenas noches';
 
-        let sent = 0;
         selected.forEach(checkbox => {
             const index = Array.from(document.querySelectorAll('.client-item input[type="checkbox"]')).indexOf(checkbox);
             const client = db.clients[index];
@@ -1723,12 +1522,10 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                     date: new Date().toISOString(),
                     type: 'campaign'
                 });
-                sent++;
             }
         });
         
         saveDB();
-        alert(`✅ Mensaje enviado a ${sent} clientes`);
     }
 
     // =============================================
@@ -1742,9 +1539,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
             saveDB();
             document.getElementById('productName').value = '';
             document.getElementById('productPrice').value = '';
-            alert('✅ Producto agregado!');
-        } else {
-            alert('⚠️ Ingresa nombre y precio válido');
         }
     }
 
@@ -1848,20 +1642,11 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     function updateReports() {
         const div = document.getElementById('reportsContent');
         
-        // 1. LISTADO DE CLIENTES
         let clientesHTML = `
             <h4>📋 Listado de Clientes</h4>
             <table class="report-table">
                 <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nombre</th>
-                        <th>Teléfono</th>
-                        <th>Email</th>
-                        <th>Segmento</th>
-                        <th>Integrantes</th>
-                        <th>Pedidos</th>
-                    </tr>
+                    <tr><th>#</th><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Segmento</th><th>Integrantes</th><th>Pedidos</th></tr>
                 </thead>
                 <tbody>
         `;
@@ -1880,27 +1665,13 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                 </tr>
             `;
         });
+        clientesHTML += `</tbody></table><p><strong>Total Clientes:</strong> ${db.clients.length}</p>`;
         
-        clientesHTML += `
-                </tbody>
-            </table>
-            <p><strong>Total Clientes:</strong> ${db.clients.length}</p>
-        `;
-        
-        // 2. REPORTE DE VENTAS
         let ventasHTML = `
             <h4>💰 Reporte de Ventas</h4>
             <table class="report-table">
                 <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Cliente</th>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Total USD</th>
-                        <th>Total Bs</th>
-                        <th>Pago</th>
-                    </tr>
+                    <tr><th>Fecha</th><th>Cliente</th><th>Producto</th><th>Cantidad</th><th>Total USD</th><th>Total Bs</th><th>Pago</th></tr>
                 </thead>
                 <tbody>
         `;
@@ -1927,22 +1698,13 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
             `;
         });
         
-        ventasHTML += `
-                </tbody>
-            </table>
+        ventasHTML += `</tbody></table>
             <div class="report-summary">
-                <div class="report-summary-item">
-                    <div class="label">💰 Total Ventas USD</div>
-                    <div class="value">$${totalUSD.toFixed(2)}</div>
-                </div>
-                <div class="report-summary-item">
-                    <div class="label">💰 Total Ventas Bs</div>
-                    <div class="value">${totalBs.toFixed(2)} Bs</div>
-                </div>
+                <div class="report-summary-item"><div class="label">💰 Total Ventas USD</div><div class="value">$${totalUSD.toFixed(2)}</div></div>
+                <div class="report-summary-item"><div class="label">💰 Total Ventas Bs</div><div class="value">${totalBs.toFixed(2)} Bs</div></div>
             </div>
         `;
         
-        // 3. PRODUCTOS MÁS VENDIDOS
         const productCount = {};
         db.orders.forEach(o => {
             productCount[o.product] = (productCount[o.product] || 0) + parseInt(o.quantity);
@@ -1953,34 +1715,16 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         let productosHTML = `
             <h4>🏆 Productos Más Vendidos</h4>
             <table class="report-table">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Cantidad Vendida</th>
-                        <th>% del Total</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Producto</th><th>Cantidad Vendida</th><th>% del Total</th></tr></thead>
                 <tbody>
         `;
         
         topProducts.forEach(([name, count]) => {
             const percent = totalProductsSold > 0 ? ((count / totalProductsSold) * 100).toFixed(1) : 0;
-            productosHTML += `
-                <tr>
-                    <td>${name}</td>
-                    <td>${count}</td>
-                    <td>${percent}%</td>
-                </tr>
-            `;
+            productosHTML += `<tr><td>${name}</td><td>${count}</td><td>${percent}%</td></tr>`;
         });
+        productosHTML += `</tbody></table><p><strong>Total Productos Vendidos:</strong> ${totalProductsSold} unidades</p>`;
         
-        productosHTML += `
-                </tbody>
-            </table>
-            <p><strong>Total Productos Vendidos:</strong> ${totalProductsSold} unidades</p>
-        `;
-        
-        // 4. TOTAL DE PAGOS POR TIPO
         const paymentMethods = {};
         db.orders.forEach(o => {
             paymentMethods[o.paymentMethod] = (paymentMethods[o.paymentMethod] || 0) + 1;
@@ -1989,78 +1733,38 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         let pagosHTML = `
             <h4>💳 Total de Pagos por Tipo</h4>
             <table class="report-table">
-                <thead>
-                    <tr>
-                        <th>Método de Pago</th>
-                        <th>Cantidad de Pedidos</th>
-                        <th>% del Total</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Método de Pago</th><th>Cantidad de Pedidos</th><th>% del Total</th></tr></thead>
                 <tbody>
         `;
         
         const totalOrders = db.orders.length;
         Object.entries(paymentMethods).forEach(([method, count]) => {
             const percent = totalOrders > 0 ? ((count / totalOrders) * 100).toFixed(1) : 0;
-            pagosHTML += `
-                <tr>
-                    <td>${method}</td>
-                    <td>${count}</td>
-                    <td>${percent}%</td>
-                </tr>
-            `;
+            pagosHTML += `<tr><td>${method}</td><td>${count}</td><td>${percent}%</td></tr>`;
         });
+        pagosHTML += `</tbody></table>`;
         
-        pagosHTML += `
-                </tbody>
-            </table>
-        `;
-        
-        // 5. TOTAL GENERAL
         const totalGeneralHTML = `
             <div style="background:#e3f2fd;padding:20px;border-radius:8px;margin-top:20px;">
                 <h4>📊 Total General</h4>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-top:10px;">
-                    <div style="text-align:center;">
-                        <div style="font-size:0.85em;color:#666;">Total Clientes</div>
-                        <div style="font-size:1.8em;font-weight:bold;color:#0d47a1;">${db.clients.length}</div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div style="font-size:0.85em;color:#666;">Total Pedidos</div>
-                        <div style="font-size:1.8em;font-weight:bold;color:#0d47a1;">${db.orders.length}</div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div style="font-size:0.85em;color:#666;">Total Ventas USD</div>
-                        <div style="font-size:1.8em;font-weight:bold;color:#0d47a1;">$${totalUSD.toFixed(2)}</div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div style="font-size:0.85em;color:#666;">Total Ventas Bs</div>
-                        <div style="font-size:1.8em;font-weight:bold;color:#0d47a1;">${totalBs.toFixed(2)} Bs</div>
-                    </div>
-                    <div style="text-align:center;">
-                        <div style="font-size:0.85em;color:#666;">Productos Vendidos</div>
-                        <div style="font-size:1.8em;font-weight:bold;color:#0d47a1;">${totalProductsSold}</div>
-                    </div>
+                    <div style="text-align:center;"><div style="font-size:0.85em;color:#666;">Total Clientes</div><div style="font-size:1.8em;font-weight:bold;color:#0d47a1;">${db.clients.length}</div></div>
+                    <div style="text-align:center;"><div style="font-size:0.85em;color:#666;">Total Pedidos</div><div style="font-size:1.8em;font-weight:bold;color:#0d47a1;">${db.orders.length}</div></div>
+                    <div style="text-align:center;"><div style="font-size:0.85em;color:#666;">Total Ventas USD</div><div style="font-size:1.8em;font-weight:bold;color:#0d47a1;">$${totalUSD.toFixed(2)}</div></div>
+                    <div style="text-align:center;"><div style="font-size:0.85em;color:#666;">Total Ventas Bs</div><div style="font-size:1.8em;font-weight:bold;color:#0d47a1;">${totalBs.toFixed(2)} Bs</div></div>
+                    <div style="text-align:center;"><div style="font-size:0.85em;color:#666;">Productos Vendidos</div><div style="font-size:1.8em;font-weight:bold;color:#0d47a1;">${totalProductsSold}</div></div>
                 </div>
             </div>
         `;
         
         div.innerHTML = `
-            <div style="margin-bottom:20px;">
-                ${clientesHTML}
-            </div>
+            <div style="margin-bottom:20px;">${clientesHTML}</div>
             <hr style="margin:20px 0;border:1px solid #eee;">
-            <div style="margin-bottom:20px;">
-                ${ventasHTML}
-            </div>
+            <div style="margin-bottom:20px;">${ventasHTML}</div>
             <hr style="margin:20px 0;border:1px solid #eee;">
-            <div style="margin-bottom:20px;">
-                ${productosHTML}
-            </div>
+            <div style="margin-bottom:20px;">${productosHTML}</div>
             <hr style="margin:20px 0;border:1px solid #eee;">
-            <div style="margin-bottom:20px;">
-                ${pagosHTML}
-            </div>
+            <div style="margin-bottom:20px;">${pagosHTML}</div>
             ${totalGeneralHTML}
         `;
     }
@@ -2083,14 +1787,12 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         const link = document.getElementById('shortLink');
         link.select();
         document.execCommand('copy');
-        alert('✅ Link copiado!');
     }
 
     function copyOrderLink() {
         const link = document.getElementById('orderLink');
         link.select();
         document.execCommand('copy');
-        alert('✅ Link copiado!');
     }
 
     // =============================================
@@ -2130,11 +1832,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     // =============================================
     // INICIALIZACIÓN
     // =============================================
-    console.log('💧 AguaMagica v7.0 - Envío Directo a WhatsApp');
-    console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
-    console.log('📧 Email:', CONFIG.email);
-    console.log('🔑 Contraseña:', CONFIG.password);
-
     if (window.location.search.includes('pedido')) {
         document.querySelector('.login-box h3').textContent = '🔑 Ingresa para hacer tu pedido';
     }
@@ -2145,7 +1842,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         }
     }, 30000);
 
-    // Al cargar la página de pedidos, actualizar enlaces cuando cambien los campos
+    // Actualizar enlace de WhatsApp cuando cambia cualquier campo
     document.addEventListener('DOMContentLoaded', function() {
         const campos = ['clientNameOrder', 'clientPhoneOrder', 'clientEmailOrder', 'peopleCountOrder', 
                        'productSelectOrder', 'quantityOrder', 'deliveryAddressOrder', 'deliveryTimeOrder',
@@ -2154,8 +1851,8 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         campos.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
-                el.addEventListener('change', actualizarEnlaces);
-                el.addEventListener('keyup', actualizarEnlaces);
+                el.addEventListener('change', actualizarEnlaceWhatsApp);
+                el.addEventListener('keyup', actualizarEnlaceWhatsApp);
             }
         });
     });
