@@ -210,6 +210,44 @@
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
         }
 
+        /* Botones de envío mejorados */
+        .btn-envio-whatsapp {
+            background: #25D366; color: white; padding: 15px 20px;
+            border: none; border-radius: 8px; font-size: 1.1em;
+            cursor: pointer; width: 100%; margin-top: 10px;
+            transition: 0.3s; display: flex; align-items: center;
+            justify-content: center; gap: 10px;
+        }
+        .btn-envio-whatsapp:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-envio-email {
+            background: #D44638; color: white; padding: 15px 20px;
+            border: none; border-radius: 8px; font-size: 1.1em;
+            cursor: pointer; width: 100%; margin-top: 10px;
+            transition: 0.3s; display: flex; align-items: center;
+            justify-content: center; gap: 10px;
+        }
+        .btn-envio-email:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-copiar {
+            background: #0d47a1; color: white; padding: 15px 20px;
+            border: none; border-radius: 8px; font-size: 1.1em;
+            cursor: pointer; width: 100%; margin-top: 10px;
+            transition: 0.3s; display: flex; align-items: center;
+            justify-content: center; gap: 10px;
+        }
+        .btn-copiar:hover { opacity: 0.9; transform: scale(1.02); }
+
+        .mensaje-preview {
+            background: #f5f5f5; padding: 15px; border-radius: 8px;
+            margin: 15px 0; max-height: 200px; overflow-y: auto;
+            white-space: pre-wrap; font-family: monospace; font-size: 0.9em;
+            border: 1px solid #ddd;
+        }
+
+        .alert-success {
+            background: #d4edda; color: #155724; padding: 15px;
+            border-radius: 8px; margin: 10px 0; border: 1px solid #c3e6cb;
+        }
+
         /* Ads en pedido */
         .order-ads {
             display: grid; grid-template-columns: 1fr 1fr 1fr;
@@ -269,21 +307,6 @@
         }
         .report-summary-item .label { font-size: 0.85em; color: #666; }
         .report-summary-item .value { font-size: 1.5em; font-weight: bold; color: #0d47a1; }
-
-        .btn-whatsapp-envio {
-            background: #25D366; color: white; padding: 15px;
-            border: none; border-radius: 8px; font-size: 1.1em;
-            cursor: pointer; width: 100%; margin-top: 10px;
-            transition: 0.3s;
-        }
-        .btn-whatsapp-envio:hover { opacity: 0.9; transform: scale(1.02); }
-        .btn-email-envio {
-            background: #D44638; color: white; padding: 15px;
-            border: none; border-radius: 8px; font-size: 1.1em;
-            cursor: pointer; width: 100%; margin-top: 10px;
-            transition: 0.3s;
-        }
-        .btn-email-envio:hover { opacity: 0.9; transform: scale(1.02); }
 
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: auto; position: relative; }
@@ -346,7 +369,7 @@
                 <div class="form-group">
                     <label>Correo Electrónico <span class="required">*</span></label>
                     <input type="email" id="clientEmailOrder" placeholder="Ej: cliente@email.com" required>
-                    <div class="help-text">📧 Para enviar comprobante y conciliación de pagos</div>
+                    <div class="help-text">📧 Para conciliación de pagos</div>
                 </div>
 
                 <div class="form-group">
@@ -465,12 +488,31 @@
 
                 <div class="total-display" id="totalDisplayOrder">Total: $0.00</div>
 
-                <button class="btn-whatsapp-envio" onclick="sendOrderWhatsApp()">
-                    <i class="fab fa-whatsapp"></i> Enviar Pedido por WhatsApp
+                <!-- Preview del mensaje -->
+                <div id="mensajePreviewContainer" style="display:none;">
+                    <h4>📋 Vista previa del mensaje:</h4>
+                    <div class="mensaje-preview" id="mensajePreview"></div>
+                </div>
+
+                <!-- Botones de envío - NUEVA ESTRATEGIA -->
+                <button class="btn-envio-whatsapp" onclick="generarYEnviarWhatsApp()">
+                    <i class="fab fa-whatsapp" style="font-size:1.5em;"></i> 
+                    <span>📱 Generar y Enviar por WhatsApp</span>
                 </button>
-                <button class="btn-email-envio" onclick="sendOrderEmail()">
-                    <i class="fas fa-envelope"></i> Enviar Pedido por Email
+
+                <button class="btn-copiar" onclick="generarYCopiarMensaje()">
+                    <i class="fas fa-copy" style="font-size:1.5em;"></i> 
+                    <span>📋 Copiar Mensaje (Pégalo donde quieras)</span>
                 </button>
+
+                <button class="btn-envio-email" onclick="generarYEnviarEmail()">
+                    <i class="fas fa-envelope" style="font-size:1.5em;"></i> 
+                    <span>📧 Generar y Enviar por Email</span>
+                </button>
+
+                <div id="mensajeExito" style="display:none;" class="alert-success">
+                    ✅ Mensaje generado exitosamente. Haz clic en el botón correspondiente para enviarlo.
+                </div>
             </div>
 
             <div style="text-align:center;margin-top:20px;">
@@ -841,6 +883,8 @@
         limpiarCamposPedido();
         document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${getTasaBCV().toFixed(2)} Bs`;
         document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('mensajePreviewContainer').style.display = 'none';
+        document.getElementById('mensajeExito').style.display = 'none';
     }
 
     function limpiarCamposPedido() {
@@ -919,9 +963,9 @@
     }
 
     // =============================================
-    // ENVIAR PEDIDO POR WHATSAPP - CORREGIDO
+    // FUNCIÓN PARA GENERAR MENSAJE
     // =============================================
-    function sendOrderWhatsApp() {
+    function generarMensaje() {
         const clientName = document.getElementById('clientNameOrder').value.trim();
         const clientPhone = document.getElementById('clientPhoneOrder').value.trim();
         const clientEmail = document.getElementById('clientEmailOrder').value.trim();
@@ -937,12 +981,12 @@
         const total = document.getElementById('totalDisplayOrder').textContent;
 
         // Validaciones
-        if (!clientName) { alert('⚠️ Ingresa tu nombre'); return; }
-        if (!clientPhone) { alert('⚠️ Ingresa tu teléfono'); return; }
-        if (!clientEmail) { alert('⚠️ Ingresa tu correo electrónico'); return; }
-        if (!productSelect.value) { alert('⚠️ Selecciona un producto'); return; }
-        if (!deliveryAddress) { alert('⚠️ Ingresa la dirección'); return; }
-        if (!paymentMethod) { alert('⚠️ Selecciona método de pago'); return; }
+        if (!clientName) { alert('⚠️ Ingresa tu nombre'); return null; }
+        if (!clientPhone) { alert('⚠️ Ingresa tu teléfono'); return null; }
+        if (!clientEmail) { alert('⚠️ Ingresa tu correo electrónico'); return null; }
+        if (!productSelect.value) { alert('⚠️ Selecciona un producto'); return null; }
+        if (!deliveryAddress) { alert('⚠️ Ingresa la dirección'); return null; }
+        if (!paymentMethod) { alert('⚠️ Selecciona método de pago'); return null; }
 
         const hour = new Date().getHours();
         let greeting = '';
@@ -1002,230 +1046,222 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         if (instructions) message += `\n\n📝 *Instrucciones:* ${instructions}`;
         message += `\n\n📸 ${CONFIG.instagramLink}\n\n¡Gracias por confiar en AguaMagica! 🚀`;
 
-        // Guardar en base de datos
-        const orderData = {
-            clientName, clientPhone, clientEmail, segment,
-            peopleCount: parseInt(peopleCount),
-            product: productName, quantity: parseInt(quantity),
-            total, totalBs: totalBs.toFixed(2),
-            deliveryAddress, deliveryTime, paymentMethod, instructions,
-            paymentDetails: paymentMethod === 'PagoMóvil' ? {
-                bankIssuer: document.getElementById('bankIssuer').value || '',
-                reference: document.getElementById('referenceNumber').value || '',
-                paymentDate: document.getElementById('paymentDate').value || '',
-                paidAmount: document.getElementById('paidAmount').value || '0'
-            } : null,
-            date: new Date().toISOString(),
-            status: 'enviado',
-            nextOrderDays: parseInt(peopleCount) * CONFIG.consumptionRate
-        };
-
-        db.orders.push(orderData);
-
-        const existingClient = db.clients.find(c => c.phone === clientPhone);
-        if (!existingClient) {
-            db.clients.push({
-                name: clientName, phone: clientPhone, email: clientEmail,
-                segment, peopleCount: parseInt(peopleCount),
-                history: [], responses: [],
-                firstOrder: new Date().toISOString(),
-                lastOrder: new Date().toISOString()
-            });
-        } else {
-            existingClient.lastOrder = new Date().toISOString();
-            existingClient.peopleCount = parseInt(peopleCount);
-            existingClient.segment = segment;
-            existingClient.email = clientEmail;
-        }
-
-        db.responses.push({
-            client: clientName, phone: clientPhone, email: clientEmail,
-            message, date: new Date().toISOString(),
-            type: 'pedido', order: orderData
-        });
-
-        saveDB();
-
-        // =============================================
-        // ABRIR WHATSAPP - CORREGIDO
-        // =============================================
-        const empresaPhone = CONFIG.whatsappNumber;
-        const whatsappUrl = `https://wa.me/${empresaPhone}?text=${encodeURIComponent(message)}`;
-        
-        // Intentar abrir con window.open
-        const newWindow = window.open(whatsappUrl, '_blank');
-        
-        // Si es bloqueado, usar window.location
-        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-            // Mostrar mensaje y redirigir
-            if (confirm('⚠️ El navegador bloqueó la apertura de WhatsApp.\n¿Quieres abrirlo en la misma ventana?')) {
-                window.location.href = whatsappUrl;
-            } else {
-                // Copiar al portapapeles como respaldo
-                navigator.clipboard.writeText(message).then(() => {
-                    alert('✅ Mensaje copiado al portapapeles. Pégalo en WhatsApp.');
-                }).catch(() => {
-                    alert('❌ No se pudo abrir WhatsApp. Por favor, copia el mensaje manualmente.');
-                    console.log('Mensaje:', message);
-                });
+        return {
+            message: message,
+            orderData: {
+                clientName, clientPhone, clientEmail, segment,
+                peopleCount: parseInt(peopleCount),
+                product: productName, quantity: parseInt(quantity),
+                total, totalBs: totalBs.toFixed(2),
+                deliveryAddress, deliveryTime, paymentMethod, instructions,
+                paymentDetails: paymentMethod === 'PagoMóvil' ? {
+                    bankIssuer: document.getElementById('bankIssuer').value || '',
+                    reference: document.getElementById('referenceNumber').value || '',
+                    paymentDate: document.getElementById('paymentDate').value || '',
+                    paidAmount: document.getElementById('paidAmount').value || '0'
+                } : null,
+                date: new Date().toISOString(),
+                status: 'generado',
+                nextOrderDays: parseInt(peopleCount) * CONFIG.consumptionRate
             }
-        }
-        
-        closeOrderScreen();
-        
-        setTimeout(() => {
-            alert(`✅ Pedido enviado por WhatsApp!\n\n${greeting} ${clientName.split(' ')[0]}, gracias por tu pedido.`);
-        }, 500);
+        };
     }
 
     // =============================================
-    // ENVIAR PEDIDO POR EMAIL - CORREGIDO
+    // GUARDAR PEDIDO EN DB
     // =============================================
-    function sendOrderEmail() {
-        const clientName = document.getElementById('clientNameOrder').value.trim();
-        const clientPhone = document.getElementById('clientPhoneOrder').value.trim();
-        const clientEmail = document.getElementById('clientEmailOrder').value.trim();
-        const segment = document.querySelector('input[name="segment"]:checked')?.value || 'Hogar';
-        const peopleCount = document.getElementById('peopleCountOrder').value;
-        const productSelect = document.getElementById('productSelectOrder');
-        const productName = productSelect.options[productSelect.selectedIndex]?.text || '';
-        const quantity = document.getElementById('quantityOrder').value;
-        const deliveryAddress = document.getElementById('deliveryAddressOrder').value.trim();
-        const deliveryTime = document.getElementById('deliveryTimeOrder').value;
-        const paymentMethod = document.getElementById('paymentMethodOrder').value;
-        const instructions = document.getElementById('instructionsOrder').value.trim();
-        const total = document.getElementById('totalDisplayOrder').textContent;
-
-        // Validaciones
-        if (!clientName) { alert('⚠️ Ingresa tu nombre'); return; }
-        if (!clientPhone) { alert('⚠️ Ingresa tu teléfono'); return; }
-        if (!clientEmail) { alert('⚠️ Ingresa tu correo electrónico'); return; }
-        if (!productSelect.value) { alert('⚠️ Selecciona un producto'); return; }
-        if (!deliveryAddress) { alert('⚠️ Ingresa la dirección'); return; }
-        if (!paymentMethod) { alert('⚠️ Selecciona método de pago'); return; }
-
-        const price = parseFloat(productSelect.value) || 0;
-        const totalUsd = price * parseInt(quantity);
-        const totalBs = getMontoBs(totalUsd);
-
-        let emailBody = `NUEVO PEDIDO - AGUAMAGICA
-
-Cliente: ${clientName}
-Teléfono: ${clientPhone}
-Email: ${clientEmail}
-Segmento: ${segment}
-Integrantes: ${peopleCount} personas
-
-Producto: ${productName}
-Cantidad: ${quantity} botellones
-Total: ${total} (${totalBs.toFixed(2)} Bs)
-
-Dirección: ${deliveryAddress}
-Hora: ${deliveryTime}
-Pago: ${paymentMethod}`;
-
-        if (paymentMethod === 'PagoMóvil') {
-            const bankIssuer = document.getElementById('bankIssuer').value || 'No especificado';
-            const reference = document.getElementById('referenceNumber').value || 'No especificado';
-            const paymentDate = document.getElementById('paymentDate').value || 'No especificado';
-            const paidAmount = document.getElementById('paidAmount').value || '0';
-            
-            emailBody += `
-
-Detalles PagoMóvil:
-Banco Emisor: ${bankIssuer}
-Referencia: ${reference}
-Fecha: ${paymentDate}
-Monto Pagado: ${paidAmount} Bs
-
-Datos de la Empresa:
-Banco: ${CONFIG.paymentInfo.banco}
-C.I.: ${CONFIG.paymentInfo.ci}
-Teléfono: ${CONFIG.paymentInfo.telefono}`;
-        }
-
-        if (instructions) {
-            emailBody += `\n\nInstrucciones: ${instructions}`;
-        }
-        emailBody += `\n\n📸 ${CONFIG.instagramLink}`;
-
-        // Guardar en base de datos
-        const orderData = {
-            clientName, clientPhone, clientEmail, segment,
-            peopleCount: parseInt(peopleCount),
-            product: productName, quantity: parseInt(quantity),
-            total, totalBs: totalBs.toFixed(2),
-            deliveryAddress, deliveryTime, paymentMethod, instructions,
-            paymentDetails: paymentMethod === 'PagoMóvil' ? {
-                bankIssuer: document.getElementById('bankIssuer').value || '',
-                reference: document.getElementById('referenceNumber').value || '',
-                paymentDate: document.getElementById('paymentDate').value || '',
-                paidAmount: document.getElementById('paidAmount').value || '0'
-            } : null,
-            date: new Date().toISOString(),
-            status: 'enviado_email',
-            nextOrderDays: parseInt(peopleCount) * CONFIG.consumptionRate
-        };
-
+    function guardarPedido(orderData) {
         db.orders.push(orderData);
 
-        const existingClient = db.clients.find(c => c.phone === clientPhone);
+        const existingClient = db.clients.find(c => c.phone === orderData.clientPhone);
         if (!existingClient) {
             db.clients.push({
-                name: clientName, phone: clientPhone, email: clientEmail,
-                segment, peopleCount: parseInt(peopleCount),
+                name: orderData.clientName,
+                phone: orderData.clientPhone,
+                email: orderData.clientEmail,
+                segment: orderData.segment,
+                peopleCount: orderData.peopleCount,
                 history: [], responses: [],
                 firstOrder: new Date().toISOString(),
                 lastOrder: new Date().toISOString()
             });
         } else {
             existingClient.lastOrder = new Date().toISOString();
-            existingClient.peopleCount = parseInt(peopleCount);
-            existingClient.segment = segment;
-            existingClient.email = clientEmail;
+            existingClient.peopleCount = orderData.peopleCount;
+            existingClient.segment = orderData.segment;
+            existingClient.email = orderData.clientEmail;
         }
 
         db.responses.push({
-            client: clientName, phone: clientPhone, email: clientEmail,
-            message: emailBody, date: new Date().toISOString(),
-            type: 'pedido_email', order: orderData
+            client: orderData.clientName,
+            phone: orderData.clientPhone,
+            email: orderData.clientEmail,
+            message: orderData.message || '',
+            date: new Date().toISOString(),
+            type: 'pedido',
+            order: orderData
         });
 
         saveDB();
+    }
 
-        // =============================================
-        // ABRIR EMAIL - CORREGIDO
-        // =============================================
-        const emailSubject = `Pedido AguaMagica - ${clientName}`;
+    // =============================================
+    // GENERAR Y ENVIAR POR WHATSAPP - NUEVA ESTRATEGIA
+    // =============================================
+    function generarYEnviarWhatsApp() {
+        const resultado = generarMensaje();
+        if (!resultado) return;
+
+        const { message, orderData } = resultado;
+        orderData.message = message;
+        orderData.status = 'enviado_whatsapp';
+        guardarPedido(orderData);
+
+        // Mostrar preview
+        document.getElementById('mensajePreview').textContent = message;
+        document.getElementById('mensajePreviewContainer').style.display = 'block';
+        document.getElementById('mensajeExito').style.display = 'block';
+
+        // Crear un enlace directo que el usuario puede hacer clic
+        const empresaPhone = CONFIG.whatsappNumber;
+        const whatsappUrl = `https://wa.me/${empresaPhone}?text=${encodeURIComponent(message)}`;
+        
+        // Mostrar el enlace en un botón que el usuario puede hacer clic manualmente
+        const confirmar = confirm(
+            '✅ Mensaje generado exitosamente.\n\n' +
+            'Haz clic en "Aceptar" para abrir WhatsApp y enviar el mensaje.\n' +
+            'Si no se abre, copia el mensaje manualmente.'
+        );
+
+        if (confirmar) {
+            // Intentar abrir
+            const ventana = window.open(whatsappUrl, '_blank');
+            if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
+                // Si falla, mostrar el enlace para copiar manualmente
+                alert(
+                    '⚠️ No se pudo abrir WhatsApp automáticamente.\n\n' +
+                    'Copia este enlace y pégalo en tu navegador:\n' +
+                    whatsappUrl + '\n\n' +
+                    'O copia el mensaje y pégalo manualmente en WhatsApp.'
+                );
+                // Copiar al portapapeles
+                copiarAlPortapapeles(message);
+            }
+        } else {
+            // Si el usuario cancela, copiar al portapapeles
+            copiarAlPortapapeles(message);
+            alert('📋 Mensaje copiado al portapapeles. Pégalo donde quieras.');
+        }
+
+        closeOrderScreen();
+    }
+
+    // =============================================
+    // GENERAR Y COPIAR MENSAJE
+    // =============================================
+    function generarYCopiarMensaje() {
+        const resultado = generarMensaje();
+        if (!resultado) return;
+
+        const { message, orderData } = resultado;
+        orderData.message = message;
+        orderData.status = 'copiado';
+        guardarPedido(orderData);
+
+        // Mostrar preview
+        document.getElementById('mensajePreview').textContent = message;
+        document.getElementById('mensajePreviewContainer').style.display = 'block';
+        document.getElementById('mensajeExito').style.display = 'block';
+
+        copiarAlPortapapeles(message);
+        alert('📋 Mensaje copiado al portapapeles exitosamente!\n\nPégalo donde quieras (WhatsApp, Email, SMS, etc.)');
+        
+        closeOrderScreen();
+    }
+
+    // =============================================
+    // GENERAR Y ENVIAR POR EMAIL - NUEVA ESTRATEGIA
+    // =============================================
+    function generarYEnviarEmail() {
+        const resultado = generarMensaje();
+        if (!resultado) return;
+
+        const { message, orderData } = resultado;
+        orderData.message = message;
+        orderData.status = 'enviado_email';
+        guardarPedido(orderData);
+
+        // Mostrar preview
+        document.getElementById('mensajePreview').textContent = message;
+        document.getElementById('mensajePreviewContainer').style.display = 'block';
+        document.getElementById('mensajeExito').style.display = 'block';
+
+        const emailSubject = `Pedido AguaMagica - ${orderData.clientName}`;
         const emailTo = CONFIG.email;
-        const emailCC = clientEmail;
+        const emailCC = orderData.clientEmail;
+        
+        // Crear el cuerpo del email en texto plano (sin markdown)
+        const emailBody = message.replace(/\*/g, '').replace(/_/g, '');
         
         const mailtoLink = `mailto:${emailTo}?cc=${encodeURIComponent(emailCC)}&subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
         
-        // Intentar abrir con window.open
-        const newWindow = window.open(mailtoLink, '_blank');
-        
-        // Si es bloqueado, usar window.location
-        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-            if (confirm('⚠️ El navegador bloqueó la apertura del email.\n¿Quieres abrirlo en la misma ventana?')) {
-                window.location.href = mailtoLink;
-            } else {
-                // Copiar al portapapeles como respaldo
+        const confirmar = confirm(
+            '✅ Mensaje generado exitosamente.\n\n' +
+            'Haz clic en "Aceptar" para abrir tu cliente de email.\n' +
+            'Si no se abre, copia el mensaje manualmente.'
+        );
+
+        if (confirmar) {
+            const ventana = window.open(mailtoLink, '_blank');
+            if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
+                // Si falla, copiar al portapapeles
                 const emailContent = `Para: ${emailTo}\nCC: ${emailCC}\nAsunto: ${emailSubject}\n\n${emailBody}`;
-                navigator.clipboard.writeText(emailContent).then(() => {
-                    alert('✅ Contenido del email copiado al portapapeles.');
-                }).catch(() => {
-                    alert('❌ No se pudo abrir el email. Por favor, copia el mensaje manualmente.');
-                    console.log('Email:', emailContent);
-                });
+                copiarAlPortapapeles(emailContent);
+                alert(
+                    '⚠️ No se pudo abrir el email automáticamente.\n\n' +
+                    'El contenido del email ha sido copiado al portapapeles.\n' +
+                    'Pégalo en tu cliente de email.'
+                );
             }
+        } else {
+            // Copiar al portapapeles
+            const emailContent = `Para: ${emailTo}\nCC: ${emailCC}\nAsunto: ${emailSubject}\n\n${emailBody}`;
+            copiarAlPortapapeles(emailContent);
+            alert('📋 Contenido del email copiado al portapapeles.');
         }
-        
+
         closeOrderScreen();
-        
-        setTimeout(() => {
-            alert(`✅ Pedido enviado por Email!\n\nSe ha enviado a ${CONFIG.email}\nCopia a: ${clientEmail}`);
-        }, 500);
+    }
+
+    // =============================================
+    // COPIAR AL PORTAPAPELES
+    // =============================================
+    function copiarAlPortapapeles(texto) {
+        // Usar el API moderno de clipboard
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(texto).catch(function() {
+                // Fallback
+                copiarTextoFallback(texto);
+            });
+        } else {
+            // Fallback para navegadores antiguos
+            copiarTextoFallback(texto);
+        }
+    }
+
+    function copiarTextoFallback(texto) {
+        const textarea = document.createElement('textarea');
+        textarea.value = texto;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+        } catch (e) {
+            console.error('Error al copiar:', e);
+        }
+        document.body.removeChild(textarea);
     }
 
     // =============================================
@@ -1349,7 +1385,11 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
                 break;
         }
         
-        window.open(url, '_blank');
+        const ventana = window.open(url, '_blank');
+        if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
+            copiarAlPortapapeles(message);
+            alert('📋 Mensaje copiado al portapapeles. Pégalo manualmente.');
+        }
         
         db.responses.push({
             client: name, phone: phone,
@@ -1585,19 +1625,31 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
     }
 
     function openWhatsApp(phone) {
-        window.open(`https://wa.me/${phone}`, '_blank');
+        const ventana = window.open(`https://wa.me/${phone}`, '_blank');
+        if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
+            alert('⚠️ No se pudo abrir WhatsApp. Abre la app manualmente.');
+        }
     }
 
     function callClient(phone) {
-        window.open(`tel:${phone}`, '_blank');
+        const ventana = window.open(`tel:${phone}`, '_blank');
+        if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
+            alert('⚠️ No se pudo realizar la llamada. Marca manualmente.');
+        }
     }
 
     function smsClient(phone) {
-        window.open(`sms:${phone}`, '_blank');
+        const ventana = window.open(`sms:${phone}`, '_blank');
+        if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
+            alert('⚠️ No se pudo abrir SMS. Abre la app manualmente.');
+        }
     }
 
     function emailClient(email) {
-        window.open(`mailto:${email}`, '_blank');
+        const ventana = window.open(`mailto:${email}`, '_blank');
+        if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
+            alert('⚠️ No se pudo abrir el email. Abre tu cliente de email manualmente.');
+        }
     }
 
     function addBulkClients() {
@@ -1765,7 +1817,10 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
             if (client) {
                 const fullMessage = `${greeting} *${client.name}*,\n\n${message}`;
                 const url = `https://wa.me/${client.phone}?text=${encodeURIComponent(fullMessage)}`;
-                window.open(url, '_blank');
+                const ventana = window.open(url, '_blank');
+                if (!ventana || ventana.closed || typeof ventana.closed === 'undefined') {
+                    copiarAlPortapapeles(fullMessage);
+                }
                 db.responses.push({
                     client: client.name, phone: client.phone,
                     email: client.email || '',
@@ -2180,7 +2235,7 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
     // =============================================
     // INICIALIZACIÓN
     // =============================================
-    console.log('💧 AguaMagica v5.0');
+    console.log('💧 AguaMagica v6.0 - Nueva estrategia de envío');
     console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
     console.log('📧 Email:', CONFIG.email);
     console.log('🔑 Contraseña:', CONFIG.password);
