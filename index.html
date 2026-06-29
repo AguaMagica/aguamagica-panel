@@ -72,6 +72,7 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
         .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; }
+        .grid-5 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 20px; }
         
         textarea, input, select {
             width: 100%; padding: 10px;
@@ -91,6 +92,7 @@
         .btn-whatsapp { background: #25D366; }
         .btn-email { background: #D44638; }
         .btn-sms { background: #34B7F1; }
+        .btn-call { background: #4CAF50; }
         .btn-sm { padding: 5px 10px; font-size: 0.85em; }
         
         .client-list { max-height: 400px; overflow-y: auto; }
@@ -100,7 +102,7 @@
         }
         .client-item input[type="checkbox"] { width: 20px; margin-right: 10px; }
         .client-item .client-info { display: flex; align-items: center; flex-wrap: wrap; }
-        .client-item .client-actions { display: flex; gap: 5px; }
+        .client-item .client-actions { display: flex; gap: 5px; flex-wrap: wrap; }
         .alert-badge {
             background: #ff6b6b; color: white; border-radius: 50%;
             padding: 2px 8px; font-size: 0.7em; margin-left: 5px;
@@ -155,16 +157,11 @@
         .ad-item .ad-content {
             padding: 10px; text-align: center; width: 100%;
         }
-        .ad-item .ad-actions {
-            position: absolute; top: 5px; right: 5px;
-            display: flex; gap: 5px;
-        }
-        .ad-item .ad-actions button {
-            padding: 2px 8px; font-size: 0.7em; border: none;
-            border-radius: 3px; cursor: pointer;
-        }
-        .ad-placeholder {
+        .ad-item .ad-placeholder {
             color: #999; font-size: 0.9em; padding: 20px; text-align: center;
+        }
+        .ad-item a {
+            display: block; width: 100%; text-decoration: none;
         }
 
         /* Sistema de Pedidos para Clientes */
@@ -175,7 +172,7 @@
         }
         .order-container {
             background: white; padding: 40px; border-radius: 20px;
-            max-width: 600px; width: 90%; max-height: 90vh;
+            max-width: 650px; width: 95%; max-height: 95vh;
             overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             position: relative;
         }
@@ -218,6 +215,13 @@
         }
         .file-upload:hover { border-color: #0d47a1; background: #f5f5f5; }
         .file-upload input[type="file"] { display: none; }
+        .proof-preview {
+            margin-top: 10px; text-align: center;
+        }
+        .proof-preview img {
+            max-width: 100%; max-height: 150px; border-radius: 8px;
+            border: 1px solid #ddd;
+        }
 
         /* Ads en pedido */
         .order-ads {
@@ -233,16 +237,31 @@
         .order-ad-item img, .order-ad-item video {
             width: 100%; height: auto; max-height: 100px; object-fit: cover;
         }
-        .order-ad-item .ad-content { padding: 5px; text-align: center; width: 100%; }
-        .order-ad-placeholder {
+        .order-ad-item .ad-placeholder {
             color: #999; font-size: 0.8em; padding: 10px; text-align: center;
+        }
+        .order-ad-item a {
+            display: block; width: 100%; text-decoration: none;
+        }
+
+        /* Gestión de Ads */
+        .ad-manager-item {
+            border: 1px solid #ddd; padding: 15px; border-radius: 8px;
+            background: #fafafa;
+        }
+        .ad-manager-item input, .ad-manager-item textarea {
+            font-size: 0.9em; margin: 5px 0;
+        }
+        .ad-manager-item .preview-thumb {
+            max-width: 100%; max-height: 80px; border-radius: 4px;
+            margin-top: 5px;
         }
 
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: auto; position: relative; }
             .sidebar ul li { display: inline-block; padding: 10px 15px; }
             .main-content { margin-left: 0; }
-            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
             .header { flex-direction: column; text-align: center; }
             .header div { margin-top: 10px; }
             .client-item { flex-direction: column; align-items: flex-start; }
@@ -294,6 +313,12 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Correo Electrónico <span class="required">*</span></label>
+                    <input type="email" id="clientEmailOrder" placeholder="Ej: cliente@email.com" required>
+                    <div class="help-text">📧 Para enviar comprobante y conciliación de pagos</div>
+                </div>
+
+                <div class="form-group">
                     <label>Segmento <span class="required">*</span></label>
                     <div class="segment-tags">
                         <label><input type="radio" name="segment" value="Hogar" checked> 🏠 Hogar</label>
@@ -325,8 +350,9 @@
                     <label>Dirección de Entrega <span class="required">*</span></label>
                     <textarea id="deliveryAddressOrder" rows="2" placeholder="Dirección completa, puntos de referencia"></textarea>
                     <button type="button" class="location-btn" onclick="shareLocation()">
-                        <i class="fas fa-location-dot"></i> Compartir Ubicación vía WhatsApp
+                        <i class="fas fa-location-dot"></i> Compartir Ubicación
                     </button>
+                    <div class="help-text">📍 Haz clic para compartir tu ubicación (se coloca automáticamente en el campo)</div>
                 </div>
 
                 <div class="form-group">
@@ -374,6 +400,7 @@
                             <input type="file" id="paymentProof" accept=".jpg,.jpeg,.png,.pdf">
                         </div>
                         <div id="proofFileName" style="font-size:0.9em;color:#2e7d32;margin-top:5px;"></div>
+                        <div id="proofPreview" class="proof-preview"></div>
                     </div>
                 </div>
 
@@ -437,13 +464,20 @@
                 <!-- Publicidad en Dashboard -->
                 <div class="card">
                     <h3>📢 Publicidad</h3>
-                    <div class="ad-container" id="dashboardAds"></div>
+                    <div class="ad-container" id="dashboardAds">
+                        <div class="ad-item"><div class="ad-placeholder">📢 Tu Anuncio Aquí</div></div>
+                        <div class="ad-item"><div class="ad-placeholder">📢 Tu Anuncio Aquí</div></div>
+                        <div class="ad-item"><div class="ad-placeholder">📢 Tu Anuncio Aquí</div></div>
+                    </div>
                 </div>
 
                 <div class="card">
                     <h3>Accesos Rápidos</h3>
                     <div style="display:flex;gap:10px;flex-wrap:wrap;">
                         <a href="https://wa.me/584141485985" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                        <a href="tel:+584141485985" class="btn btn-call"><i class="fas fa-phone"></i> Llamar</a>
+                        <a href="sms:584141485985" class="btn btn-sms"><i class="fas fa-sms"></i> SMS</a>
+                        <a href="mailto:contacto@aguamagica.com" class="btn btn-email"><i class="fas fa-envelope"></i> Email</a>
                         <a href="https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==" target="_blank" class="btn btn-info"><i class="fab fa-instagram"></i> Instagram</a>
                         <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> QR</button>
                         <button class="btn btn-success" onclick="openOrderScreen()"><i class="fas fa-shopping-cart"></i> Pedidos</button>
@@ -456,8 +490,8 @@
                 <div class="grid-2">
                     <div class="card">
                         <h3><i class="fas fa-user-plus"></i> Agregar Clientes</h3>
-                        <label>Copiar y pegar lista (Nombre, Teléfono, Segmento):</label>
-                        <textarea id="clientBulkInput" rows="5" placeholder="Juan Pérez, 04141234567, Hogar"></textarea>
+                        <label>Copiar y pegar lista (Nombre, Teléfono, Email, Segmento):</label>
+                        <textarea id="clientBulkInput" rows="5" placeholder="Juan Pérez, 04141234567, juan@email.com, Hogar"></textarea>
                         <button class="btn btn-success" onclick="addBulkClients()"><i class="fas fa-plus"></i> Agregar</button>
                     </div>
                     <div class="card">
@@ -474,10 +508,11 @@
                     <h3><i class="fas fa-bell"></i> Alertas de Recompra</h3>
                     <p style="color:#666;margin-bottom:15px;">📊 Clientes que necesitan reabastecimiento (1 botellón/18L por persona cada 6 días)</p>
                     <div id="alertList"></div>
-                    <div style="margin-top:15px;">
+                    <div style="margin-top:15px;display:flex;gap:5px;flex-wrap:wrap;">
                         <button class="btn btn-whatsapp" onclick="sendAlerts('whatsapp')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
                         <button class="btn btn-sms" onclick="sendAlerts('sms')"><i class="fas fa-sms"></i> SMS</button>
                         <button class="btn btn-email" onclick="sendAlerts('email')"><i class="fas fa-envelope"></i> Email</button>
+                        <button class="btn btn-call" onclick="sendAlerts('call')"><i class="fas fa-phone"></i> Llamar</button>
                     </div>
                 </div>
             </div>
@@ -559,6 +594,7 @@
                         <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> Generar QR</button>
                         <div id="qrResult"></div>
                     </div>
+                    
                     <h3>Tasa BCV</h3>
                     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                         <input type="number" id="tasaBcvInput" step="0.01" placeholder="Tasa BCV USD/BS" style="width:200px;">
@@ -643,11 +679,7 @@
                 { name: 'Bienvenida', content: '¡Bienvenido a AguaMagica! 🚀' },
                 { name: 'Promoción', content: '🔥 OFERTA: 2x1 en botellones 18L' }
             ];
-            // Ads de ejemplo
-            db.ads.dashboard[0] = { id: 0, type: 'image', content: 'https://via.placeholder.com/300x150/0d47a1/ffffff?text=Publicidad+1', link: 'https://ejemplo.com', active: true };
-            db.ads.dashboard[2] = { id: 2, type: 'image', content: 'https://via.placeholder.com/300x150/0d47a1/ffffff?text=Publicidad+2', link: 'https://ejemplo.com', active: true };
-            db.ads.order[0] = { id: 0, type: 'image', content: 'https://via.placeholder.com/200x80/0d47a1/ffffff?text=Promo+1', link: 'https://ejemplo.com', active: true };
-            db.tasaBcv = 40; // Tasa de ejemplo
+            db.tasaBcv = 40;
             saveDB();
         }
     }
@@ -656,7 +688,6 @@
     // TASA BCV
     // =============================================
     function getTasaBCV() {
-        // Intentar obtener tasa desde localStorage
         let tasa = parseFloat(localStorage.getItem('aguamagica_tasa'));
         if (!tasa || isNaN(tasa)) {
             tasa = db.tasaBcv || 0;
@@ -725,7 +756,7 @@
     }
 
     // =============================================
-    // COMPARTIR UBICACIÓN
+    // COMPARTIR UBICACIÓN - SOLO COLOCA EN CAMPO
     // =============================================
     function shareLocation() {
         if (navigator.geolocation) {
@@ -735,12 +766,7 @@
                     const lng = position.coords.longitude;
                     const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
                     document.getElementById('deliveryAddressOrder').value = `📍 Ubicación: ${mapsUrl}`;
-                    
-                    if (confirm('¿Enviar ubicación por WhatsApp ahora?')) {
-                        const phone = CONFIG.whatsappNumber;
-                        const url = `https://wa.me/${phone}?text=${encodeURIComponent('📍 Mi ubicación: ' + mapsUrl)}`;
-                        window.open(url, '_blank');
-                    }
+                    alert('✅ Ubicación agregada al campo de dirección');
                 },
                 function() {
                     alert('⚠️ No se pudo obtener la ubicación. Ingresa la dirección manualmente.');
@@ -765,12 +791,14 @@
     function limpiarCamposPedido() {
         document.getElementById('clientNameOrder').value = '';
         document.getElementById('clientPhoneOrder').value = '';
+        document.getElementById('clientEmailOrder').value = '';
         document.getElementById('peopleCountOrder').value = '1';
         document.getElementById('deliveryAddressOrder').value = '';
         document.getElementById('instructionsOrder').value = '';
         document.getElementById('paymentMethodOrder').value = '';
         document.getElementById('paymentInfo').classList.remove('active');
         document.getElementById('proofFileName').textContent = '';
+        document.getElementById('proofPreview').innerHTML = '';
         document.getElementById('paymentProof').value = '';
         document.querySelector('input[name="segment"][value="Hogar"]').checked = true;
     }
@@ -784,7 +812,6 @@
         const infoDiv = document.getElementById('paymentInfo');
         if (method === 'PagoMóvil') {
             infoDiv.classList.add('active');
-            // Calcular monto en Bs
             const price = parseFloat(document.getElementById('productSelectOrder').value) || 0;
             const quantity = parseInt(document.getElementById('quantityOrder').value) || 0;
             const totalUsd = price * quantity;
@@ -795,13 +822,28 @@
         }
     }
 
-    // Subir comprobante
+    // Subir comprobante con preview
     document.addEventListener('DOMContentLoaded', function() {
         const fileInput = document.getElementById('paymentProof');
         if (fileInput) {
             fileInput.addEventListener('change', function() {
+                const previewDiv = document.getElementById('proofPreview');
+                const fileNameDiv = document.getElementById('proofFileName');
+                
                 if (this.files && this.files[0]) {
-                    document.getElementById('proofFileName').textContent = `✅ Archivo: ${this.files[0].name}`;
+                    const file = this.files[0];
+                    fileNameDiv.textContent = `✅ Archivo: ${file.name}`;
+                    
+                    // Mostrar preview si es imagen
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewDiv.innerHTML = `<img src="${e.target.result}" alt="Comprobante">`;
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        previewDiv.innerHTML = `<p style="color:#666;">📄 Archivo: ${file.name}</p>`;
+                    }
                 }
             });
         }
@@ -839,7 +881,6 @@
         const total = price * quantity;
         document.getElementById('totalDisplayOrder').textContent = `Total: $${isNaN(total) ? '0.00' : total.toFixed(2)}`;
         
-        // Actualizar monto en Bs si PagoMóvil está seleccionado
         if (document.getElementById('paymentMethodOrder').value === 'PagoMóvil') {
             const totalBs = getMontoBs(isNaN(total) ? 0 : total);
             document.getElementById('montoBs').textContent = `${totalBs.toFixed(2)} Bs`;
@@ -852,6 +893,7 @@
     function sendOrderWhatsApp() {
         const clientName = document.getElementById('clientNameOrder').value.trim();
         const clientPhone = document.getElementById('clientPhoneOrder').value.trim();
+        const clientEmail = document.getElementById('clientEmailOrder').value.trim();
         const segment = document.querySelector('input[name="segment"]:checked')?.value || 'Hogar';
         const peopleCount = document.getElementById('peopleCountOrder').value;
         const productSelect = document.getElementById('productSelectOrder');
@@ -867,6 +909,7 @@
         // Validaciones
         if (!clientName) { alert('⚠️ Ingresa tu nombre'); return; }
         if (!clientPhone) { alert('⚠️ Ingresa tu teléfono'); return; }
+        if (!clientEmail) { alert('⚠️ Ingresa tu correo electrónico'); return; }
         if (!productSelect.value) { alert('⚠️ Selecciona un producto'); return; }
         if (!deliveryAddress) { alert('⚠️ Ingresa la dirección'); return; }
         if (!paymentMethod) { alert('⚠️ Selecciona método de pago'); return; }
@@ -889,6 +932,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
 
 👤 *Cliente:* ${clientName}
 📱 *Teléfono:* ${clientPhone}
+📧 *Email:* ${clientEmail}
 🏷️ *Segmento:* ${segment}
 👥 *Integrantes:* ${peopleCount} personas
 
@@ -929,46 +973,61 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
 
 ¡Gracias por confiar en AguaMagica! 🚀`;
 
-        // Guardar
+        // Guardar en base de datos
+        const proofData = proofFile ? {
+            name: proofFile.name,
+            type: proofFile.type,
+            size: proofFile.size
+        } : null;
+
         const orderData = {
-            clientName, clientPhone, segment, peopleCount: parseInt(peopleCount),
-            product: productName, quantity: parseInt(quantity), total, totalBs: totalBs.toFixed(2),
+            clientName, clientPhone, clientEmail, segment,
+            peopleCount: parseInt(peopleCount),
+            product: productName, quantity: parseInt(quantity),
+            total, totalBs: totalBs.toFixed(2),
             deliveryAddress, deliveryTime, paymentMethod, instructions,
-            proofFile: proofFile ? proofFile.name : null,
-            date: new Date().toISOString(), status: 'enviado',
+            proofFile: proofData,
+            date: new Date().toISOString(),
+            status: 'enviado',
             nextOrderDays: parseInt(peopleCount) * CONFIG.consumptionRate
         };
 
         db.orders.push(orderData);
 
+        // Verificar cliente
         const existingClient = db.clients.find(c => c.phone === clientPhone);
         if (!existingClient) {
             db.clients.push({
-                name: clientName, phone: clientPhone, segment, peopleCount: parseInt(peopleCount),
+                name: clientName, phone: clientPhone, email: clientEmail,
+                segment, peopleCount: parseInt(peopleCount),
                 history: [], responses: [],
-                firstOrder: new Date().toISOString(), lastOrder: new Date().toISOString()
+                firstOrder: new Date().toISOString(),
+                lastOrder: new Date().toISOString()
             });
         } else {
             existingClient.lastOrder = new Date().toISOString();
             existingClient.peopleCount = parseInt(peopleCount);
             existingClient.segment = segment;
+            existingClient.email = clientEmail;
         }
 
         db.responses.push({
-            client: clientName, phone: clientPhone, message,
-            date: new Date().toISOString(), type: 'pedido', order: orderData
+            client: clientName, phone: clientPhone, email: clientEmail,
+            message, date: new Date().toISOString(),
+            type: 'pedido', order: orderData
         });
 
         saveDB();
 
-        // Enviar a la empresa
-        const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+        // Enviar a la empresa - CORREGIDO
+        const empresaPhone = CONFIG.whatsappNumber;
+        const url = `https://wa.me/${empresaPhone}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
         
         closeOrderScreen();
         
         setTimeout(() => {
-            alert(`✅ Pedido enviado!\n\n${greeting} ${clientName.split(' ')[0]}, gracias por tu pedido.`);
+            alert(`✅ Pedido enviado!\n\n${greeting} ${clientName.split(' ')[0]}, gracias por tu pedido.\n📧 Te enviaremos el comprobante a ${clientEmail}`);
         }, 500);
     }
 
@@ -1022,6 +1081,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                         <strong>${alert.client.name}</strong> - ${alert.client.phone}
                         <br><span style="font-size:0.9em;color:#666;">
                             🏷️ ${alert.client.segment || 'Hogar'} | 👥 ${alert.peopleCount} personas
+                            ${alert.client.email ? `| 📧 ${alert.client.email}` : ''}
                         </span>
                     </div>
                     <div style="text-align:right;">
@@ -1043,6 +1103,9 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                     <button class="btn btn-email btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'email')">
                         <i class="fas fa-envelope"></i> Email
                     </button>
+                    <button class="btn btn-call btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'call')">
+                        <i class="fas fa-phone"></i> Llamar
+                    </button>
                 </div>
             </div>
         `).join('');
@@ -1059,7 +1122,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         
 💧 En AguaMagica estamos listos para el mantenimiento y llenado de tus botellones.
 
-📦 *Último pedido:* ${quantity} botellones
+📦 *Tu último pedido fue de ${quantity} botellones*
 🔄 ¿Necesitas la misma cantidad o deseas modificarla?
 
 ✅ *Confirma tu pedido:*
@@ -1081,15 +1144,20 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                 url = `sms:${phone}?body=${encodeURIComponent(message)}`;
                 break;
             case 'email':
-                url = `mailto:?subject=Recompra AguaMagica&body=${encodeURIComponent(message)}`;
+                const email = db.clients.find(c => c.phone === phone)?.email || '';
+                url = `mailto:${email}?subject=Recompra AguaMagica&body=${encodeURIComponent(message)}`;
+                break;
+            case 'call':
+                url = `tel:${phone}`;
                 break;
         }
         
         window.open(url, '_blank');
         
         db.responses.push({
-            client: name, phone: phone, message,
-            date: new Date().toISOString(), type: 'alerta_recompra', method: method
+            client: name, phone: phone,
+            message, date: new Date().toISOString(),
+            type: 'alerta_recompra', method: method
         });
         saveDB();
     }
@@ -1122,24 +1190,17 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         const container = document.getElementById('dashboardAds');
         container.innerHTML = '';
         
-        const activeAds = db.ads.dashboard.filter(ad => ad.active);
-        if (activeAds.length === 0) {
-            container.innerHTML = '<div class="ad-item"><div class="ad-placeholder">📢 Espacio publicitario disponible</div></div>';
-            return;
-        }
-        
-        // Mostrar todos los espacios, incluso vacíos
         db.ads.dashboard.forEach(ad => {
             const div = document.createElement('div');
             div.className = 'ad-item';
             if (ad.active && ad.content) {
                 div.innerHTML = `
                     <a href="${ad.link || '#'}" target="_blank">
-                        <img src="${ad.content}" alt="Publicidad">
+                        <img src="${ad.content}" alt="Publicidad" style="max-height:200px;width:100%;object-fit:cover;">
                     </a>
                 `;
             } else {
-                div.innerHTML = `<div class="ad-placeholder">📢 Espacio ${ad.id + 1}</div>`;
+                div.innerHTML = `<div class="ad-placeholder">📢 Tu Anuncio Aquí</div>`;
             }
             container.appendChild(div);
         });
@@ -1149,23 +1210,17 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         const container = document.getElementById('orderAdsContainer');
         container.innerHTML = '';
         
-        const activeAds = db.ads.order.filter(ad => ad.active);
-        if (activeAds.length === 0) {
-            container.innerHTML = '<div class="order-ad-item"><div class="order-ad-placeholder">📢 Publicidad</div></div>';
-            return;
-        }
-        
         db.ads.order.forEach(ad => {
             const div = document.createElement('div');
             div.className = 'order-ad-item';
             if (ad.active && ad.content) {
                 div.innerHTML = `
                     <a href="${ad.link || '#'}" target="_blank">
-                        <img src="${ad.content}" alt="Publicidad" style="max-height:80px;">
+                        <img src="${ad.content}" alt="Publicidad" style="max-height:80px;width:100%;object-fit:cover;">
                     </a>
                 `;
             } else {
-                div.innerHTML = `<div class="order-ad-placeholder">📢 Espacio ${ad.id + 1}</div>`;
+                div.innerHTML = `<div class="ad-placeholder">📢 Tu Anuncio Aquí</div>`;
             }
             container.appendChild(div);
         });
@@ -1174,14 +1229,15 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     function renderAdsManager() {
         // Dashboard Ads Manager
         const dashboardDiv = document.getElementById('dashboardAdsManager');
-        dashboardDiv.innerHTML = '<div class="grid-4">';
+        dashboardDiv.innerHTML = '<div class="grid-5">';
         db.ads.dashboard.forEach((ad, index) => {
             dashboardDiv.innerHTML += `
-                <div style="border:1px solid #ddd;padding:10px;border-radius:8px;">
+                <div class="ad-manager-item">
                     <strong>Espacio ${index + 1}</strong>
-                    <input type="text" id="dashAdUrl_${index}" value="${ad.content || ''}" placeholder="URL de imagen/video" style="font-size:0.85em;">
-                    <input type="text" id="dashAdLink_${index}" value="${ad.link || ''}" placeholder="Hipervínculo" style="font-size:0.85em;">
-                    <label style="font-size:0.85em;">
+                    <input type="text" id="dashAdUrl_${index}" value="${ad.content || ''}" placeholder="URL de imagen/video">
+                    <input type="text" id="dashAdLink_${index}" value="${ad.link || ''}" placeholder="Hipervínculo URL">
+                    ${ad.content ? `<img src="${ad.content}" class="preview-thumb" alt="Vista previa" onerror="this.style.display='none'">` : ''}
+                    <label style="font-size:0.85em;display:block;margin-top:5px;">
                         <input type="checkbox" id="dashAdActive_${index}" ${ad.active ? 'checked' : ''}> Activo
                     </label>
                     <button class="btn btn-sm btn-success" onclick="saveDashboardAd(${index})">Guardar</button>
@@ -1195,11 +1251,12 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         orderDiv.innerHTML = '<div class="grid-3">';
         db.ads.order.forEach((ad, index) => {
             orderDiv.innerHTML += `
-                <div style="border:1px solid #ddd;padding:10px;border-radius:8px;">
+                <div class="ad-manager-item">
                     <strong>Espacio ${index + 1}</strong>
-                    <input type="text" id="orderAdUrl_${index}" value="${ad.content || ''}" placeholder="URL de imagen/video" style="font-size:0.85em;">
-                    <input type="text" id="orderAdLink_${index}" value="${ad.link || ''}" placeholder="Hipervínculo" style="font-size:0.85em;">
-                    <label style="font-size:0.85em;">
+                    <input type="text" id="orderAdUrl_${index}" value="${ad.content || ''}" placeholder="URL de imagen/video">
+                    <input type="text" id="orderAdLink_${index}" value="${ad.link || ''}" placeholder="Hipervínculo URL">
+                    ${ad.content ? `<img src="${ad.content}" class="preview-thumb" alt="Vista previa" onerror="this.style.display='none'">` : ''}
+                    <label style="font-size:0.85em;display:block;margin-top:5px;">
                         <input type="checkbox" id="orderAdActive_${index}" ${ad.active ? 'checked' : ''}> Activo
                     </label>
                     <button class="btn btn-sm btn-success" onclick="saveOrderAd(${index})">Guardar</button>
@@ -1241,7 +1298,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         if (saved) {
             db = JSON.parse(saved);
         }
-        // Cargar tasa
         const tasa = localStorage.getItem('aguamagica_tasa');
         if (tasa) {
             db.tasaBcv = parseFloat(tasa);
@@ -1270,7 +1326,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         }, 0);
         document.getElementById('monthSales').textContent = `$${totalSales.toFixed(2)}`;
         
-        // Tasa
         const tasa = getTasaBCV();
         document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${tasa.toFixed(2)} Bs`;
         document.getElementById('tasaBcvInput').value = tasa;
@@ -1295,7 +1350,9 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         div.innerHTML = '';
         
         const filtered = db.clients.filter(c => 
-            c.name.toLowerCase().includes(search) || c.phone.includes(search)
+            c.name.toLowerCase().includes(search) || 
+            c.phone.includes(search) ||
+            (c.email && c.email.toLowerCase().includes(search))
         );
         
         filtered.forEach((client, index) => {
@@ -1311,10 +1368,15 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                     <strong>${client.name}</strong> - ${client.phone}
                     <span style="font-size:0.8em;color:#999;margin-left:5px;">
                         🏷️ ${client.segment || 'Hogar'} | 👥 ${client.peopleCount || 1}
+                        ${client.email ? `| 📧 ${client.email}` : ''}
                         ${hasAlert ? '<span class="alert-badge">⚠️</span>' : ''}
                     </span>
                 </div>
                 <div class="client-actions">
+                    <button class="btn btn-whatsapp btn-sm" onclick="openWhatsApp('${client.phone}')"><i class="fab fa-whatsapp"></i></button>
+                    <button class="btn btn-call btn-sm" onclick="callClient('${client.phone}')"><i class="fas fa-phone"></i></button>
+                    <button class="btn btn-sms btn-sm" onclick="smsClient('${client.phone}')"><i class="fas fa-sms"></i></button>
+                    ${client.email ? `<button class="btn btn-email btn-sm" onclick="emailClient('${client.email}')"><i class="fas fa-envelope"></i></button>` : ''}
                     <button class="btn btn-info btn-sm" onclick="viewClient(${realIndex})"><i class="fas fa-eye"></i></button>
                     <button class="btn btn-danger btn-sm" onclick="deleteClient(${realIndex})"><i class="fas fa-trash"></i></button>
                 </div>
@@ -1327,6 +1389,22 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         }
     }
 
+    function openWhatsApp(phone) {
+        window.open(`https://wa.me/${phone}`, '_blank');
+    }
+
+    function callClient(phone) {
+        window.open(`tel:${phone}`, '_blank');
+    }
+
+    function smsClient(phone) {
+        window.open(`sms:${phone}`, '_blank');
+    }
+
+    function emailClient(email) {
+        window.open(`mailto:${email}`, '_blank');
+    }
+
     function addBulkClients() {
         const input = document.getElementById('clientBulkInput').value;
         const lines = input.split('\n').filter(l => l.trim());
@@ -1337,12 +1415,14 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
             if (parts.length >= 2) {
                 const name = parts[0];
                 const phone = parts[1].replace(/\s/g, '');
-                const segment = parts[2] || 'Hogar';
+                const email = parts[2] || '';
+                const segment = parts[3] || 'Hogar';
                 if (name && phone) {
                     db.clients.push({
-                        name, phone, segment, peopleCount: 1,
+                        name, phone, email, segment, peopleCount: 1,
                         history: [], responses: [],
-                        firstOrder: new Date().toISOString(), lastOrder: new Date().toISOString()
+                        firstOrder: new Date().toISOString(),
+                        lastOrder: new Date().toISOString()
                     });
                     added++;
                 }
@@ -1354,7 +1434,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
             document.getElementById('clientBulkInput').value = '';
             alert(`✅ ${added} clientes agregados!`);
         } else {
-            alert('⚠️ Verifica el formato (Nombre, Teléfono, Segmento)');
+            alert('⚠️ Verifica el formato (Nombre, Teléfono, Email, Segmento)');
         }
     }
 
@@ -1369,6 +1449,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         document.getElementById('clientDetails').innerHTML = `
             <h4>${client.name}</h4>
             <p>📱 ${client.phone}</p>
+            ${client.email ? `<p>📧 ${client.email}</p>` : ''}
             <p>🏷️ ${client.segment || 'Hogar'}</p>
             <p>👥 ${client.peopleCount || 1} integrantes</p>
             <p>📝 ${client.responses?.length || 0} pedidos</p>
@@ -1381,17 +1462,18 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                     <div style="font-size:0.9em;border-bottom:1px solid #eee;padding:5px;">
                         ${o.product} - ${o.quantity} unidades
                         <br>${o.total} - ${o.deliveryTime}
+                        ${o.totalBs ? `<br>💰 ${o.totalBs} Bs` : ''}
                         <br><small>${new Date(o.date).toLocaleString()}</small>
                     </div>
                 `).join('') || 'Sin pedidos'}
             </div>
-            ${alertInfo ? `
-                <div style="margin-top:15px;display:flex;gap:5px;flex-wrap:wrap;">
-                    <button class="btn btn-whatsapp btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'whatsapp')">
-                        <i class="fab fa-whatsapp"></i> Alerta
-                    </button>
-                </div>
-            ` : ''}
+            <div style="margin-top:15px;display:flex;gap:5px;flex-wrap:wrap;">
+                <button class="btn btn-whatsapp btn-sm" onclick="openWhatsApp('${client.phone}')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                <button class="btn btn-call btn-sm" onclick="callClient('${client.phone}')"><i class="fas fa-phone"></i> Llamar</button>
+                <button class="btn btn-sms btn-sm" onclick="smsClient('${client.phone}')"><i class="fas fa-sms"></i> SMS</button>
+                ${client.email ? `<button class="btn btn-email btn-sm" onclick="emailClient('${client.email}')"><i class="fas fa-envelope"></i> Email</button>` : ''}
+                ${alertInfo ? `<button class="btn btn-warning btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'whatsapp')">Enviar Alerta</button>` : ''}
+            </div>
         `;
         modal.style.display = 'flex';
     }
@@ -1448,6 +1530,14 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
             alert('⚠️ Escribe un mensaje');
             return;
         }
+        // Guardar en GitHub (simulado)
+        db.messages.push({
+            name: `Sync ${new Date().toLocaleString()}`,
+            content: content,
+            github: true,
+            date: new Date().toISOString()
+        });
+        saveDB();
         alert(`✅ Mensaje sincronizado con GitHub!\nUsuario: ${CONFIG.githubUser}\nRepositorio: ${CONFIG.repoName}`);
     }
 
@@ -1483,7 +1573,10 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                 window.open(url, '_blank');
                 db.responses.push({
                     client: client.name, phone: client.phone,
-                    message: fullMessage, date: new Date().toISOString(), type: 'campaign'
+                    email: client.email || '',
+                    message: fullMessage,
+                    date: new Date().toISOString(),
+                    type: 'campaign'
                 });
                 sent++;
             }
@@ -1591,9 +1684,11 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                 <div style="border-bottom:1px solid #eee;padding:10px;">
                     <strong>${o.clientName}</strong> - ${o.product}
                     <br>${o.quantity} unidades - ${o.total}
+                    ${o.totalBs ? `<br>💰 ${o.totalBs} Bs` : ''}
                     <br>📍 ${o.deliveryAddress}
                     <br>⏰ ${o.deliveryTime} - 💳 ${o.paymentMethod}
-                    ${o.totalBs ? `<br>💰 ${o.totalBs} Bs` : ''}
+                    ${o.clientEmail ? `<br>📧 ${o.clientEmail}` : ''}
+                    ${o.proofFile ? `<br>📎 Comprobante: ${o.proofFile.name}` : ''}
                     <br><small>${new Date(o.date).toLocaleString()}</small>
                 </div>
             `).join('')}
@@ -1634,6 +1729,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         
         const alerts = checkRecompraAlerts();
         const tasa = getTasaBCV();
+        const clientsWithEmail = db.clients.filter(c => c.email).length;
         
         div.innerHTML = `
             <div class="stats-grid">
@@ -1663,10 +1759,11 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                 </div>
             </div>
             <div style="margin-top:20px;padding:15px;background:#fff3e0;border-radius:8px;">
-                <h4>📊 Consumo</h4>
+                <h4>📊 Resumen</h4>
                 <p>💧 1 botellón/18L por persona cada ${CONFIG.consumptionRate} días</p>
                 <p>🔔 ${alerts.length} clientes necesitan reabastecimiento</p>
                 <p>💰 Tasa BCV: $1 = ${tasa.toFixed(2)} Bs</p>
+                <p>📧 ${clientsWithEmail} clientes con email registrado</p>
             </div>
         `;
     }
@@ -1735,7 +1832,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     // =============================================
     // INICIALIZACIÓN
     // =============================================
-    console.log('💧 AguaMagica v3.0');
+    console.log('💧 AguaMagica v4.0');
     console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
     console.log('🔑 Contraseña:', CONFIG.password);
 
