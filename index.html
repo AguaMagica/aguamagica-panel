@@ -290,7 +290,7 @@
             background: white;
             padding: 40px;
             border-radius: 20px;
-            max-width: 500px;
+            max-width: 550px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
@@ -326,6 +326,33 @@
         }
         .close-order-btn:hover {
             color: #c62828;
+        }
+        .payment-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+        .payment-info.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group label .required {
+            color: #c62828;
+        }
+        .help-text {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 2px;
         }
 
         @media (max-width: 768px) {
@@ -388,30 +415,81 @@
             </div>
 
             <div id="orderForm">
-                <label>Selecciona Producto:</label>
-                <select id="productSelectOrder" onchange="updateOrderTotal()"></select>
+                <!-- Datos del Cliente -->
+                <div class="form-group">
+                    <label>Nombre y Apellido <span class="required">*</span></label>
+                    <input type="text" id="clientNameOrder" placeholder="Ej: Juan Pérez" required>
+                </div>
 
-                <label>Cantidad:</label>
-                <input type="number" id="quantityOrder" min="1" value="1" onchange="updateOrderTotal()">
+                <div class="form-group">
+                    <label>Teléfono <span class="required">*</span></label>
+                    <input type="tel" id="clientPhoneOrder" placeholder="Ej: 04141234567" required>
+                    <div class="help-text">📱 Incluye código de área sin el 0</div>
+                </div>
 
-                <label>Hora de Entrega:</label>
-                <select id="deliveryTimeOrder">
-                    <option value="08:00">8:00 AM</option>
-                    <option value="09:00">9:00 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="13:00">1:00 PM</option>
-                    <option value="14:00">2:00 PM</option>
-                    <option value="15:00">3:00 PM</option>
-                    <option value="16:00">4:00 PM</option>
-                    <option value="17:00">5:00 PM</option>
-                    <option value="18:00">6:00 PM</option>
-                    <option value="19:00">7:00 PM</option>
-                </select>
+                <!-- Productos -->
+                <div class="form-group">
+                    <label>Selecciona Producto <span class="required">*</span></label>
+                    <select id="productSelectOrder" onchange="updateOrderTotal()">
+                        <option value="">Selecciona un producto</option>
+                    </select>
+                </div>
 
-                <label>Instrucciones especiales:</label>
-                <textarea id="instructionsOrder" rows="3" placeholder="Dirección, piso, referencias..."></textarea>
+                <div class="form-group">
+                    <label>Cantidad <span class="required">*</span></label>
+                    <input type="number" id="quantityOrder" min="1" value="1" onchange="updateOrderTotal()">
+                </div>
+
+                <!-- Dirección de Entrega -->
+                <div class="form-group">
+                    <label>Dirección de Entrega <span class="required">*</span></label>
+                    <textarea id="deliveryAddressOrder" rows="2" placeholder="Dirección completa, puntos de referencia"></textarea>
+                    <div class="help-text">📍 Puedes compartir ubicación vía WhatsApp después de enviar el pedido</div>
+                </div>
+
+                <!-- Hora de Entrega -->
+                <div class="form-group">
+                    <label>Hora de Entrega <span class="required">*</span></label>
+                    <select id="deliveryTimeOrder">
+                        <option value="08:00">8:00 AM</option>
+                        <option value="09:00">9:00 AM</option>
+                        <option value="10:00">10:00 AM</option>
+                        <option value="11:00">11:00 AM</option>
+                        <option value="12:00">12:00 PM</option>
+                        <option value="13:00">1:00 PM</option>
+                        <option value="14:00">2:00 PM</option>
+                        <option value="15:00">3:00 PM</option>
+                        <option value="16:00">4:00 PM</option>
+                        <option value="17:00">5:00 PM</option>
+                        <option value="18:00">6:00 PM</option>
+                        <option value="19:00">7:00 PM</option>
+                    </select>
+                </div>
+
+                <!-- Método de Pago -->
+                <div class="form-group">
+                    <label>Método de Pago <span class="required">*</span></label>
+                    <select id="paymentMethodOrder" onchange="showPaymentInfo()">
+                        <option value="">Selecciona método de pago</option>
+                        <option value="PagoMóvil">PagoMóvil</option>
+                        <option value="Efectivo Bolívares">Efectivo Bolívares</option>
+                        <option value="Efectivo Divisas">Efectivo Divisas</option>
+                    </select>
+                </div>
+
+                <!-- Información de PagoMóvil -->
+                <div id="paymentInfo" class="payment-info">
+                    <h4>💳 Información PagoMóvil</h4>
+                    <p><strong>Banco:</strong> Banesco</p>
+                    <p><strong>Número de Cuenta:</strong> 16039118</p>
+                    <p><strong>Teléfono:</strong> 04141485985</p>
+                    <p style="font-size:0.9em;color:#666;margin-top:5px;">⚠️ Referencia: Tu nombre y número de pedido</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Instrucciones especiales:</label>
+                    <textarea id="instructionsOrder" rows="2" placeholder="Alguna indicación adicional..."></textarea>
+                </div>
 
                 <div class="total-display" id="totalDisplayOrder">Total: $0.00</div>
 
@@ -584,7 +662,12 @@
             whatsappNumber: '584141485985',
             instagramLink: 'https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==',
             githubUser: 'AguaMagica',
-            repoName: 'aguamagica-panel'
+            repoName: 'aguamagica-panel',
+            paymentInfo: {
+                banco: 'Banesco',
+                cuenta: '16039118',
+                telefono: '04141485985'
+            }
         };
 
         // =============================================
@@ -664,10 +747,27 @@
         function openOrderScreen() {
             document.getElementById('clientOrderScreen').style.display = 'flex';
             loadProductsOrder();
+            // Limpiar campos
+            document.getElementById('clientNameOrder').value = '';
+            document.getElementById('clientPhoneOrder').value = '';
+            document.getElementById('deliveryAddressOrder').value = '';
+            document.getElementById('instructionsOrder').value = '';
+            document.getElementById('paymentMethodOrder').value = '';
+            document.getElementById('paymentInfo').classList.remove('active');
         }
 
         function closeOrderScreen() {
             document.getElementById('clientOrderScreen').style.display = 'none';
+        }
+
+        function showPaymentInfo() {
+            const method = document.getElementById('paymentMethodOrder').value;
+            const infoDiv = document.getElementById('paymentInfo');
+            if (method === 'PagoMóvil') {
+                infoDiv.classList.add('active');
+            } else {
+                infoDiv.classList.remove('active');
+            }
         }
 
         function loadProductsOrder() {
@@ -704,46 +804,138 @@
         }
 
         function sendOrderWhatsApp() {
+            // Obtener todos los datos del pedido
+            const clientName = document.getElementById('clientNameOrder').value.trim();
+            const clientPhone = document.getElementById('clientPhoneOrder').value.trim();
             const productSelect = document.getElementById('productSelectOrder');
             const productName = productSelect.options[productSelect.selectedIndex]?.text || '';
             const quantity = document.getElementById('quantityOrder').value;
+            const deliveryAddress = document.getElementById('deliveryAddressOrder').value.trim();
             const deliveryTime = document.getElementById('deliveryTimeOrder').value;
-            const instructions = document.getElementById('instructionsOrder').value;
+            const paymentMethod = document.getElementById('paymentMethodOrder').value;
+            const instructions = document.getElementById('instructionsOrder').value.trim();
             const total = document.getElementById('totalDisplayOrder').textContent;
+
+            // Validaciones
+            if (!clientName) {
+                alert('⚠️ Por favor ingresa tu nombre y apellido');
+                document.getElementById('clientNameOrder').focus();
+                return;
+            }
+
+            if (!clientPhone) {
+                alert('⚠️ Por favor ingresa tu número de teléfono');
+                document.getElementById('clientPhoneOrder').focus();
+                return;
+            }
 
             if (!productSelect.value) {
                 alert('⚠️ Por favor selecciona un producto');
                 return;
             }
 
-            const message = `💧 *NUEVO PEDIDO - AGUAMAGICA*
+            if (!deliveryAddress) {
+                alert('⚠️ Por favor ingresa la dirección de entrega');
+                document.getElementById('deliveryAddressOrder').focus();
+                return;
+            }
+
+            if (!paymentMethod) {
+                alert('⚠️ Por favor selecciona el método de pago');
+                document.getElementById('paymentMethodOrder').focus();
+                return;
+            }
+
+            // Construir mensaje
+            let message = `💧 *NUEVO PEDIDO - AGUAMAGICA*
+
+👤 *Cliente:* ${clientName}
+📱 *Teléfono:* ${clientPhone}
 
 📦 *Producto:* ${productName}
 🔢 *Cantidad:* ${quantity}
 💰 *${total}*
-⏰ *Hora de entrega:* ${deliveryTime}
-📝 *Instrucciones:* ${instructions || 'Sin instrucciones'}
 
-📱 WhatsApp: https://wa.me/${CONFIG.whatsappNumber}
+📍 *Dirección de entrega:* ${deliveryAddress}
+⏰ *Hora de entrega:* ${deliveryTime}
+
+💳 *Método de Pago:* ${paymentMethod}`;
+
+            // Agregar información de PagoMóvil si aplica
+            if (paymentMethod === 'PagoMóvil') {
+                message += `
+
+💳 *Información PagoMóvil:*
+🏦 Banco: ${CONFIG.paymentInfo.banco}
+🔢 Cuenta: ${CONFIG.paymentInfo.cuenta}
+📱 Teléfono: ${CONFIG.paymentInfo.telefono}
+⚠️ Referencia: ${clientName} - Pedido ${Date.now().toString().slice(-6)}`;
+            }
+
+            if (instructions) {
+                message += `
+
+📝 *Instrucciones:* ${instructions}`;
+            }
+
+            message += `
+
 📸 ${CONFIG.instagramLink}
 
-¡Gracias por tu pedido! 🙏`;
+¡Gracias por tu pedido, ${clientName.split(' ')[0]}! 🙏`;
 
-            const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-            
-            // Guardar pedido
-            db.orders.push({
+            // Guardar en la base de datos
+            const orderData = {
+                clientName: clientName,
+                clientPhone: clientPhone,
                 product: productName,
                 quantity: quantity,
                 total: total,
+                deliveryAddress: deliveryAddress,
                 deliveryTime: deliveryTime,
+                paymentMethod: paymentMethod,
                 instructions: instructions,
                 date: new Date().toISOString(),
                 status: 'enviado'
+            };
+
+            db.orders.push(orderData);
+
+            // Verificar si el cliente ya existe en la base de datos
+            const existingClient = db.clients.find(c => c.phone === clientPhone);
+            if (!existingClient) {
+                // Nuevo cliente
+                db.clients.push({
+                    name: clientName,
+                    phone: clientPhone,
+                    history: [],
+                    responses: [],
+                    firstOrder: new Date().toISOString()
+                });
+            }
+
+            // Registrar respuesta del cliente
+            db.responses.push({
+                client: clientName,
+                phone: clientPhone,
+                message: message,
+                date: new Date().toISOString(),
+                type: 'pedido',
+                order: orderData
             });
+
             saveDB();
+
+            // Enviar por WhatsApp
+            const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+            
             closeOrderScreen();
+            
+            // Mostrar confirmación
+            setTimeout(() => {
+                alert(`✅ Pedido enviado exitosamente!\n\nGracias ${clientName.split(' ')[0]} por tu pedido. Nos pondremos en contacto contigo.`);
+            }, 500);
         }
 
         // =============================================
@@ -809,7 +1001,8 @@
                     <div class="client-info">
                         <input type="checkbox" onchange="selectClient(${realIndex})">
                         <strong>${client.name}</strong> - ${client.phone}
-                        <span style="font-size:0.8em;color:#999;margin-left:5px;">(${client.responses?.length || 0} respuestas)</span>
+                        <span style="font-size:0.8em;color:#999;margin-left:5px;">(${client.responses?.length || 0} pedidos)</span>
+                        ${client.firstOrder ? `<span style="font-size:0.7em;color:#999;margin-left:5px;">📅 ${new Date(client.firstOrder).toLocaleDateString()}</span>` : ''}
                     </div>
                     <div class="client-actions">
                         <button class="btn btn-info" onclick="viewClient(${realIndex})"><i class="fas fa-eye"></i></button>
@@ -839,7 +1032,8 @@
                             name: name,
                             phone: phone,
                             history: [],
-                            responses: []
+                            responses: [],
+                            firstOrder: new Date().toISOString()
                         });
                         added++;
                     }
@@ -858,14 +1052,25 @@
         function viewClient(index) {
             const client = db.clients[index];
             const modal = document.getElementById('clientModal');
+            const orders = db.orders.filter(o => o.clientPhone === client.phone);
+            
             document.getElementById('clientDetails').innerHTML = `
                 <h4>${client.name}</h4>
                 <p>📱 ${client.phone}</p>
-                <p>📝 ${client.responses?.length || 0} respuestas registradas</p>
-                <p>🛒 ${client.history?.length || 0} compras</p>
+                <p>📝 ${client.responses?.length || 0} pedidos realizados</p>
+                <p>🛒 ${orders.length} compras totales</p>
+                ${client.firstOrder ? `<p>📅 Cliente desde: ${new Date(client.firstOrder).toLocaleDateString()}</p>` : ''}
                 <div style="margin-top:15px;">
-                    <h5>Últimas interacciones:</h5>
-                    ${client.responses?.slice(-3).map(r => `<p style="font-size:0.9em;border-bottom:1px solid #eee;padding:5px;">${r}</p>`).join('') || 'Sin registros'}
+                    <h5>Últimos pedidos:</h5>
+                    ${orders.slice(-3).map(o => `
+                        <div style="font-size:0.9em;border-bottom:1px solid #eee;padding:5px;">
+                            ${o.product} - ${o.quantity} unidades
+                            <br>${o.total} - ${o.deliveryTime}
+                            <br><small>${new Date(o.date).toLocaleString()}</small>
+                            <br>📍 ${o.deliveryAddress}
+                            <br>💳 ${o.paymentMethod}
+                        </div>
+                    `).join('') || 'Sin pedidos registrados'}
                 </div>
             `;
             modal.style.display = 'flex';
@@ -1094,8 +1299,10 @@
                 <p><strong>Total pedidos:</strong> ${filtered.length}</p>
                 ${filtered.slice().reverse().map(o => `
                     <div style="border-bottom:1px solid #eee;padding:10px;">
-                        <strong>${o.product}</strong> - ${o.quantity} unidades
-                        <br>${o.total} - ${o.deliveryTime}
+                        <strong>${o.clientName}</strong> - ${o.product}
+                        <br>${o.quantity} unidades - ${o.total}
+                        <br>📍 ${o.deliveryAddress}
+                        <br>⏰ ${o.deliveryTime} - 💳 ${o.paymentMethod}
                         <br><small>${new Date(o.date).toLocaleString()}</small>
                     </div>
                 `).join('')}
@@ -1128,6 +1335,12 @@
             });
             const topProducts = Object.entries(productCount).sort((a,b) => b[1] - a[1]).slice(0,5);
             
+            // Métodos de pago
+            const paymentMethods = {};
+            db.orders.forEach(o => {
+                paymentMethods[o.paymentMethod] = (paymentMethods[o.paymentMethod] || 0) + 1;
+            });
+            
             div.innerHTML = `
                 <div class="stats-grid">
                     <div class="stat-card"><h3>Total Clientes</h3><p>${totalClients}</p></div>
@@ -1135,12 +1348,24 @@
                     <div class="stat-card"><h3>Ventas Totales</h3><p>$${totalSales.toFixed(2)}</p></div>
                     <div class="stat-card"><h3>Mensajes Enviados</h3><p>${totalMessages}</p></div>
                 </div>
-                <h4>🏆 Productos Más Vendidos</h4>
-                ${topProducts.length > 0 ? topProducts.map(([name, count]) => `
-                    <div style="padding:8px;border-bottom:1px solid #eee;">
-                        ${name}: ${count} unidades
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                    <div>
+                        <h4>🏆 Productos Más Vendidos</h4>
+                        ${topProducts.length > 0 ? topProducts.map(([name, count]) => `
+                            <div style="padding:8px;border-bottom:1px solid #eee;">
+                                ${name}: ${count} unidades
+                            </div>
+                        `).join('') : '<p style="color:#999;">Sin datos de ventas</p>'}
                     </div>
-                `).join('') : '<p style="color:#999;">Sin datos de ventas</p>'}
+                    <div>
+                        <h4>💳 Métodos de Pago</h4>
+                        ${Object.entries(paymentMethods).map(([method, count]) => `
+                            <div style="padding:8px;border-bottom:1px solid #eee;">
+                                ${method}: ${count} pedidos
+                            </div>
+                        `).join('') || '<p style="color:#999;">Sin datos de pagos</p>'}
+                    </div>
+                </div>
             `;
         }
 
