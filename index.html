@@ -1,1033 +1,253 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AguaMagica - Sistema Integral</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-        }
+// =============================================
+// CONFIGURACIÓN
+// =============================================
+const CONFIG = {
+    password: 'agua2026',
+    whatsappNumber: '584141485985',
+    instagramLink: 'https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==',
+    githubUser: 'AguaMagica',
+    repoName: 'aguamagica-panel',
+    paymentInfo: {
+        banco: 'Banesco',
+        ci: '16039118',
+        telefono: '04141485985'
+    },
+    consumptionRate: 6
+};
+
+// =============================================
+// BASE DE DATOS
+// =============================================
+let db = {
+    clients: [],
+    messages: [],
+    products: [],
+    orders: [],
+    responses: [],
+    campaigns: []
+};
+
+// =============================================
+// INICIALIZAR DATOS DE EJEMPLO
+// =============================================
+function initializeDB() {
+    if (!localStorage.getItem('aguamagica_db')) {
+        db.products = [
+            { name: 'Botellón 18L', price: 3.50 }
+        ];
+        db.messages = [
+            { name: 'Bienvenida', content: '¡Bienvenido a AguaMagica! 🚀' },
+            { name: 'Promoción', content: '🔥 OFERTA: 2x1 en botellones 18L' }
+        ];
+        saveDB();
+    }
+}
+
+// =============================================
+// LOGIN
+// =============================================
+function login() {
+    const input = document.getElementById('passwordInput').value;
+    if (input === CONFIG.password) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
         
-        /* Pantalla de Login */
-        #loginScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a237e, #0d47a1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-        .login-box h2 {
-            text-align: center;
-            color: #0d47a1;
-            margin-bottom: 10px;
-        }
-        .login-box h3 {
-            text-align: center;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        .login-box input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
-        }
-        .login-box input:focus {
-            border-color: #0d47a1;
-            outline: none;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #0d47a1, #1a237e);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1em;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .login-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 20px rgba(13,71,161,0.3);
-        }
-        .login-error {
-            color: #c62828;
-            text-align: center;
-            margin-top: 10px;
-            display: none;
-        }
-        .login-info {
-            text-align: center;
-            margin-top: 15px;
-            color: #666;
-            font-size: 0.9em;
-        }
+        initializeDB();
+        loadDB();
+        updateUI();
+        updateClock();
+        setInterval(updateClock, 1000);
+        checkOrderParam();
+    } else {
+        document.getElementById('loginError').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('loginError').style.display = 'none';
+        }, 3000);
+    }
+}
 
-        /* Sidebar */
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background: linear-gradient(135deg, #1a237e, #0d47a1);
-            color: white;
-            position: fixed;
-            padding: 20px 0;
-            overflow-y: auto;
-        }
-        .sidebar h2 {
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .sidebar ul {
-            list-style: none;
-            padding: 20px 0;
-        }
-        .sidebar ul li {
-            padding: 15px 25px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .sidebar ul li:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        .sidebar ul li i {
-            margin-right: 10px;
-            width: 20px;
-        }
-        .sidebar ul li.logout {
-            color: #ff6b6b;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            margin-top: 20px;
-        }
-        .sidebar ul li.badge {
-            position: relative;
-        }
-        .sidebar ul li .badge-count {
-            background: #ff6b6b;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 8px;
-            font-size: 0.7em;
-            margin-left: 5px;
-        }
+function logout() {
+    if (confirm('¿Cerrar sesión?')) {
+        document.getElementById('mainApp').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('passwordInput').value = '';
+    }
+}
 
-        /* Main Content */
-        .main-content {
-            margin-left: 250px;
-            padding: 20px;
-        }
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-        }
-        textarea, input, select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin: 5px 0 15px 0;
-            font-family: inherit;
-        }
-        .btn {
-            background: #0d47a1;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: 0.3s;
-            margin: 5px;
-            display: inline-block;
-            text-decoration: none;
-        }
-        .btn:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
-        }
-        .btn-success { background: #2e7d32; }
-        .btn-warning { background: #f57c00; }
-        .btn-danger { background: #c62828; }
-        .btn-info { background: #00838f; }
-        .btn-whatsapp { background: #25D366; }
-        .btn-email { background: #D44638; }
-        .btn-sms { background: #34B7F1; }
-        .btn-sm { padding: 5px 10px; font-size: 0.85em; }
-        
-        .client-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .client-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            flex-wrap: wrap;
-        }
-        .client-item input[type="checkbox"] {
-            width: 20px;
-            margin-right: 10px;
-        }
-        .client-item .client-info {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .client-item .client-actions {
-            display: flex;
-            gap: 5px;
-        }
-        .alert-badge {
-            background: #ff6b6b;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 8px;
-            font-size: 0.7em;
-            margin-left: 5px;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .tab {
-            display: none;
-        }
-        .tab.active {
-            display: block;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-left: 4px solid #0d47a1;
-        }
-        .stat-card h3 {
-            font-size: 0.9em;
-            color: #666;
-        }
-        .stat-card p {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #0d47a1;
-        }
-        .stat-card .alert-count {
-            color: #c62828;
-        }
-        
-        .product-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            align-items: center;
-        }
-        
-        .qr-container {
-            text-align: center;
-            padding: 20px;
-        }
-        
-        /* Sistema de Pedidos para Clientes */
-        #clientOrderScreen {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
-        .order-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 550px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            position: relative;
-        }
-        .order-container .logo {
-            text-align: center;
-            font-size: 2em;
-            color: #0d47a1;
-            margin-bottom: 20px;
-        }
-        .order-container input,
-        .order-container select,
-        .order-container textarea {
-            margin: 8px 0;
-        }
-        .total-display {
-            font-size: 1.5em;
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 8px;
-        }
-        .close-order-btn {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 2em;
-            cursor: pointer;
-            color: #666;
-        }
-        .close-order-btn:hover {
-            color: #c62828;
-        }
-        .payment-info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            display: none;
-        }
-        .payment-info.active {
-            display: block;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        .form-group label .required {
-            color: #c62828;
-        }
-        .help-text {
-            font-size: 0.85em;
-            color: #666;
-            margin-top: 2px;
-        }
-        .location-btn {
-            background: #34B7F1;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px 0;
-        }
-        .location-btn:hover {
-            opacity: 0.9;
-        }
-        .segment-tags {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin: 5px 0;
-        }
-        .segment-tags label {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: normal;
-            cursor: pointer;
-        }
-        .segment-tags input[type="radio"] {
-            width: auto;
-            margin: 0;
-        }
-        .file-upload {
-            border: 2px dashed #ddd;
-            padding: 20px;
-            text-align: center;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .file-upload:hover {
-            border-color: #0d47a1;
-            background: #f5f5f5;
-        }
-        .file-upload input[type="file"] {
-            display: none;
-        }
+// =============================================
+// DETECTAR PARÁMETRO DE PEDIDO
+// =============================================
+function checkOrderParam() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('pedido')) {
+        setTimeout(() => openOrderScreen(), 500);
+    }
+}
 
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-            .sidebar ul li {
-                display: inline-block;
-                padding: 10px 15px;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .grid-2, .grid-3 {
-                grid-template-columns: 1fr;
-            }
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
-            .header div {
-                margin-top: 10px;
-            }
-            .client-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .client-item .client-actions {
-                margin-top: 5px;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- ===== PANTALLA DE LOGIN ===== -->
-    <div id="loginScreen">
-        <div class="login-box">
-            <h2>💧 AguaMagica</h2>
-            <h3>Panel de Control</h3>
-            <input type="password" id="passwordInput" placeholder="Ingresa la contraseña" onkeydown="if(event.key==='Enter') login()">
-            <button class="login-btn" onclick="login()"><i class="fas fa-lock"></i> Acceder</button>
-            <div id="loginError" class="login-error">❌ Contraseña incorrecta</div>
-            <div class="login-info">🔑 Contraseña: agua2026</div>
-        </div>
-    </div>
-
-    <!-- ===== SISTEMA DE PEDIDOS PARA CLIENTES ===== -->
-    <div id="clientOrderScreen">
-        <div class="order-container">
-            <span class="close-order-btn" onclick="closeOrderScreen()">&times;</span>
-            <div class="logo">💧 AguaMagica</div>
-            <h3 style="text-align:center;">Haz tu Pedido</h3>
-            
-            <div id="productListOrder">
-                <h4>Productos:</h4>
-                <div id="orderProductItems"></div>
-            </div>
-
-            <div id="orderForm">
-                <!-- Datos del Cliente -->
-                <div class="form-group">
-                    <label>Nombre y Apellido <span class="required">*</span></label>
-                    <input type="text" id="clientNameOrder" placeholder="Ej: Juan Pérez" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Teléfono <span class="required">*</span></label>
-                    <input type="tel" id="clientPhoneOrder" placeholder="Ej: 04141234567" required>
-                    <div class="help-text">📱 Incluye código de área sin el 0</div>
-                </div>
-
-                <!-- Segmentación -->
-                <div class="form-group">
-                    <label>Segmento <span class="required">*</span></label>
-                    <div class="segment-tags">
-                        <label><input type="radio" name="segment" value="Hogar" checked> 🏠 Hogar</label>
-                        <label><input type="radio" name="segment" value="Comercio"> 🏪 Comercio</label>
-                        <label><input type="radio" name="segment" value="Institución"> 🏛️ Institución</label>
-                    </div>
-                </div>
-
-                <!-- Número de integrantes -->
-                <div class="form-group">
-                    <label>Número de integrantes/personas <span class="required">*</span></label>
-                    <input type="number" id="peopleCountOrder" min="1" value="1" required>
-                    <div class="help-text">👥 Para calcular el consumo estimado de agua</div>
-                </div>
-
-                <!-- Productos -->
-                <div class="form-group">
-                    <label>Selecciona Producto <span class="required">*</span></label>
-                    <select id="productSelectOrder" onchange="updateOrderTotal()">
-                        <option value="">Selecciona un producto</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Cantidad de botellones <span class="required">*</span></label>
-                    <input type="number" id="quantityOrder" min="1" value="1" onchange="updateOrderTotal()">
-                    <div class="help-text">💧 Recomendación: 1 botellón de 18L por persona cada 6 días</div>
-                </div>
-
-                <!-- Dirección de Entrega -->
-                <div class="form-group">
-                    <label>Dirección de Entrega <span class="required">*</span></label>
-                    <textarea id="deliveryAddressOrder" rows="2" placeholder="Dirección completa, puntos de referencia"></textarea>
-                    <button type="button" class="location-btn" onclick="shareLocation()">
-                        <i class="fas fa-location-dot"></i> Compartir Ubicación vía WhatsApp
-                    </button>
-                    <div class="help-text">📍 Haz clic en el botón para compartir tu ubicación en tiempo real</div>
-                </div>
-
-                <!-- Hora de Entrega -->
-                <div class="form-group">
-                    <label>Hora de Entrega <span class="required">*</span></label>
-                    <select id="deliveryTimeOrder">
-                        <option value="08:00">8:00 AM</option>
-                        <option value="09:00">9:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="13:00">1:00 PM</option>
-                        <option value="14:00">2:00 PM</option>
-                        <option value="15:00">3:00 PM</option>
-                        <option value="16:00">4:00 PM</option>
-                        <option value="17:00">5:00 PM</option>
-                        <option value="18:00">6:00 PM</option>
-                        <option value="19:00">7:00 PM</option>
-                    </select>
-                </div>
-
-                <!-- Método de Pago -->
-                <div class="form-group">
-                    <label>Método de Pago <span class="required">*</span></label>
-                    <select id="paymentMethodOrder" onchange="showPaymentInfo()">
-                        <option value="">Selecciona método de pago</option>
-                        <option value="PagoMóvil">PagoMóvil</option>
-                        <option value="Efectivo Bolívares">Efectivo Bolívares</option>
-                        <option value="Efectivo Divisas">Efectivo Divisas</option>
-                    </select>
-                </div>
-
-                <!-- Información de PagoMóvil -->
-                <div id="paymentInfo" class="payment-info">
-                    <h4>💳 Información PagoMóvil</h4>
-                    <p><strong>Banco:</strong> Banesco</p>
-                    <p><strong>C.I.:</strong> 16039118</p>
-                    <p><strong>Teléfono:</strong> 04141485985</p>
-                    <p style="font-size:0.9em;color:#666;margin-top:5px;">⚠️ Referencia: Tu nombre y número de pedido</p>
-                    
-                    <div class="form-group">
-                        <label>Comprobante de Pago:</label>
-                        <div class="file-upload" onclick="document.getElementById('paymentProof').click()">
-                            <i class="fas fa-cloud-upload-alt" style="font-size:2em;color:#0d47a1;"></i>
-                            <p>Haz clic para subir el comprobante</p>
-                            <p style="font-size:0.8em;color:#666;">Formatos: JPG, PNG, PDF</p>
-                            <input type="file" id="paymentProof" accept=".jpg,.jpeg,.png,.pdf">
-                        </div>
-                        <div id="proofFileName" style="font-size:0.9em;color:#2e7d32;margin-top:5px;"></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Instrucciones especiales:</label>
-                    <textarea id="instructionsOrder" rows="2" placeholder="Alguna indicación adicional..."></textarea>
-                </div>
-
-                <div class="total-display" id="totalDisplayOrder">Total: $0.00</div>
-
-                <button class="btn btn-whatsapp" onclick="sendOrderWhatsApp()" style="width:100%;padding:15px;font-size:1.1em;">
-                    <i class="fab fa-whatsapp"></i> Enviar Pedido por WhatsApp
-                </button>
-            </div>
-
-            <div style="text-align:center;margin-top:20px;">
-                <a href="https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==" target="_blank" style="color:#E4405F;text-decoration:none;">
-                    📸 Ver Publicación
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== PANEL DE CONTROL ===== -->
-    <div id="mainApp" style="display:none;">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <h2>💧 AguaMagica</h2>
-            <ul>
-                <li onclick="showTab('dashboard')"><i class="fas fa-home"></i> Dashboard</li>
-                <li onclick="showTab('clientes')"><i class="fas fa-users"></i> Clientes</li>
-                <li onclick="showTab('alertas')" class="badge"><i class="fas fa-bell"></i> Alertas Recompra <span class="badge-count" id="alertBadge">0</span></li>
-                <li onclick="showTab('mensajes')"><i class="fas fa-envelope"></i> Mensajes</li>
-                <li onclick="showTab('pedidos')"><i class="fas fa-shopping-cart"></i> Pedidos</li>
-                <li onclick="showTab('productos')"><i class="fas fa-box"></i> Productos</li>
-                <li onclick="showTab('reportes')"><i class="fas fa-chart-bar"></i> Reportes</li>
-                <li onclick="showTab('configuracion')"><i class="fas fa-cog"></i> Configuración</li>
-                <li class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</li>
-            </ul>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="header">
-                <h2>Panel de Control</h2>
-                <div>
-                    <span id="currentTime"></span>
-                    <button class="btn btn-success" onclick="sendBulkMessage()"><i class="fab fa-whatsapp"></i> Enviar Campaña</button>
-                    <button class="btn btn-info" onclick="openOrderScreen()"><i class="fas fa-shopping-cart"></i> Pedidos</button>
-                </div>
-            </div>
-
-            <!-- Dashboard -->
-            <div id="dashboard" class="tab active">
-                <div class="stats-grid">
-                    <div class="stat-card"><h3>Total Clientes</h3><p id="totalClients">0</p></div>
-                    <div class="stat-card"><h3>Pedidos Hoy</h3><p id="todayOrders">0</p></div>
-                    <div class="stat-card"><h3>Ventas Mes</h3><p id="monthSales">$0</p></div>
-                    <div class="stat-card"><h3>Alertas Recompra</h3><p id="alertCount" class="alert-count">0</p></div>
-                </div>
-                <div class="card">
-                    <h3>Accesos Rápidos</h3>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <a href="https://wa.me/584141485985" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-                        <a href="https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==" target="_blank" class="btn btn-info"><i class="fab fa-instagram"></i> Instagram</a>
-                        <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> Generar QR</button>
-                        <button class="btn btn-success" onclick="openOrderScreen()"><i class="fas fa-shopping-cart"></i> Sistema de Pedidos</button>
-                        <button class="btn btn-warning" onclick="showTab('alertas')"><i class="fas fa-bell"></i> Ver Alertas</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Clientes -->
-            <div id="clientes" class="tab">
-                <div class="grid-2">
-                    <div class="card">
-                        <h3><i class="fas fa-user-plus"></i> Agregar Clientes</h3>
-                        <label>Copiar y pegar lista (Nombre, Teléfono, Segmento):</label>
-                        <textarea id="clientBulkInput" rows="5" placeholder="Juan Pérez, 04141234567, Hogar&#10;María García, 04147654321, Comercio"></textarea>
-                        <button class="btn btn-success" onclick="addBulkClients()"><i class="fas fa-plus"></i> Agregar Clientes</button>
-                    </div>
-                    <div class="card">
-                        <h3><i class="fas fa-search"></i> Buscar Cliente</h3>
-                        <input type="text" id="clientSearch" placeholder="Buscar por nombre o teléfono" onkeyup="searchClients()">
-                        <div class="client-list" id="clientList"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Alertas Recompra -->
-            <div id="alertas" class="tab">
-                <div class="card">
-                    <h3><i class="fas fa-bell"></i> Alertas de Recompra</h3>
-                    <p style="color:#666;margin-bottom:15px;">📊 Clientes que necesitan reabastecimiento según su consumo (1 botellón/18L por persona cada 6 días)</p>
-                    <div id="alertList"></div>
-                    <div style="margin-top:15px;">
-                        <button class="btn btn-whatsapp" onclick="sendAlerts('whatsapp')"><i class="fab fa-whatsapp"></i> Enviar Alertas por WhatsApp</button>
-                        <button class="btn btn-sms" onclick="sendAlerts('sms')"><i class="fas fa-sms"></i> Enviar Alertas por SMS</button>
-                        <button class="btn btn-email" onclick="sendAlerts('email')"><i class="fas fa-envelope"></i> Enviar Alertas por Email</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mensajes -->
-            <div id="mensajes" class="tab">
-                <div class="card">
-                    <h3><i class="fas fa-edit"></i> Editor de Mensajes</h3>
-                    <textarea id="messageEditor" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
-                    <button class="btn" onclick="saveMessage()"><i class="fas fa-save"></i> Guardar Mensaje</button>
-                    <button class="btn btn-success" onclick="syncToGitHub()"><i class="fab fa-github"></i> Sincronizar con GitHub</button>
-                    <div style="margin-top:10px;">
-                        <label>Mensajes Guardados:</label>
-                        <select id="savedMessages" onchange="loadMessage()"></select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pedidos -->
-            <div id="pedidos" class="tab">
-                <div class="card">
-                    <h3><i class="fas fa-clipboard-list"></i> Historial de Pedidos</h3>
-                    <select id="periodFilter" onchange="filterOrders()">
-                        <option value="hour">Hora</option>
-                        <option value="day">Día</option>
-                        <option value="week">Semana</option>
-                        <option value="biweek">Quincena</option>
-                        <option value="month">Mes</option>
-                        <option value="quarter">Trimestre</option>
-                        <option value="semester">Semestre</option>
-                        <option value="year">Año</option>
-                    </select>
-                    <div id="orderHistory"></div>
-                </div>
-            </div>
-
-            <!-- Productos -->
-            <div id="productos" class="tab">
-                <div class="card">
-                    <h3><i class="fas fa-boxes"></i> Gestión de Productos</h3>
-                    <div class="grid-2">
-                        <div>
-                            <input type="text" id="productName" placeholder="Nombre del producto">
-                            <input type="number" id="productPrice" placeholder="Precio">
-                            <button class="btn btn-success" onclick="addProduct()"><i class="fas fa-plus"></i> Agregar Producto</button>
-                        </div>
-                        <div id="productList"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reportes -->
-            <div id="reportes" class="tab">
-                <div class="card">
-                    <h3><i class="fas fa-chart-line"></i> Reportes y Estadísticas</h3>
-                    <div id="reportsContent"></div>
-                </div>
-            </div>
-
-            <!-- Configuración -->
-            <div id="configuracion" class="tab">
-                <div class="card">
-                    <h3><i class="fas fa-qrcode"></i> Código QR</h3>
-                    <div class="qr-container">
-                        <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> Generar QR</button>
-                        <div id="qrResult"></div>
-                    </div>
-                    <h3>Link de Acceso</h3>
-                    <input type="text" id="shortLink" value="https://aguamagica.github.io/aguamagica-panel/" readonly>
-                    <button class="btn" onclick="copyLink()"><i class="fas fa-copy"></i> Copiar Link</button>
-                    <h3>Link de Pedidos</h3>
-                    <input type="text" id="orderLink" value="https://aguamagica.github.io/aguamagica-panel/?pedido" readonly>
-                    <button class="btn" onclick="copyOrderLink()"><i class="fas fa-copy"></i> Copiar Link</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Cliente -->
-    <div id="clientModal" class="modal">
-        <div class="modal-content">
-            <h3>Detalles del Cliente</h3>
-            <div id="clientDetails"></div>
-            <button class="btn" onclick="closeModal()">Cerrar</button>
-        </div>
-    </div>
-
-    <script>
-        // =============================================
-        // CONFIGURACIÓN
-        // =============================================
-        const CONFIG = {
-            password: 'agua2026',
-            whatsappNumber: '584141485985',
-            instagramLink: 'https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==',
-            githubUser: 'AguaMagica',
-            repoName: 'aguamagica-panel',
-            paymentInfo: {
-                banco: 'Banesco',
-                ci: '16039118',
-                telefono: '04141485985'
-            },
-            // Consumo: 1 botellón de 18L por persona cada 6 días
-            consumptionRate: 6 // días
-        };
-
-        // =============================================
-        // BASE DE DATOS
-        // =============================================
-        let db = {
-            clients: [],
-            messages: [],
-            products: [],
-            orders: [],
-            responses: [],
-            campaigns: []
-        };
-
-        // =============================================
-        // INICIALIZAR DATOS DE EJEMPLO
-        // =============================================
-        function initializeDB() {
-            if (!localStorage.getItem('aguamagica_db')) {
-                db.products = [
-                    { name: 'Botellón 18L', price: 3.50 }
-                ];
-                db.messages = [
-                    { name: 'Bienvenida', content: '¡Bienvenido a AguaMagica! 🚀' },
-                    { name: 'Promoción', content: '🔥 OFERTA: 2x1 en botellones 18L' }
-                ];
-                saveDB();
-            }
-        }
-
-        // =============================================
-        // LOGIN
-        // =============================================
-        function login() {
-            const input = document.getElementById('passwordInput').value;
-            if (input === CONFIG.password) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
+// =============================================
+// COMPARTIR UBICACIÓN
+// =============================================
+function shareLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                const message = `📍 Mi ubicación actual: ${mapsUrl}`;
                 
-                initializeDB();
-                loadDB();
-                updateUI();
-                updateClock();
-                setInterval(updateClock, 1000);
-                checkOrderParam();
-            } else {
-                document.getElementById('loginError').style.display = 'block';
-                setTimeout(() => {
-                    document.getElementById('loginError').style.display = 'none';
-                }, 3000);
+                const addressField = document.getElementById('deliveryAddressOrder');
+                addressField.value = `📍 Ubicación compartida: ${mapsUrl}`;
+                
+                if (confirm('¿Enviar ubicación por WhatsApp ahora?')) {
+                    const phone = CONFIG.whatsappNumber;
+                    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                    window.open(url, '_blank');
+                }
+            },
+            function(error) {
+                alert('⚠️ No se pudo obtener la ubicación. Por favor ingresa la dirección manualmente.');
             }
-        }
+        );
+    } else {
+        alert('⚠️ Tu navegador no soporta geolocalización. Por favor ingresa la dirección manualmente.');
+    }
+}
 
-        function logout() {
-            if (confirm('¿Cerrar sesión?')) {
-                document.getElementById('mainApp').style.display = 'none';
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('passwordInput').value = '';
-            }
-        }
+// =============================================
+// SISTEMA DE PEDIDOS PARA CLIENTES
+// =============================================
+function openOrderScreen() {
+    document.getElementById('clientOrderScreen').style.display = 'flex';
+    loadProductsOrder();
+    document.getElementById('clientNameOrder').value = '';
+    document.getElementById('clientPhoneOrder').value = '';
+    document.getElementById('peopleCountOrder').value = '1';
+    document.getElementById('deliveryAddressOrder').value = '';
+    document.getElementById('instructionsOrder').value = '';
+    document.getElementById('paymentMethodOrder').value = '';
+    document.getElementById('paymentInfo').classList.remove('active');
+    document.getElementById('proofFileName').textContent = '';
+    document.getElementById('paymentProof').value = '';
+    document.querySelector('input[name="segment"][value="Hogar"]').checked = true;
+}
 
-        // =============================================
-        // DETECTAR PARÁMETRO DE PEDIDO
-        // =============================================
-        function checkOrderParam() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('pedido')) {
-                setTimeout(() => openOrderScreen(), 500);
-            }
-        }
+function closeOrderScreen() {
+    document.getElementById('clientOrderScreen').style.display = 'none';
+}
 
-        // =============================================
-        // COMPARTIR UBICACIÓN
-        // =============================================
-        function shareLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-                        const message = `📍 Mi ubicación actual: ${mapsUrl}`;
-                        
-                        // Mostrar en el campo de dirección
-                        const addressField = document.getElementById('deliveryAddressOrder');
-                        addressField.value = `📍 Ubicación compartida: ${mapsUrl}`;
-                        
-                        // Opcional: Enviar por WhatsApp directamente
-                        if (confirm('¿Enviar ubicación por WhatsApp ahora?')) {
-                            const phone = document.getElementById('clientPhoneOrder').value || CONFIG.whatsappNumber;
-                            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-                            window.open(url, '_blank');
-                        }
-                    },
-                    function(error) {
-                        alert('⚠️ No se pudo obtener la ubicación. Por favor ingresa la dirección manualmente.');
-                    }
-                );
-            } else {
-                alert('⚠️ Tu navegador no soporta geolocalización. Por favor ingresa la dirección manualmente.');
-            }
-        }
+function showPaymentInfo() {
+    const method = document.getElementById('paymentMethodOrder').value;
+    const infoDiv = document.getElementById('paymentInfo');
+    if (method === 'PagoMóvil') {
+        infoDiv.classList.add('active');
+    } else {
+        infoDiv.classList.remove('active');
+    }
+}
 
-        // =============================================
-        // SISTEMA DE PEDIDOS PARA CLIENTES
-        // =============================================
-        function openOrderScreen() {
-            document.getElementById('clientOrderScreen').style.display = 'flex';
-            loadProductsOrder();
-            // Limpiar campos
-            document.getElementById('clientNameOrder').value = '';
-            document.getElementById('clientPhoneOrder').value = '';
-            document.getElementById('peopleCountOrder').value = '1';
-            document.getElementById('deliveryAddressOrder').value = '';
-            document.getElementById('instructionsOrder').value = '';
-            document.getElementById('paymentMethodOrder').value = '';
-            document.getElementById('paymentInfo').classList.remove('active');
-            document.getElementById('proofFileName').textContent = '';
-            document.getElementById('paymentProof').value = '';
-            // Segmento por defecto
-            document.querySelector('input[name="segment"][value="Hogar"]').checked = true;
-        }
-
-        function closeOrderScreen() {
-            document.getElementById('clientOrderScreen').style.display = 'none';
-        }
-
-        function showPaymentInfo() {
-            const method = document.getElementById('paymentMethodOrder').value;
-            const infoDiv = document.getElementById('paymentInfo');
-            if (method === 'PagoMóvil') {
-                infoDiv.classList.add('active');
-            } else {
-                infoDiv.classList.remove('active');
-            }
-        }
-
-        // Subir comprobante
-        document.addEventListener('DOMContentLoaded', function() {
-            const fileInput = document.getElementById('paymentProof');
-            if (fileInput) {
-                fileInput.addEventListener('change', function() {
-                    if (this.files && this.files[0]) {
-                        document.getElementById('proofFileName').textContent = `✅ Archivo: ${this.files[0].name}`;
-                    }
-                });
+// Subir comprobante
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('paymentProof');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                document.getElementById('proofFileName').textContent = `✅ Archivo: ${this.files[0].name}`;
             }
         });
+    }
+});
 
-        function loadProductsOrder() {
-            const select = document.getElementById('productSelectOrder');
-            const itemsDiv = document.getElementById('orderProductItems');
-            
-            select.innerHTML = '<option value="">Selecciona un producto</option>';
-            itemsDiv.innerHTML = '';
-            
-            db.products.forEach(product => {
-                const option = document.createElement('option');
-                option.value = product.price;
-                option.textContent = `${product.name} - $${product.price.toFixed(2)}`;
-                select.appendChild(option);
-                
-                const item = document.createElement('div');
-                item.className = 'product-item';
-                item.innerHTML = `<span>${product.name}</span><span>$${product.price.toFixed(2)}</span>`;
-                itemsDiv.appendChild(item);
-            });
-            
-            if (db.products.length === 0) {
-                itemsDiv.innerHTML = '<p style="color:#999;">No hay productos cargados. Agrega productos desde el panel.</p>';
-            }
-            
-            updateOrderTotal();
-        }
+function loadProductsOrder() {
+    const select = document.getElementById('productSelectOrder');
+    const itemsDiv = document.getElementById('orderProductItems');
+    
+    select.innerHTML = '<option value="">Selecciona un producto</option>';
+    itemsDiv.innerHTML = '';
+    
+    db.products.forEach(product => {
+        const option = document.createElement('option');
+        option.value = product.price;
+        option.textContent = `${product.name} - $${product.price.toFixed(2)}`;
+        select.appendChild(option);
+        
+        const item = document.createElement('div');
+        item.className = 'product-item';
+        item.innerHTML = `<span>${product.name}</span><span>$${product.price.toFixed(2)}</span>`;
+        itemsDiv.appendChild(item);
+    });
+    
+    if (db.products.length === 0) {
+        itemsDiv.innerHTML = '<p style="color:#999;">No hay productos cargados. Agrega productos desde el panel.</p>';
+    }
+    
+    updateOrderTotal();
+}
 
-        function updateOrderTotal() {
-            const price = parseFloat(document.getElementById('productSelectOrder').value);
-            const quantity = parseInt(document.getElementById('quantityOrder').value) || 0;
-            const total = price * quantity;
-            document.getElementById('totalDisplayOrder').textContent = `Total: $${isNaN(total) ? '0.00' : total.toFixed(2)}`;
-        }
+function updateOrderTotal() {
+    const price = parseFloat(document.getElementById('productSelectOrder').value);
+    const quantity = parseInt(document.getElementById('quantityOrder').value) || 0;
+    const total = price * quantity;
+    document.getElementById('totalDisplayOrder').textContent = `Total: $${isNaN(total) ? '0.00' : total.toFixed(2)}`;
+}
 
-        function sendOrderWhatsApp() {
-            // Obtener todos los datos del pedido
-            const clientName = document.getElementById('clientNameOrder').value.trim();
-            const clientPhone = document.getElementById('clientPhoneOrder').value.trim();
-            const segment = document.querySelector('input[name="segment"]:checked')?.value || 'Hogar';
-            const peopleCount = document.getElementById('peopleCountOrder').value;
-            const productSelect = document.getElementById('productSelectOrder');
-            const productName = productSelect.options[productSelect.selectedIndex]?.text || '';
-            const quantity = document.getElementById('quantityOrder').value;
-            const deliveryAddress = document.getElementById('deliveryAddressOrder').value.trim();
-            const deliveryTime = document.getElementById('deliveryTimeOrder').value;
-            const paymentMethod = document.getElementById('paymentMethodOrder').value;
-            const instructions = document.getElementById('instructionsOrder').value.trim();
-            const total = document.getElementById('totalDisplayOrder').textContent;
-            const proofFile = document.getElementById('paymentProof').files[0];
+// =============================================
+// FUNCIÓN CORREGIDA - ENVÍA AL NÚMERO DE LA EMPRESA
+// =============================================
+function sendOrderWhatsApp() {
+    // Obtener todos los datos del pedido
+    const clientName = document.getElementById('clientNameOrder').value.trim();
+    const clientPhone = document.getElementById('clientPhoneOrder').value.trim();
+    const segment = document.querySelector('input[name="segment"]:checked')?.value || 'Hogar';
+    const peopleCount = document.getElementById('peopleCountOrder').value;
+    const productSelect = document.getElementById('productSelectOrder');
+    const productName = productSelect.options[productSelect.selectedIndex]?.text || '';
+    const quantity = document.getElementById('quantityOrder').value;
+    const deliveryAddress = document.getElementById('deliveryAddressOrder').value.trim();
+    const deliveryTime = document.getElementById('deliveryTimeOrder').value;
+    const paymentMethod = document.getElementById('paymentMethodOrder').value;
+    const instructions = document.getElementById('instructionsOrder').value.trim();
+    const total = document.getElementById('totalDisplayOrder').textContent;
+    const proofFile = document.getElementById('paymentProof').files[0];
 
-            // Validaciones
-            if (!clientName) {
-                alert('⚠️ Por favor ingresa tu nombre y apellido');
-                document.getElementById('clientNameOrder').focus();
-                return;
-            }
+    // Validaciones
+    if (!clientName) {
+        alert('⚠️ Por favor ingresa tu nombre y apellido');
+        document.getElementById('clientNameOrder').focus();
+        return;
+    }
 
-            if (!clientPhone) {
-                alert('⚠️ Por favor ingresa tu número de teléfono');
-                document.getElementById('clientPhoneOrder').focus();
-                return;
-            }
+    if (!clientPhone) {
+        alert('⚠️ Por favor ingresa tu número de teléfono');
+        document.getElementById('clientPhoneOrder').focus();
+        return;
+    }
 
-            if (!productSelect.value) {
-                alert('⚠️ Por favor selecciona un producto');
-                return;
-            }
+    if (!productSelect.value) {
+        alert('⚠️ Por favor selecciona un producto');
+        return;
+    }
 
-            if (!deliveryAddress) {
-                alert('⚠️ Por favor ingresa la dirección de entrega o comparte tu ubicación');
-                document.getElementById('deliveryAddressOrder').focus();
-                return;
-            }
+    if (!deliveryAddress) {
+        alert('⚠️ Por favor ingresa la dirección de entrega o comparte tu ubicación');
+        document.getElementById('deliveryAddressOrder').focus();
+        return;
+    }
 
-            if (!paymentMethod) {
-                alert('⚠️ Por favor selecciona el método de pago');
-                document.getElementById('paymentMethodOrder').focus();
-                return;
-            }
+    if (!paymentMethod) {
+        alert('⚠️ Por favor selecciona el método de pago');
+        document.getElementById('paymentMethodOrder').focus();
+        return;
+    }
 
-            // Construir mensaje con saludo según hora
-            const hour = new Date().getHours();
-            let greeting = '';
-            if (hour >= 5 && hour < 12) greeting = '🌅 Buenos días';
-            else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
-            else greeting = '🌙 Buenas noches';
+    // Construir mensaje con saludo según hora
+    const hour = new Date().getHours();
+    let greeting = '';
+    if (hour >= 5 && hour < 12) greeting = '🌅 Buenos días';
+    else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
+    else greeting = '🌙 Buenas noches';
 
-            let message = `💧 *NUEVO PEDIDO - AGUAMAGICA*
+    let message = `💧 *NUEVO PEDIDO - AGUAMAGICA*
 
 ${greeting} *${clientName}*, gracias por tu pedido 🙏
 
@@ -1045,9 +265,9 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
 
 💳 *Método de Pago:* ${paymentMethod}`;
 
-            // Agregar información de PagoMóvil si aplica
-            if (paymentMethod === 'PagoMóvil') {
-                message += `
+    // Agregar información de PagoMóvil si aplica
+    if (paymentMethod === 'PagoMóvil') {
+        message += `
 
 💳 *Información PagoMóvil:*
 🏦 Banco: ${CONFIG.paymentInfo.banco}
@@ -1055,190 +275,189 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
 📱 Teléfono: ${CONFIG.paymentInfo.telefono}
 ⚠️ Referencia: ${clientName} - Pedido ${Date.now().toString().slice(-6)}`;
 
-                if (proofFile) {
-                    message += `\n📎 *Comprobante:* ${proofFile.name}`;
-                }
-            }
+        if (proofFile) {
+            message += `\n📎 *Comprobante:* ${proofFile.name}`;
+        }
+    }
 
-            // Calcular próximo pedido
-            const nextOrder = parseInt(peopleCount) * CONFIG.consumptionRate;
-            message += `
+    // Calcular próximo pedido
+    const nextOrder = parseInt(peopleCount) * CONFIG.consumptionRate;
+    message += `
 
 📊 *Consumo estimado:*
 💧 ${peopleCount} personas × 1 botellón cada ${CONFIG.consumptionRate} días
 🔄 Próximo pedido sugerido en ${nextOrder} días`;
 
-            if (instructions) {
-                message += `
+    if (instructions) {
+        message += `
 
 📝 *Instrucciones:* ${instructions}`;
-            }
+    }
 
-            message += `
+    message += `
 
 📸 ${CONFIG.instagramLink}
 
 ¡Gracias por confiar en AguaMagica! 🚀`;
 
-            // Guardar en la base de datos
-            const orderData = {
-                clientName: clientName,
-                clientPhone: clientPhone,
-                segment: segment,
-                peopleCount: parseInt(peopleCount),
-                product: productName,
-                quantity: parseInt(quantity),
-                total: total,
-                deliveryAddress: deliveryAddress,
-                deliveryTime: deliveryTime,
-                paymentMethod: paymentMethod,
-                instructions: instructions,
-                proofFile: proofFile ? proofFile.name : null,
-                date: new Date().toISOString(),
-                status: 'enviado',
-                nextOrderDays: parseInt(peopleCount) * CONFIG.consumptionRate
-            };
+    // Guardar en la base de datos
+    const orderData = {
+        clientName: clientName,
+        clientPhone: clientPhone,
+        segment: segment,
+        peopleCount: parseInt(peopleCount),
+        product: productName,
+        quantity: parseInt(quantity),
+        total: total,
+        deliveryAddress: deliveryAddress,
+        deliveryTime: deliveryTime,
+        paymentMethod: paymentMethod,
+        instructions: instructions,
+        proofFile: proofFile ? proofFile.name : null,
+        date: new Date().toISOString(),
+        status: 'enviado',
+        nextOrderDays: parseInt(peopleCount) * CONFIG.consumptionRate
+    };
 
-            db.orders.push(orderData);
+    db.orders.push(orderData);
 
-            // Verificar si el cliente ya existe
-            const existingClient = db.clients.find(c => c.phone === clientPhone);
-            if (!existingClient) {
-                db.clients.push({
-                    name: clientName,
-                    phone: clientPhone,
-                    segment: segment,
-                    peopleCount: parseInt(peopleCount),
-                    history: [],
-                    responses: [],
-                    firstOrder: new Date().toISOString(),
-                    lastOrder: new Date().toISOString()
+    // Verificar si el cliente ya existe
+    const existingClient = db.clients.find(c => c.phone === clientPhone);
+    if (!existingClient) {
+        db.clients.push({
+            name: clientName,
+            phone: clientPhone,
+            segment: segment,
+            peopleCount: parseInt(peopleCount),
+            history: [],
+            responses: [],
+            firstOrder: new Date().toISOString(),
+            lastOrder: new Date().toISOString()
+        });
+    } else {
+        existingClient.lastOrder = new Date().toISOString();
+        existingClient.peopleCount = parseInt(peopleCount);
+        existingClient.segment = segment;
+    }
+
+    db.responses.push({
+        client: clientName,
+        phone: clientPhone,
+        message: message,
+        date: new Date().toISOString(),
+        type: 'pedido',
+        order: orderData
+    });
+
+    saveDB();
+
+    // 🔥 CORREGIDO: Enviar al número de la empresa
+    const empresaPhone = CONFIG.whatsappNumber;
+    const url = `https://wa.me/${empresaPhone}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+    
+    closeOrderScreen();
+    
+    setTimeout(() => {
+        alert(`✅ Pedido enviado exitosamente!\n\n${greeting} ${clientName.split(' ')[0]}, gracias por tu pedido. Nos pondremos en contacto contigo.`);
+    }, 500);
+}
+
+// =============================================
+// RESTO DE FUNCIONES (sin cambios)
+// =============================================
+
+// ALERTAS DE RECOMPRA
+function checkRecompraAlerts() {
+    const alerts = [];
+    const today = new Date();
+    
+    db.clients.forEach(client => {
+        const lastOrder = db.orders.filter(o => o.clientPhone === client.phone).sort((a, b) => 
+            new Date(b.date) - new Date(a.date)
+        )[0];
+        
+        if (lastOrder) {
+            const lastDate = new Date(lastOrder.date);
+            const daysDiff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+            const people = client.peopleCount || 1;
+            const threshold = people * CONFIG.consumptionRate;
+            
+            if (daysDiff >= threshold) {
+                alerts.push({
+                    client: client,
+                    lastOrder: lastOrder,
+                    daysDiff: daysDiff,
+                    threshold: threshold,
+                    peopleCount: people,
+                    suggestedQuantity: people
                 });
-            } else {
-                // Actualizar último pedido
-                existingClient.lastOrder = new Date().toISOString();
-                existingClient.peopleCount = parseInt(peopleCount);
-                existingClient.segment = segment;
             }
-
-            // Registrar respuesta del cliente
-            db.responses.push({
-                client: clientName,
-                phone: clientPhone,
-                message: message,
-                date: new Date().toISOString(),
-                type: 'pedido',
-                order: orderData
-            });
-
-            saveDB();
-
-            // Enviar por WhatsApp
-            const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-            
-            closeOrderScreen();
-            
-            // Mostrar confirmación
-            setTimeout(() => {
-                alert(`✅ Pedido enviado exitosamente!\n\n${greeting} ${clientName.split(' ')[0]}, gracias por tu pedido. Nos pondremos en contacto contigo.`);
-            }, 500);
         }
+    });
+    
+    return alerts;
+}
 
-        // =============================================
-        // ALERTAS DE RECOMPRA
-        // =============================================
-        function checkRecompraAlerts() {
-            const alerts = [];
-            const today = new Date();
-            
-            db.clients.forEach(client => {
-                // Buscar último pedido del cliente
-                const lastOrder = db.orders.filter(o => o.clientPhone === client.phone).sort((a, b) => 
-                    new Date(b.date) - new Date(a.date)
-                )[0];
-                
-                if (lastOrder) {
-                    const lastDate = new Date(lastOrder.date);
-                    const daysDiff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-                    const people = client.peopleCount || 1;
-                    const threshold = people * CONFIG.consumptionRate;
-                    
-                    if (daysDiff >= threshold) {
-                        alerts.push({
-                            client: client,
-                            lastOrder: lastOrder,
-                            daysDiff: daysDiff,
-                            threshold: threshold,
-                            peopleCount: people,
-                            suggestedQuantity: people
-                        });
-                    }
-                }
-            });
-            
-            return alerts;
-        }
-
-        function updateAlerts() {
-            const alerts = checkRecompraAlerts();
-            const alertDiv = document.getElementById('alertList');
-            const badge = document.getElementById('alertBadge');
-            const count = document.getElementById('alertCount');
-            
-            badge.textContent = alerts.length;
-            count.textContent = alerts.length;
-            
-            if (alerts.length === 0) {
-                alertDiv.innerHTML = '<p style="color:#999;">✅ No hay alertas de recompra pendientes</p>';
-                return;
-            }
-            
-            alertDiv.innerHTML = alerts.map((alert, index) => `
-                <div style="border:1px solid #ff6b6b;border-radius:8px;padding:15px;margin-bottom:10px;background:#fff5f5;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
-                        <div>
-                            <strong>${alert.client.name}</strong> - ${alert.client.phone}
-                            <br><span style="font-size:0.9em;color:#666;">
-                                🏷️ ${alert.client.segment || 'Hogar'} | 👥 ${alert.peopleCount} personas
-                            </span>
-                        </div>
-                        <div style="text-align:right;">
-                            <span style="background:#ff6b6b;color:white;padding:3px 10px;border-radius:12px;font-size:0.85em;">
-                                ⚠️ ${alert.daysDiff} días sin pedir
-                            </span>
-                            <br><span style="font-size:0.8em;color:#666;">
-                                Recomendado: ${alert.suggestedQuantity} botellones
-                            </span>
-                        </div>
-                    </div>
-                    <div style="margin-top:10px;display:flex;gap:5px;flex-wrap:wrap;">
-                        <button class="btn btn-whatsapp btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'whatsapp')">
-                            <i class="fab fa-whatsapp"></i> WhatsApp
-                        </button>
-                        <button class="btn btn-sms btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'sms')">
-                            <i class="fas fa-sms"></i> SMS
-                        </button>
-                        <button class="btn btn-email btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'email')">
-                            <i class="fas fa-envelope"></i> Email
-                        </button>
-                        <button class="btn btn-info btn-sm" onclick="viewClientAlerts(${db.clients.indexOf(alert.client)})">
-                            <i class="fas fa-eye"></i> Ver Detalles
-                        </button>
-                    </div>
+function updateAlerts() {
+    const alerts = checkRecompraAlerts();
+    const alertDiv = document.getElementById('alertList');
+    const badge = document.getElementById('alertBadge');
+    const count = document.getElementById('alertCount');
+    
+    badge.textContent = alerts.length;
+    count.textContent = alerts.length;
+    
+    if (alerts.length === 0) {
+        alertDiv.innerHTML = '<p style="color:#999;">✅ No hay alertas de recompra pendientes</p>';
+        return;
+    }
+    
+    alertDiv.innerHTML = alerts.map((alert, index) => `
+        <div style="border:1px solid #ff6b6b;border-radius:8px;padding:15px;margin-bottom:10px;background:#fff5f5;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+                <div>
+                    <strong>${alert.client.name}</strong> - ${alert.client.phone}
+                    <br><span style="font-size:0.9em;color:#666;">
+                        🏷️ ${alert.client.segment || 'Hogar'} | 👥 ${alert.peopleCount} personas
+                    </span>
                 </div>
-            `).join('');
-        }
+                <div style="text-align:right;">
+                    <span style="background:#ff6b6b;color:white;padding:3px 10px;border-radius:12px;font-size:0.85em;">
+                        ⚠️ ${alert.daysDiff} días sin pedir
+                    </span>
+                    <br><span style="font-size:0.8em;color:#666;">
+                        Recomendado: ${alert.suggestedQuantity} botellones
+                    </span>
+                </div>
+            </div>
+            <div style="margin-top:10px;display:flex;gap:5px;flex-wrap:wrap;">
+                <button class="btn btn-whatsapp btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'whatsapp')">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button class="btn btn-sms btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'sms')">
+                    <i class="fas fa-sms"></i> SMS
+                </button>
+                <button class="btn btn-email btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'email')">
+                    <i class="fas fa-envelope"></i> Email
+                </button>
+                <button class="btn btn-info btn-sm" onclick="viewClientAlerts(${db.clients.indexOf(alert.client)})">
+                    <i class="fas fa-eye"></i> Ver Detalles
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
 
-        function sendAlertToClient(phone, name, quantity, method) {
-            const hour = new Date().getHours();
-            let greeting = '';
-            if (hour >= 5 && hour < 12) greeting = '🌅 Buenos días';
-            else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
-            else greeting = '🌙 Buenas noches';
+function sendAlertToClient(phone, name, quantity, method) {
+    const hour = new Date().getHours();
+    let greeting = '';
+    if (hour >= 5 && hour < 12) greeting = '🌅 Buenos días';
+    else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
+    else greeting = '🌙 Buenas noches';
 
-            const message = `${greeting} *${name}*, 
-            
+    const message = `${greeting} *${name}*, 
+    
 💧 En AguaMagica estamos listos para hacer el mantenimiento y llenado de tus botellones.
 
 📦 *Tu último pedido fue de ${quantity} botellones*
@@ -1254,634 +473,601 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
 
 📸 ${CONFIG.instagramLink}`;
 
-            let url = '';
-            switch(method) {
-                case 'whatsapp':
-                    url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-                    break;
-                case 'sms':
-                    url = `sms:${phone}?body=${encodeURIComponent(message)}`;
-                    break;
-                case 'email':
-                    url = `mailto:?subject=Recompra AguaMagica&body=${encodeURIComponent(message)}`;
-                    break;
+    let url = '';
+    switch(method) {
+        case 'whatsapp':
+            url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            break;
+        case 'sms':
+            url = `sms:${phone}?body=${encodeURIComponent(message)}`;
+            break;
+        case 'email':
+            url = `mailto:?subject=Recompra AguaMagica&body=${encodeURIComponent(message)}`;
+            break;
+    }
+    
+    window.open(url, '_blank');
+    
+    db.responses.push({
+        client: name,
+        phone: phone,
+        message: message,
+        date: new Date().toISOString(),
+        type: 'alerta_recompra',
+        method: method
+    });
+    saveDB();
+}
+
+function sendAlerts(method) {
+    const alerts = checkRecompraAlerts();
+    if (alerts.length === 0) {
+        alert('✅ No hay alertas pendientes');
+        return;
+    }
+    
+    if (!confirm(`¿Enviar ${alerts.length} alertas por ${method.toUpperCase()}?`)) return;
+    
+    alerts.forEach(alert => {
+        sendAlertToClient(
+            alert.client.phone,
+            alert.client.name,
+            alert.suggestedQuantity,
+            method
+        );
+        setTimeout(() => {}, 1000);
+    });
+    
+    alert(`✅ ${alerts.length} alertas enviadas por ${method.toUpperCase()}`);
+}
+
+function viewClientAlerts(index) {
+    viewClient(index);
+}
+
+// =============================================
+// GESTIÓN DE DATOS
+// =============================================
+function loadDB() {
+    const saved = localStorage.getItem('aguamagica_db');
+    if (saved) {
+        db = JSON.parse(saved);
+    }
+    updateUI();
+}
+
+function saveDB() {
+    localStorage.setItem('aguamagica_db', JSON.stringify(db));
+    updateUI();
+}
+
+function updateUI() {
+    document.getElementById('totalClients').textContent = db.clients.length;
+    document.getElementById('totalMessages').textContent = db.responses.length;
+    
+    const today = new Date().toDateString();
+    const todayOrders = db.orders.filter(o => new Date(o.date).toDateString() === today);
+    document.getElementById('todayOrders').textContent = todayOrders.length;
+    
+    const month = new Date().getMonth();
+    const monthOrders = db.orders.filter(o => new Date(o.date).getMonth() === month);
+    const totalSales = monthOrders.reduce((sum, o) => {
+        const num = parseFloat(o.total.replace(/[^0-9.]/g, ''));
+        return sum + (isNaN(num) ? 0 : num);
+    }, 0);
+    document.getElementById('monthSales').textContent = `$${totalSales.toFixed(2)}`;
+    
+    updateClientList();
+    updateSavedMessages();
+    updateProductList();
+    updateOrderHistory();
+    updateReports();
+    updateAlerts();
+}
+
+// =============================================
+// CLIENTES
+// =============================================
+function updateClientList() {
+    const search = document.getElementById('clientSearch').value.toLowerCase();
+    const div = document.getElementById('clientList');
+    div.innerHTML = '';
+    
+    const filtered = db.clients.filter(c => 
+        c.name.toLowerCase().includes(search) || 
+        c.phone.includes(search)
+    );
+    
+    filtered.forEach((client, index) => {
+        const realIndex = db.clients.indexOf(client);
+        const alerts = checkRecompraAlerts();
+        const hasAlert = alerts.some(a => a.client.phone === client.phone);
+        
+        const divItem = document.createElement('div');
+        divItem.className = 'client-item';
+        divItem.innerHTML = `
+            <div class="client-info">
+                <input type="checkbox" onchange="selectClient(${realIndex})">
+                <strong>${client.name}</strong> - ${client.phone}
+                <span style="font-size:0.8em;color:#999;margin-left:5px;">
+                    🏷️ ${client.segment || 'Hogar'} | 👥 ${client.peopleCount || 1}
+                    ${hasAlert ? '<span class="alert-badge">⚠️ Recompra</span>' : ''}
+                </span>
+            </div>
+            <div class="client-actions">
+                <button class="btn btn-info btn-sm" onclick="viewClient(${realIndex})"><i class="fas fa-eye"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteClient(${realIndex})"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+        div.appendChild(divItem);
+    });
+    
+    if (filtered.length === 0) {
+        div.innerHTML = '<p style="color:#999;text-align:center;">No hay clientes registrados</p>';
+    }
+}
+
+function addBulkClients() {
+    const input = document.getElementById('clientBulkInput').value;
+    const lines = input.split('\n').filter(l => l.trim());
+    let added = 0;
+    
+    lines.forEach(line => {
+        const parts = line.split(',').map(s => s.trim());
+        if (parts.length >= 2) {
+            const name = parts[0];
+            const phone = parts[1].replace(/\s/g, '');
+            const segment = parts[2] || 'Hogar';
+            if (name && phone) {
+                db.clients.push({
+                    name: name,
+                    phone: phone,
+                    segment: segment,
+                    peopleCount: 1,
+                    history: [],
+                    responses: [],
+                    firstOrder: new Date().toISOString(),
+                    lastOrder: new Date().toISOString()
+                });
+                added++;
             }
-            
+        }
+    });
+    
+    if (added > 0) {
+        saveDB();
+        document.getElementById('clientBulkInput').value = '';
+        alert(`✅ ${added} clientes agregados exitosamente!`);
+    } else {
+        alert('⚠️ No se pudo agregar ningún cliente. Verifica el formato (Nombre, Teléfono, Segmento)');
+    }
+}
+
+function viewClient(index) {
+    const client = db.clients[index];
+    const modal = document.getElementById('clientModal');
+    const orders = db.orders.filter(o => o.clientPhone === client.phone);
+    
+    const alerts = checkRecompraAlerts();
+    const hasAlert = alerts.some(a => a.client.phone === client.phone);
+    const alertInfo = alerts.find(a => a.client.phone === client.phone);
+    
+    document.getElementById('clientDetails').innerHTML = `
+        <h4>${client.name}</h4>
+        <p>📱 ${client.phone}</p>
+        <p>🏷️ ${client.segment || 'Hogar'}</p>
+        <p>👥 ${client.peopleCount || 1} integrantes</p>
+        <p>📝 ${client.responses?.length || 0} pedidos realizados</p>
+        <p>🛒 ${orders.length} compras totales</p>
+        ${client.firstOrder ? `<p>📅 Cliente desde: ${new Date(client.firstOrder).toLocaleDateString()}</p>` : ''}
+        ${hasAlert ? `<p style="color:#c62828;">⚠️ <strong>Alerta:</strong> ${alertInfo.daysDiff} días sin pedir. Recomendado: ${alertInfo.suggestedQuantity} botellones</p>` : ''}
+        <div style="margin-top:15px;">
+            <h5>Últimos pedidos:</h5>
+            ${orders.slice(-3).map(o => `
+                <div style="font-size:0.9em;border-bottom:1px solid #eee;padding:5px;">
+                    ${o.product} - ${o.quantity} unidades
+                    <br>${o.total} - ${o.deliveryTime}
+                    <br><small>${new Date(o.date).toLocaleString()}</small>
+                    <br>📍 ${o.deliveryAddress}
+                    <br>💳 ${o.paymentMethod}
+                    ${o.proofFile ? `<br>📎 Comprobante: ${o.proofFile}` : ''}
+                </div>
+            `).join('') || 'Sin pedidos registrados'}
+        </div>
+        ${hasAlert ? `
+            <div style="margin-top:15px;display:flex;gap:5px;flex-wrap:wrap;">
+                <button class="btn btn-whatsapp btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'whatsapp')">
+                    <i class="fab fa-whatsapp"></i> Enviar Alerta WhatsApp
+                </button>
+                <button class="btn btn-sms btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'sms')">
+                    <i class="fas fa-sms"></i> SMS
+                </button>
+                <button class="btn btn-email btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'email')">
+                    <i class="fas fa-envelope"></i> Email
+                </button>
+            </div>
+        ` : ''}
+    `;
+    modal.style.display = 'flex';
+}
+
+function deleteClient(index) {
+    if (confirm('¿Eliminar este cliente?')) {
+        db.clients.splice(index, 1);
+        saveDB();
+    }
+}
+
+function searchClients() {
+    updateClientList();
+}
+
+function selectClient(index) {}
+
+// =============================================
+// MENSAJES
+// =============================================
+function saveMessage() {
+    const content = document.getElementById('messageEditor').value;
+    if (content) {
+        const name = prompt('Nombre del mensaje:');
+        if (name) {
+            db.messages.push({ name, content, date: new Date().toISOString() });
+            saveDB();
+            document.getElementById('messageEditor').value = '';
+            alert('✅ Mensaje guardado!');
+        }
+    } else {
+        alert('⚠️ Escribe un mensaje primero');
+    }
+}
+
+function updateSavedMessages() {
+    const select = document.getElementById('savedMessages');
+    select.innerHTML = '<option value="">Seleccionar mensaje...</option>';
+    db.messages.forEach((msg, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${msg.name} (${new Date(msg.date).toLocaleDateString()})`;
+        select.appendChild(option);
+    });
+}
+
+function loadMessage() {
+    const index = document.getElementById('savedMessages').value;
+    if (index !== '') {
+        document.getElementById('messageEditor').value = db.messages[index].content;
+    }
+}
+
+function syncToGitHub() {
+    const content = document.getElementById('messageEditor').value;
+    if (!content) {
+        alert('⚠️ Escribe un mensaje primero');
+        return;
+    }
+    const githubData = {
+        message: content,
+        user: CONFIG.githubUser,
+        repo: CONFIG.repoName,
+        date: new Date().toISOString()
+    };
+    console.log('📤 Sincronizando con GitHub...', githubData);
+    db.messages.push({
+        name: `Sync ${new Date().toLocaleString()}`,
+        content: content,
+        github: true,
+        date: new Date().toISOString()
+    });
+    saveDB();
+    alert(`✅ Mensaje sincronizado con GitHub!\nUsuario: ${CONFIG.githubUser}\nRepositorio: ${CONFIG.repoName}`);
+}
+
+// =============================================
+// ENVÍO DE CAMPAÑAS
+// =============================================
+function sendBulkMessage() {
+    const selected = document.querySelectorAll('.client-item input[type="checkbox"]:checked');
+    if (selected.length === 0) {
+        alert('⚠️ Selecciona al menos un cliente');
+        return;
+    }
+    
+    const message = document.getElementById('messageEditor').value;
+    if (!message) {
+        alert('⚠️ Escribe un mensaje primero');
+        return;
+    }
+
+    const hour = new Date().getHours();
+    let greeting = '';
+    if (hour >= 5 && hour < 12) greeting = '🌅 Buenos días';
+    else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
+    else greeting = '🌙 Buenas noches';
+
+    let sent = 0;
+    selected.forEach(checkbox => {
+        const index = Array.from(document.querySelectorAll('.client-item input[type="checkbox"]')).indexOf(checkbox);
+        const client = db.clients[index];
+        if (client) {
+            const fullMessage = `${greeting} *${client.name}*,\n\n${message}\n\n📱 WhatsApp: https://wa.me/${CONFIG.whatsappNumber}\n📸 ${CONFIG.instagramLink}`;
+            const url = `https://wa.me/${client.phone}?text=${encodeURIComponent(fullMessage)}`;
             window.open(url, '_blank');
-            
-            // Registrar alerta enviada
             db.responses.push({
-                client: name,
-                phone: phone,
-                message: message,
+                client: client.name,
+                phone: client.phone,
+                message: fullMessage,
                 date: new Date().toISOString(),
-                type: 'alerta_recompra',
-                method: method
+                type: 'campaign'
             });
-            saveDB();
+            sent++;
         }
+    });
+    
+    saveDB();
+    alert(`✅ Mensaje enviado a ${sent} clientes`);
+}
 
-        function sendAlerts(method) {
-            const alerts = checkRecompraAlerts();
-            if (alerts.length === 0) {
-                alert('✅ No hay alertas pendientes');
-                return;
-            }
-            
-            if (!confirm(`¿Enviar ${alerts.length} alertas por ${method.toUpperCase()}?`)) return;
-            
-            alerts.forEach(alert => {
-                sendAlertToClient(
-                    alert.client.phone,
-                    alert.client.name,
-                    alert.suggestedQuantity,
-                    method
-                );
-                // Pequeña pausa entre envíos
-                setTimeout(() => {}, 1000);
-            });
-            
-            alert(`✅ ${alerts.length} alertas enviadas por ${method.toUpperCase()}`);
-        }
+// =============================================
+// PRODUCTOS
+// =============================================
+function addProduct() {
+    const name = document.getElementById('productName').value.trim();
+    const price = parseFloat(document.getElementById('productPrice').value);
+    if (name && price > 0) {
+        db.products.push({ name, price });
+        saveDB();
+        document.getElementById('productName').value = '';
+        document.getElementById('productPrice').value = '';
+        alert('✅ Producto agregado!');
+    } else {
+        alert('⚠️ Ingresa nombre y precio válido');
+    }
+}
 
-        function viewClientAlerts(index) {
-            viewClient(index);
-        }
+function updateProductList() {
+    const div = document.getElementById('productList');
+    div.innerHTML = '<h4>Productos disponibles:</h4>';
+    if (db.products.length === 0) {
+        div.innerHTML += '<p style="color:#999;">No hay productos cargados</p>';
+        return;
+    }
+    db.products.forEach((product, index) => {
+        const item = document.createElement('div');
+        item.className = 'product-item';
+        item.innerHTML = `
+            <span>${product.name}</span>
+            <span>$${product.price.toFixed(2)}</span>
+            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${index})"><i class="fas fa-trash"></i></button>
+        `;
+        div.appendChild(item);
+    });
+}
 
-        // =============================================
-        // GESTIÓN DE DATOS
-        // =============================================
-        function loadDB() {
-            const saved = localStorage.getItem('aguamagica_db');
-            if (saved) {
-                db = JSON.parse(saved);
-            }
-            updateUI();
-        }
+function deleteProduct(index) {
+    if (confirm('¿Eliminar este producto?')) {
+        db.products.splice(index, 1);
+        saveDB();
+    }
+}
 
-        function saveDB() {
-            localStorage.setItem('aguamagica_db', JSON.stringify(db));
-            updateUI();
-        }
+// =============================================
+// PEDIDOS
+// =============================================
+function updateOrderHistory() {
+    const period = document.getElementById('periodFilter').value;
+    const div = document.getElementById('orderHistory');
+    let filtered = [...db.orders];
+    const now = new Date();
+    switch(period) {
+        case 'hour':
+            filtered = db.orders.filter(o => new Date(o.date).getHours() === now.getHours());
+            break;
+        case 'day':
+            filtered = db.orders.filter(o => new Date(o.date).toDateString() === now.toDateString());
+            break;
+        case 'week':
+            const weekStart = new Date(now);
+            weekStart.setDate(now.getDate() - now.getDay());
+            filtered = db.orders.filter(o => new Date(o.date) >= weekStart);
+            break;
+        case 'biweek':
+            const biweekStart = new Date(now);
+            biweekStart.setDate(now.getDate() - 15);
+            filtered = db.orders.filter(o => new Date(o.date) >= biweekStart);
+            break;
+        case 'month':
+            filtered = db.orders.filter(o => new Date(o.date).getMonth() === now.getMonth());
+            break;
+        case 'quarter':
+            const quarterStart = new Date(now);
+            quarterStart.setMonth(now.getMonth() - 3);
+            filtered = db.orders.filter(o => new Date(o.date) >= quarterStart);
+            break;
+        case 'semester':
+            const semesterStart = new Date(now);
+            semesterStart.setMonth(now.getMonth() - 6);
+            filtered = db.orders.filter(o => new Date(o.date) >= semesterStart);
+            break;
+        case 'year':
+            filtered = db.orders.filter(o => new Date(o.date).getFullYear() === now.getFullYear());
+            break;
+    }
+    
+    if (filtered.length === 0) {
+        div.innerHTML = '<p style="color:#999;">No hay pedidos en este período</p>';
+        return;
+    }
+    
+    div.innerHTML = `
+        <p><strong>Total pedidos:</strong> ${filtered.length}</p>
+        ${filtered.slice().reverse().map(o => `
+            <div style="border-bottom:1px solid #eee;padding:10px;">
+                <strong>${o.clientName}</strong> - ${o.product}
+                <br>${o.quantity} unidades - ${o.total}
+                <br>📍 ${o.deliveryAddress}
+                <br>⏰ ${o.deliveryTime} - 💳 ${o.paymentMethod}
+                ${o.proofFile ? `<br>📎 Comprobante: ${o.proofFile}` : ''}
+                <br>👥 ${o.peopleCount || 1} personas - 🏷️ ${o.segment || 'Hogar'}
+                <br><small>${new Date(o.date).toLocaleString()}</small>
+            </div>
+        `).join('')}
+    `;
+}
 
-        function updateUI() {
-            document.getElementById('totalClients').textContent = db.clients.length;
-            document.getElementById('totalMessages').textContent = db.responses.length;
-            
-            // Pedidos hoy
-            const today = new Date().toDateString();
-            const todayOrders = db.orders.filter(o => new Date(o.date).toDateString() === today);
-            document.getElementById('todayOrders').textContent = todayOrders.length;
-            
-            // Ventas mes
-            const month = new Date().getMonth();
-            const monthOrders = db.orders.filter(o => new Date(o.date).getMonth() === month);
-            const totalSales = monthOrders.reduce((sum, o) => {
-                const num = parseFloat(o.total.replace(/[^0-9.]/g, ''));
-                return sum + (isNaN(num) ? 0 : num);
-            }, 0);
-            document.getElementById('monthSales').textContent = `$${totalSales.toFixed(2)}`;
-            
-            // Actualizar listas
-            updateClientList();
-            updateSavedMessages();
-            updateProductList();
-            updateOrderHistory();
-            updateReports();
-            updateAlerts();
-        }
+function filterOrders() {
+    updateOrderHistory();
+}
 
-        // =============================================
-        // CLIENTES
-        // =============================================
-        function updateClientList() {
-            const search = document.getElementById('clientSearch').value.toLowerCase();
-            const div = document.getElementById('clientList');
-            div.innerHTML = '';
-            
-            const filtered = db.clients.filter(c => 
-                c.name.toLowerCase().includes(search) || 
-                c.phone.includes(search)
-            );
-            
-            filtered.forEach((client, index) => {
-                const realIndex = db.clients.indexOf(client);
-                // Verificar si tiene alerta
-                const alerts = checkRecompraAlerts();
-                const hasAlert = alerts.some(a => a.client.phone === client.phone);
-                
-                const divItem = document.createElement('div');
-                divItem.className = 'client-item';
-                divItem.innerHTML = `
-                    <div class="client-info">
-                        <input type="checkbox" onchange="selectClient(${realIndex})">
-                        <strong>${client.name}</strong> - ${client.phone}
-                        <span style="font-size:0.8em;color:#999;margin-left:5px;">
-                            🏷️ ${client.segment || 'Hogar'} | 👥 ${client.peopleCount || 1}
-                            ${hasAlert ? '<span class="alert-badge">⚠️ Recompra</span>' : ''}
-                        </span>
+// =============================================
+// REPORTES
+// =============================================
+function updateReports() {
+    const div = document.getElementById('reportsContent');
+    const totalClients = db.clients.length;
+    const totalOrders = db.orders.length;
+    const totalMessages = db.responses.length;
+    const totalSales = db.orders.reduce((sum, o) => {
+        const num = parseFloat(o.total.replace(/[^0-9.]/g, ''));
+        return sum + (isNaN(num) ? 0 : num);
+    }, 0);
+    
+    const productCount = {};
+    db.orders.forEach(o => {
+        productCount[o.product] = (productCount[o.product] || 0) + parseInt(o.quantity);
+    });
+    const topProducts = Object.entries(productCount).sort((a,b) => b[1] - a[1]).slice(0,5);
+    
+    const paymentMethods = {};
+    db.orders.forEach(o => {
+        paymentMethods[o.paymentMethod] = (paymentMethods[o.paymentMethod] || 0) + 1;
+    });
+    
+    const segments = {};
+    db.clients.forEach(c => {
+        segments[c.segment || 'Hogar'] = (segments[c.segment || 'Hogar'] || 0) + 1;
+    });
+    
+    const alerts = checkRecompraAlerts();
+    
+    div.innerHTML = `
+        <div class="stats-grid">
+            <div class="stat-card"><h3>Total Clientes</h3><p>${totalClients}</p></div>
+            <div class="stat-card"><h3>Total Pedidos</h3><p>${totalOrders}</p></div>
+            <div class="stat-card"><h3>Ventas Totales</h3><p>$${totalSales.toFixed(2)}</p></div>
+            <div class="stat-card"><h3>Alertas Activas</h3><p class="alert-count">${alerts.length}</p></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+            <div>
+                <h4>🏆 Productos Más Vendidos</h4>
+                ${topProducts.length > 0 ? topProducts.map(([name, count]) => `
+                    <div style="padding:8px;border-bottom:1px solid #eee;">
+                        ${name}: ${count} unidades
                     </div>
-                    <div class="client-actions">
-                        <button class="btn btn-info btn-sm" onclick="viewClient(${realIndex})"><i class="fas fa-eye"></i></button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteClient(${realIndex})"><i class="fas fa-trash"></i></button>
+                `).join('') : '<p style="color:#999;">Sin datos de ventas</p>'}
+            </div>
+            <div>
+                <h4>💳 Métodos de Pago</h4>
+                ${Object.entries(paymentMethods).map(([method, count]) => `
+                    <div style="padding:8px;border-bottom:1px solid #eee;">
+                        ${method}: ${count} pedidos
                     </div>
-                `;
-                div.appendChild(divItem);
-            });
-            
-            if (filtered.length === 0) {
-                div.innerHTML = '<p style="color:#999;text-align:center;">No hay clientes registrados</p>';
-            }
-        }
-
-        function addBulkClients() {
-            const input = document.getElementById('clientBulkInput').value;
-            const lines = input.split('\n').filter(l => l.trim());
-            let added = 0;
-            
-            lines.forEach(line => {
-                const parts = line.split(',').map(s => s.trim());
-                if (parts.length >= 2) {
-                    const name = parts[0];
-                    const phone = parts[1].replace(/\s/g, '');
-                    const segment = parts[2] || 'Hogar';
-                    if (name && phone) {
-                        db.clients.push({
-                            name: name,
-                            phone: phone,
-                            segment: segment,
-                            peopleCount: 1,
-                            history: [],
-                            responses: [],
-                            firstOrder: new Date().toISOString(),
-                            lastOrder: new Date().toISOString()
-                        });
-                        added++;
-                    }
-                }
-            });
-            
-            if (added > 0) {
-                saveDB();
-                document.getElementById('clientBulkInput').value = '';
-                alert(`✅ ${added} clientes agregados exitosamente!`);
-            } else {
-                alert('⚠️ No se pudo agregar ningún cliente. Verifica el formato (Nombre, Teléfono, Segmento)');
-            }
-        }
-
-        function viewClient(index) {
-            const client = db.clients[index];
-            const modal = document.getElementById('clientModal');
-            const orders = db.orders.filter(o => o.clientPhone === client.phone);
-            
-            // Verificar alertas
-            const alerts = checkRecompraAlerts();
-            const hasAlert = alerts.some(a => a.client.phone === client.phone);
-            const alertInfo = alerts.find(a => a.client.phone === client.phone);
-            
-            document.getElementById('clientDetails').innerHTML = `
-                <h4>${client.name}</h4>
-                <p>📱 ${client.phone}</p>
-                <p>🏷️ ${client.segment || 'Hogar'}</p>
-                <p>👥 ${client.peopleCount || 1} integrantes</p>
-                <p>📝 ${client.responses?.length || 0} pedidos realizados</p>
-                <p>🛒 ${orders.length} compras totales</p>
-                ${client.firstOrder ? `<p>📅 Cliente desde: ${new Date(client.firstOrder).toLocaleDateString()}</p>` : ''}
-                ${hasAlert ? `<p style="color:#c62828;">⚠️ <strong>Alerta:</strong> ${alertInfo.daysDiff} días sin pedir. Recomendado: ${alertInfo.suggestedQuantity} botellones</p>` : ''}
-                <div style="margin-top:15px;">
-                    <h5>Últimos pedidos:</h5>
-                    ${orders.slice(-3).map(o => `
-                        <div style="font-size:0.9em;border-bottom:1px solid #eee;padding:5px;">
-                            ${o.product} - ${o.quantity} unidades
-                            <br>${o.total} - ${o.deliveryTime}
-                            <br><small>${new Date(o.date).toLocaleString()}</small>
-                            <br>📍 ${o.deliveryAddress}
-                            <br>💳 ${o.paymentMethod}
-                            ${o.proofFile ? `<br>📎 Comprobante: ${o.proofFile}` : ''}
-                        </div>
-                    `).join('') || 'Sin pedidos registrados'}
-                </div>
-                ${hasAlert ? `
-                    <div style="margin-top:15px;display:flex;gap:5px;flex-wrap:wrap;">
-                        <button class="btn btn-whatsapp btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'whatsapp')">
-                            <i class="fab fa-whatsapp"></i> Enviar Alerta WhatsApp
-                        </button>
-                        <button class="btn btn-sms btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'sms')">
-                            <i class="fas fa-sms"></i> SMS
-                        </button>
-                        <button class="btn btn-email btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'email')">
-                            <i class="fas fa-envelope"></i> Email
-                        </button>
+                `).join('') || '<p style="color:#999;">Sin datos de pagos</p>'}
+            </div>
+            <div>
+                <h4>🏷️ Segmentos</h4>
+                ${Object.entries(segments).map(([segment, count]) => `
+                    <div style="padding:8px;border-bottom:1px solid #eee;">
+                        ${segment}: ${count} clientes
                     </div>
-                ` : ''}
-            `;
-            modal.style.display = 'flex';
-        }
+                `).join('') || '<p style="color:#999;">Sin datos de segmentos</p>'}
+            </div>
+        </div>
+        <div style="margin-top:20px;padding:15px;background:#fff3e0;border-radius:8px;">
+            <h4>📊 Consumo Estimado</h4>
+            <p style="font-size:0.9em;color:#666;">
+                💧 1 botellón de 18L por persona cada ${CONFIG.consumptionRate} días
+                <br>🔔 ${alerts.length} clientes necesitan reabastecimiento
+            </p>
+        </div>
+    `;
+}
 
-        function deleteClient(index) {
-            if (confirm('¿Eliminar este cliente?')) {
-                db.clients.splice(index, 1);
-                saveDB();
-            }
-        }
+// =============================================
+// QR Y LINKS
+// =============================================
+function generateQR() {
+    const url = 'https://aguamagica.github.io/aguamagica-panel/?pedido';
+    const qrDiv = document.getElementById('qrResult');
+    qrDiv.innerHTML = `
+        <div style="padding:20px;background:white;display:inline-block;">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}" alt="QR Code">
+            <p><small>${url}</small></p>
+        </div>
+    `;
+}
 
-        function searchClients() {
-            updateClientList();
-        }
+function copyLink() {
+    const link = document.getElementById('shortLink');
+    link.select();
+    document.execCommand('copy');
+    alert('✅ Link copiado!');
+}
 
-        function selectClient(index) {
-            // Para selección de clientes en campañas
-        }
+function copyOrderLink() {
+    const link = document.getElementById('orderLink');
+    link.select();
+    document.execCommand('copy');
+    alert('✅ Link de pedidos copiado!');
+}
 
-        // =============================================
-        // MENSAJES
-        // =============================================
-        function saveMessage() {
-            const content = document.getElementById('messageEditor').value;
-            if (content) {
-                const name = prompt('Nombre del mensaje:');
-                if (name) {
-                    db.messages.push({ 
-                        name, 
-                        content, 
-                        date: new Date().toISOString() 
-                    });
-                    saveDB();
-                    document.getElementById('messageEditor').value = '';
-                    alert('✅ Mensaje guardado!');
-                }
-            } else {
-                alert('⚠️ Escribe un mensaje primero');
-            }
-        }
+// =============================================
+// NAVEGACIÓN
+// =============================================
+function showTab(tabId) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    if (tabId === 'alertas') {
+        updateAlerts();
+    }
+}
 
-        function updateSavedMessages() {
-            const select = document.getElementById('savedMessages');
-            select.innerHTML = '<option value="">Seleccionar mensaje...</option>';
-            db.messages.forEach((msg, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                option.textContent = `${msg.name} (${new Date(msg.date).toLocaleDateString()})`;
-                select.appendChild(option);
-            });
-        }
+function closeModal() {
+    document.getElementById('clientModal').style.display = 'none';
+}
 
-        function loadMessage() {
-            const index = document.getElementById('savedMessages').value;
-            if (index !== '') {
-                document.getElementById('messageEditor').value = db.messages[index].content;
-            }
-        }
+// =============================================
+// RELOJ
+// =============================================
+function updateClock() {
+    document.getElementById('currentTime').textContent = new Date().toLocaleString();
+}
 
-        function syncToGitHub() {
-            const content = document.getElementById('messageEditor').value;
-            if (!content) {
-                alert('⚠️ Escribe un mensaje primero');
-                return;
-            }
+// =============================================
+// CERRAR MODAL CLICK FUERA
+// =============================================
+window.onclick = function(event) {
+    const modal = document.getElementById('clientModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+};
 
-            const githubData = {
-                message: content,
-                user: CONFIG.githubUser,
-                repo: CONFIG.repoName,
-                date: new Date().toISOString()
-            };
+// =============================================
+// INICIALIZACIÓN
+// =============================================
+console.log('💧 AguaMagica - Sistema Integral v2.0');
+console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
+console.log('🔗 GitHub:', CONFIG.githubUser);
+console.log('🔑 Contraseña:', CONFIG.password);
+console.log('📊 Consumo: 1 botellón/18L por persona cada', CONFIG.consumptionRate, 'días');
 
-            console.log('📤 Sincronizando con GitHub...', githubData);
-            
-            db.messages.push({
-                name: `Sync ${new Date().toLocaleString()}`,
-                content: content,
-                github: true,
-                date: new Date().toISOString()
-            });
-            saveDB();
-            
-            alert(`✅ Mensaje sincronizado con GitHub!\nUsuario: ${CONFIG.githubUser}\nRepositorio: ${CONFIG.repoName}`);
-        }
+if (window.location.search.includes('pedido')) {
+    document.querySelector('.login-box h3').textContent = '🔑 Ingresa para hacer tu pedido';
+}
 
-        // =============================================
-        // ENVÍO DE CAMPAÑAS
-        // =============================================
-        function sendBulkMessage() {
-            const selected = document.querySelectorAll('.client-item input[type="checkbox"]:checked');
-            if (selected.length === 0) {
-                alert('⚠️ Selecciona al menos un cliente');
-                return;
-            }
-            
-            const message = document.getElementById('messageEditor').value;
-            if (!message) {
-                alert('⚠️ Escribe un mensaje primero');
-                return;
-            }
-
-            const hour = new Date().getHours();
-            let greeting = '';
-            if (hour >= 5 && hour < 12) greeting = '🌅 Buenos días';
-            else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
-            else greeting = '🌙 Buenas noches';
-
-            let sent = 0;
-            selected.forEach(checkbox => {
-                const index = Array.from(document.querySelectorAll('.client-item input[type="checkbox"]')).indexOf(checkbox);
-                const client = db.clients[index];
-                if (client) {
-                    const fullMessage = `${greeting} *${client.name}*,\n\n${message}\n\n📱 WhatsApp: https://wa.me/${CONFIG.whatsappNumber}\n📸 ${CONFIG.instagramLink}`;
-                    const url = `https://wa.me/${client.phone}?text=${encodeURIComponent(fullMessage)}`;
-                    window.open(url, '_blank');
-                    
-                    db.responses.push({
-                        client: client.name,
-                        phone: client.phone,
-                        message: fullMessage,
-                        date: new Date().toISOString(),
-                        type: 'campaign'
-                    });
-                    sent++;
-                }
-            });
-            
-            saveDB();
-            alert(`✅ Mensaje enviado a ${sent} clientes`);
-        }
-
-        // =============================================
-        // PRODUCTOS
-        // =============================================
-        function addProduct() {
-            const name = document.getElementById('productName').value.trim();
-            const price = parseFloat(document.getElementById('productPrice').value);
-            
-            if (name && price > 0) {
-                db.products.push({ name, price });
-                saveDB();
-                document.getElementById('productName').value = '';
-                document.getElementById('productPrice').value = '';
-                alert('✅ Producto agregado!');
-            } else {
-                alert('⚠️ Ingresa nombre y precio válido');
-            }
-        }
-
-        function updateProductList() {
-            const div = document.getElementById('productList');
-            div.innerHTML = '<h4>Productos disponibles:</h4>';
-            
-            if (db.products.length === 0) {
-                div.innerHTML += '<p style="color:#999;">No hay productos cargados</p>';
-                return;
-            }
-            
-            db.products.forEach((product, index) => {
-                const item = document.createElement('div');
-                item.className = 'product-item';
-                item.innerHTML = `
-                    <span>${product.name}</span>
-                    <span>$${product.price.toFixed(2)}</span>
-                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(${index})"><i class="fas fa-trash"></i></button>
-                `;
-                div.appendChild(item);
-            });
-        }
-
-        function deleteProduct(index) {
-            if (confirm('¿Eliminar este producto?')) {
-                db.products.splice(index, 1);
-                saveDB();
-            }
-        }
-
-        // =============================================
-        // PEDIDOS
-        // =============================================
-        function updateOrderHistory() {
-            const period = document.getElementById('periodFilter').value;
-            const div = document.getElementById('orderHistory');
-            let filtered = [...db.orders];
-            
-            const now = new Date();
-            switch(period) {
-                case 'hour':
-                    filtered = db.orders.filter(o => new Date(o.date).getHours() === now.getHours());
-                    break;
-                case 'day':
-                    filtered = db.orders.filter(o => new Date(o.date).toDateString() === now.toDateString());
-                    break;
-                case 'week':
-                    const weekStart = new Date(now);
-                    weekStart.setDate(now.getDate() - now.getDay());
-                    filtered = db.orders.filter(o => new Date(o.date) >= weekStart);
-                    break;
-                case 'biweek':
-                    const biweekStart = new Date(now);
-                    biweekStart.setDate(now.getDate() - 15);
-                    filtered = db.orders.filter(o => new Date(o.date) >= biweekStart);
-                    break;
-                case 'month':
-                    filtered = db.orders.filter(o => new Date(o.date).getMonth() === now.getMonth());
-                    break;
-                case 'quarter':
-                    const quarterStart = new Date(now);
-                    quarterStart.setMonth(now.getMonth() - 3);
-                    filtered = db.orders.filter(o => new Date(o.date) >= quarterStart);
-                    break;
-                case 'semester':
-                    const semesterStart = new Date(now);
-                    semesterStart.setMonth(now.getMonth() - 6);
-                    filtered = db.orders.filter(o => new Date(o.date) >= semesterStart);
-                    break;
-                case 'year':
-                    filtered = db.orders.filter(o => new Date(o.date).getFullYear() === now.getFullYear());
-                    break;
-            }
-            
-            if (filtered.length === 0) {
-                div.innerHTML = '<p style="color:#999;">No hay pedidos en este período</p>';
-                return;
-            }
-            
-            div.innerHTML = `
-                <p><strong>Total pedidos:</strong> ${filtered.length}</p>
-                ${filtered.slice().reverse().map(o => `
-                    <div style="border-bottom:1px solid #eee;padding:10px;">
-                        <strong>${o.clientName}</strong> - ${o.product}
-                        <br>${o.quantity} unidades - ${o.total}
-                        <br>📍 ${o.deliveryAddress}
-                        <br>⏰ ${o.deliveryTime} - 💳 ${o.paymentMethod}
-                        ${o.proofFile ? `<br>📎 Comprobante: ${o.proofFile}` : ''}
-                        <br>👥 ${o.peopleCount || 1} personas - 🏷️ ${o.segment || 'Hogar'}
-                        <br><small>${new Date(o.date).toLocaleString()}</small>
-                    </div>
-                `).join('')}
-            `;
-        }
-
-        function filterOrders() {
-            updateOrderHistory();
-        }
-
-        // =============================================
-        // REPORTES
-        // =============================================
-        function updateReports() {
-            const div = document.getElementById('reportsContent');
-            const totalClients = db.clients.length;
-            const totalOrders = db.orders.length;
-            const totalMessages = db.responses.length;
-            
-            // Ventas totales
-            const totalSales = db.orders.reduce((sum, o) => {
-                const num = parseFloat(o.total.replace(/[^0-9.]/g, ''));
-                return sum + (isNaN(num) ? 0 : num);
-            }, 0);
-            
-            // Productos más vendidos
-            const productCount = {};
-            db.orders.forEach(o => {
-                productCount[o.product] = (productCount[o.product] || 0) + parseInt(o.quantity);
-            });
-            const topProducts = Object.entries(productCount).sort((a,b) => b[1] - a[1]).slice(0,5);
-            
-            // Métodos de pago
-            const paymentMethods = {};
-            db.orders.forEach(o => {
-                paymentMethods[o.paymentMethod] = (paymentMethods[o.paymentMethod] || 0) + 1;
-            });
-            
-            // Segmentos
-            const segments = {};
-            db.clients.forEach(c => {
-                segments[c.segment || 'Hogar'] = (segments[c.segment || 'Hogar'] || 0) + 1;
-            });
-            
-            // Alertas
-            const alerts = checkRecompraAlerts();
-            
-            div.innerHTML = `
-                <div class="stats-grid">
-                    <div class="stat-card"><h3>Total Clientes</h3><p>${totalClients}</p></div>
-                    <div class="stat-card"><h3>Total Pedidos</h3><p>${totalOrders}</p></div>
-                    <div class="stat-card"><h3>Ventas Totales</h3><p>$${totalSales.toFixed(2)}</p></div>
-                    <div class="stat-card"><h3>Alertas Activas</h3><p class="alert-count">${alerts.length}</p></div>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
-                    <div>
-                        <h4>🏆 Productos Más Vendidos</h4>
-                        ${topProducts.length > 0 ? topProducts.map(([name, count]) => `
-                            <div style="padding:8px;border-bottom:1px solid #eee;">
-                                ${name}: ${count} unidades
-                            </div>
-                        `).join('') : '<p style="color:#999;">Sin datos de ventas</p>'}
-                    </div>
-                    <div>
-                        <h4>💳 Métodos de Pago</h4>
-                        ${Object.entries(paymentMethods).map(([method, count]) => `
-                            <div style="padding:8px;border-bottom:1px solid #eee;">
-                                ${method}: ${count} pedidos
-                            </div>
-                        `).join('') || '<p style="color:#999;">Sin datos de pagos</p>'}
-                    </div>
-                    <div>
-                        <h4>🏷️ Segmentos</h4>
-                        ${Object.entries(segments).map(([segment, count]) => `
-                            <div style="padding:8px;border-bottom:1px solid #eee;">
-                                ${segment}: ${count} clientes
-                            </div>
-                        `).join('') || '<p style="color:#999;">Sin datos de segmentos</p>'}
-                    </div>
-                </div>
-                <div style="margin-top:20px;padding:15px;background:#fff3e0;border-radius:8px;">
-                    <h4>📊 Consumo Estimado</h4>
-                    <p style="font-size:0.9em;color:#666;">
-                        💧 1 botellón de 18L por persona cada ${CONFIG.consumptionRate} días
-                        <br>🔔 ${alerts.length} clientes necesitan reabastecimiento
-                    </p>
-                </div>
-            `;
-        }
-
-        // =============================================
-        // QR Y LINKS
-        // =============================================
-        function generateQR() {
-            const url = 'https://aguamagica.github.io/aguamagica-panel/?pedido';
-            const qrDiv = document.getElementById('qrResult');
-            qrDiv.innerHTML = `
-                <div style="padding:20px;background:white;display:inline-block;">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}" alt="QR Code">
-                    <p><small>${url}</small></p>
-                </div>
-            `;
-        }
-
-        function copyLink() {
-            const link = document.getElementById('shortLink');
-            link.select();
-            document.execCommand('copy');
-            alert('✅ Link copiado!');
-        }
-
-        function copyOrderLink() {
-            const link = document.getElementById('orderLink');
-            link.select();
-            document.execCommand('copy');
-            alert('✅ Link de pedidos copiado!');
-        }
-
-        // =============================================
-        // NAVEGACIÓN
-        // =============================================
-        function showTab(tabId) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            if (tabId === 'alertas') {
-                updateAlerts();
-            }
-        }
-
-        function closeModal() {
-            document.getElementById('clientModal').style.display = 'none';
-        }
-
-        // =============================================
-        // RELOJ
-        // =============================================
-        function updateClock() {
-            document.getElementById('currentTime').textContent = new Date().toLocaleString();
-        }
-
-        // =============================================
-        // CERRAR MODAL CLICK FUERA
-        // =============================================
-        window.onclick = function(event) {
-            const modal = document.getElementById('clientModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
-
-        // =============================================
-        // INICIALIZACIÓN
-        // =============================================
-        console.log('💧 AguaMagica - Sistema Integral v2.0');
-        console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
-        console.log('🔗 GitHub:', CONFIG.githubUser);
-        console.log('🔑 Contraseña:', CONFIG.password);
-        console.log('📊 Consumo: 1 botellón/18L por persona cada', CONFIG.consumptionRate, 'días');
-
-        // Si la URL tiene el parámetro "pedido"
-        if (window.location.search.includes('pedido')) {
-            document.querySelector('.login-box h3').textContent = '🔑 Ingresa para hacer tu pedido';
-        }
-
-        // Verificar alertas cada 30 segundos
-        setInterval(() => {
-            if (document.getElementById('mainApp').style.display !== 'none') {
-                updateAlerts();
-            }
-        }, 30000);
-    </script>
-</body>
-</html>
+setInterval(() => {
+    if (document.getElementById('mainApp').style.display !== 'none') {
+        updateAlerts();
+    }
+}, 30000);
