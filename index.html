@@ -206,19 +206,6 @@
             font-weight: normal; cursor: pointer;
         }
         .segment-tags input[type="radio"] { width: auto; margin: 0; }
-        .file-upload {
-            border: 2px dashed #ddd; padding: 20px; text-align: center;
-            border-radius: 8px; cursor: pointer; transition: 0.3s;
-        }
-        .file-upload:hover { border-color: #0d47a1; background: #f5f5f5; }
-        .file-upload input[type="file"] { display: none; }
-        .proof-preview {
-            margin-top: 10px; text-align: center;
-        }
-        .proof-preview img {
-            max-width: 100%; max-height: 150px; border-radius: 8px;
-            border: 1px solid #ddd;
-        }
         .bank-info {
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
         }
@@ -282,6 +269,21 @@
         }
         .report-summary-item .label { font-size: 0.85em; color: #666; }
         .report-summary-item .value { font-size: 1.5em; font-weight: bold; color: #0d47a1; }
+
+        .btn-whatsapp-envio {
+            background: #25D366; color: white; padding: 15px;
+            border: none; border-radius: 8px; font-size: 1.1em;
+            cursor: pointer; width: 100%; margin-top: 10px;
+            transition: 0.3s;
+        }
+        .btn-whatsapp-envio:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-email-envio {
+            background: #D44638; color: white; padding: 15px;
+            border: none; border-radius: 8px; font-size: 1.1em;
+            cursor: pointer; width: 100%; margin-top: 10px;
+            transition: 0.3s;
+        }
+        .btn-email-envio:hover { opacity: 0.9; transform: scale(1.02); }
 
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: auto; position: relative; }
@@ -452,19 +454,7 @@
                     <div class="form-group">
                         <label>Monto Pagado (Bs):</label>
                         <input type="number" id="paidAmount" step="0.01" placeholder="Monto en Bolívares">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Comprobante de Pago:</label>
-                        <div class="file-upload" onclick="document.getElementById('paymentProof').click()">
-                            <i class="fas fa-cloud-upload-alt" style="font-size:2em;color:#0d47a1;"></i>
-                            <p>Haz clic para subir el comprobante</p>
-                            <p style="font-size:0.8em;color:#666;">Formatos: JPG, PNG, PDF (No se envía por WhatsApp)</p>
-                            <input type="file" id="paymentProof" accept=".jpg,.jpeg,.png,.pdf">
-                        </div>
-                        <div id="proofFileName" style="font-size:0.9em;color:#2e7d32;margin-top:5px;"></div>
-                        <div id="proofPreview" class="proof-preview"></div>
-                        <div class="help-text">📎 El comprobante se enviará automáticamente a gestionmagicasd@gmail.com</div>
+                        <div class="help-text">💳 Este monto se usa para conciliación bancaria</div>
                     </div>
                 </div>
 
@@ -475,11 +465,11 @@
 
                 <div class="total-display" id="totalDisplayOrder">Total: $0.00</div>
 
-                <button class="btn btn-whatsapp" onclick="sendOrderWhatsApp()" style="width:100%;padding:15px;font-size:1.1em;">
+                <button class="btn-whatsapp-envio" onclick="sendOrderWhatsApp()">
                     <i class="fab fa-whatsapp"></i> Enviar Pedido por WhatsApp
                 </button>
-                <button class="btn btn-email" onclick="sendOrderEmail()" style="width:100%;padding:15px;font-size:1.1em;margin-top:10px;">
-                    <i class="fas fa-envelope"></i> Enviar Pedido por Email (Con comprobante)
+                <button class="btn-email-envio" onclick="sendOrderEmail()">
+                    <i class="fas fa-envelope"></i> Enviar Pedido por Email
                 </button>
             </div>
 
@@ -850,7 +840,6 @@
         renderOrderAds();
         limpiarCamposPedido();
         document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${getTasaBCV().toFixed(2)} Bs`;
-        // Fecha por defecto
         document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
     }
 
@@ -863,9 +852,6 @@
         document.getElementById('instructionsOrder').value = '';
         document.getElementById('paymentMethodOrder').value = '';
         document.getElementById('paymentInfo').classList.remove('active');
-        document.getElementById('proofFileName').textContent = '';
-        document.getElementById('proofPreview').innerHTML = '';
-        document.getElementById('paymentProof').value = '';
         document.getElementById('bankIssuer').value = '';
         document.getElementById('referenceNumber').value = '';
         document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
@@ -892,32 +878,6 @@
             infoDiv.classList.remove('active');
         }
     }
-
-    // Subir comprobante con preview
-    document.addEventListener('DOMContentLoaded', function() {
-        const fileInput = document.getElementById('paymentProof');
-        if (fileInput) {
-            fileInput.addEventListener('change', function() {
-                const previewDiv = document.getElementById('proofPreview');
-                const fileNameDiv = document.getElementById('proofFileName');
-                
-                if (this.files && this.files[0]) {
-                    const file = this.files[0];
-                    fileNameDiv.textContent = `✅ Archivo: ${file.name}`;
-                    
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            previewDiv.innerHTML = `<img src="${e.target.result}" alt="Comprobante">`;
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        previewDiv.innerHTML = `<p style="color:#666;">📄 Archivo: ${file.name}</p>`;
-                    }
-                }
-            });
-        }
-    });
 
     function loadProductsOrder() {
         const select = document.getElementById('productSelectOrder');
@@ -984,14 +944,12 @@
         if (!deliveryAddress) { alert('⚠️ Ingresa la dirección'); return; }
         if (!paymentMethod) { alert('⚠️ Selecciona método de pago'); return; }
 
-        // Saludo
         const hour = new Date().getHours();
         let greeting = '';
         if (hour >= 5 && hour < 12) greeting = '🌅 Buenos días';
         else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
         else greeting = '🌙 Buenas noches';
 
-        // Calcular total en Bs
         const price = parseFloat(productSelect.value) || 0;
         const totalUsd = price * parseInt(quantity);
         const totalBs = getMontoBs(totalUsd);
@@ -1042,12 +1000,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
 🔄 Próximo pedido en ${nextOrder} días`;
 
         if (instructions) message += `\n\n📝 *Instrucciones:* ${instructions}`;
-
-        message += `
-
-📸 ${CONFIG.instagramLink}
-
-¡Gracias por confiar en AguaMagica! 🚀`;
+        message += `\n\n📸 ${CONFIG.instagramLink}\n\n¡Gracias por confiar en AguaMagica! 🚀`;
 
         // Guardar en base de datos
         const orderData = {
@@ -1069,7 +1022,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
 
         db.orders.push(orderData);
 
-        // Verificar cliente
         const existingClient = db.clients.find(c => c.phone === clientPhone);
         if (!existingClient) {
             db.clients.push({
@@ -1095,28 +1047,39 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         saveDB();
 
         // =============================================
-        // ENVIAR A WHATSAPP - CORREGIDO
+        // ABRIR WHATSAPP - CORREGIDO
         // =============================================
         const empresaPhone = CONFIG.whatsappNumber;
         const whatsappUrl = `https://wa.me/${empresaPhone}?text=${encodeURIComponent(message)}`;
         
-        // Usar window.open para abrir WhatsApp
+        // Intentar abrir con window.open
         const newWindow = window.open(whatsappUrl, '_blank');
         
-        // Si window.open es bloqueado, usar window.location como respaldo
+        // Si es bloqueado, usar window.location
         if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-            window.location.href = whatsappUrl;
+            // Mostrar mensaje y redirigir
+            if (confirm('⚠️ El navegador bloqueó la apertura de WhatsApp.\n¿Quieres abrirlo en la misma ventana?')) {
+                window.location.href = whatsappUrl;
+            } else {
+                // Copiar al portapapeles como respaldo
+                navigator.clipboard.writeText(message).then(() => {
+                    alert('✅ Mensaje copiado al portapapeles. Pégalo en WhatsApp.');
+                }).catch(() => {
+                    alert('❌ No se pudo abrir WhatsApp. Por favor, copia el mensaje manualmente.');
+                    console.log('Mensaje:', message);
+                });
+            }
         }
         
         closeOrderScreen();
         
         setTimeout(() => {
-            alert(`✅ Pedido enviado por WhatsApp!\n\n${greeting} ${clientName.split(' ')[0]}, gracias por tu pedido.\n📧 Se enviará el comprobante a ${clientEmail}`);
+            alert(`✅ Pedido enviado por WhatsApp!\n\n${greeting} ${clientName.split(' ')[0]}, gracias por tu pedido.`);
         }, 500);
     }
 
     // =============================================
-    // ENVIAR PEDIDO POR EMAIL
+    // ENVIAR PEDIDO POR EMAIL - CORREGIDO
     // =============================================
     function sendOrderEmail() {
         const clientName = document.getElementById('clientNameOrder').value.trim();
@@ -1132,7 +1095,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         const paymentMethod = document.getElementById('paymentMethodOrder').value;
         const instructions = document.getElementById('instructionsOrder').value.trim();
         const total = document.getElementById('totalDisplayOrder').textContent;
-        const proofFile = document.getElementById('paymentProof').files[0];
 
         // Validaciones
         if (!clientName) { alert('⚠️ Ingresa tu nombre'); return; }
@@ -1185,24 +1147,7 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
         if (instructions) {
             emailBody += `\n\nInstrucciones: ${instructions}`;
         }
-
         emailBody += `\n\n📸 ${CONFIG.instagramLink}`;
-
-        // Construir email con comprobante adjunto
-        let emailSubject = `Pedido AguaMagica - ${clientName}`;
-        let emailTo = CONFIG.email;
-        let emailCC = clientEmail;
-
-        // Crear el enlace mailto con el cuerpo del mensaje
-        let mailtoLink = `mailto:${emailTo}?cc=${encodeURIComponent(emailCC)}&subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-        
-        // Si hay comprobante, indicar que debe adjuntarse manualmente (no se puede adjuntar por mailto)
-        if (proofFile) {
-            alert(`📎 Por favor, adjunta el comprobante (${proofFile.name}) al email que se abrirá.`);
-        }
-
-        // Abrir el cliente de correo
-        window.open(mailtoLink, '_blank');
 
         // Guardar en base de datos
         const orderData = {
@@ -1217,7 +1162,6 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
                 paymentDate: document.getElementById('paymentDate').value || '',
                 paidAmount: document.getElementById('paidAmount').value || '0'
             } : null,
-            proofFile: proofFile ? proofFile.name : null,
             date: new Date().toISOString(),
             status: 'enviado_email',
             nextOrderDays: parseInt(peopleCount) * CONFIG.consumptionRate
@@ -1248,8 +1192,37 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
         });
 
         saveDB();
-        closeOrderScreen();
 
+        // =============================================
+        // ABRIR EMAIL - CORREGIDO
+        // =============================================
+        const emailSubject = `Pedido AguaMagica - ${clientName}`;
+        const emailTo = CONFIG.email;
+        const emailCC = clientEmail;
+        
+        const mailtoLink = `mailto:${emailTo}?cc=${encodeURIComponent(emailCC)}&subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        
+        // Intentar abrir con window.open
+        const newWindow = window.open(mailtoLink, '_blank');
+        
+        // Si es bloqueado, usar window.location
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+            if (confirm('⚠️ El navegador bloqueó la apertura del email.\n¿Quieres abrirlo en la misma ventana?')) {
+                window.location.href = mailtoLink;
+            } else {
+                // Copiar al portapapeles como respaldo
+                const emailContent = `Para: ${emailTo}\nCC: ${emailCC}\nAsunto: ${emailSubject}\n\n${emailBody}`;
+                navigator.clipboard.writeText(emailContent).then(() => {
+                    alert('✅ Contenido del email copiado al portapapeles.');
+                }).catch(() => {
+                    alert('❌ No se pudo abrir el email. Por favor, copia el mensaje manualmente.');
+                    console.log('Email:', emailContent);
+                });
+            }
+        }
+        
+        closeOrderScreen();
+        
         setTimeout(() => {
             alert(`✅ Pedido enviado por Email!\n\nSe ha enviado a ${CONFIG.email}\nCopia a: ${clientEmail}`);
         }, 500);
@@ -1451,7 +1424,6 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
     }
 
     function renderAdsManager() {
-        // Dashboard Ads Manager - 5 espacios
         const dashboardDiv = document.getElementById('dashboardAdsManager');
         dashboardDiv.innerHTML = '<div class="grid-5">';
         db.ads.dashboard.forEach((ad, index) => {
@@ -1470,7 +1442,6 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
         });
         dashboardDiv.innerHTML += '</div>';
 
-        // Order Ads Manager - 3 espacios
         const orderDiv = document.getElementById('orderAdsManager');
         orderDiv.innerHTML = '<div class="grid-3">';
         db.ads.order.forEach((ad, index) => {
@@ -1913,7 +1884,6 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
                     <br>⏰ ${o.deliveryTime} - 💳 ${o.paymentMethod}
                     ${o.clientEmail ? `<br>📧 ${o.clientEmail}` : ''}
                     ${o.paymentDetails ? `<br>🏦 ${o.paymentDetails.bankIssuer || ''} | Ref: ${o.paymentDetails.reference || ''}` : ''}
-                    ${o.proofFile ? `<br>📎 Comprobante: ${o.proofFile}` : ''}
                     <br><small>${new Date(o.date).toLocaleString()}</small>
                 </div>
             `).join('')}
@@ -2219,7 +2189,6 @@ Teléfono: ${CONFIG.paymentInfo.telefono}`;
         document.querySelector('.login-box h3').textContent = '🔑 Ingresa para hacer tu pedido';
     }
 
-    // Actualizar alertas cada 30s
     setInterval(() => {
         if (document.getElementById('mainApp').style.display !== 'none') {
             updateAlerts();
