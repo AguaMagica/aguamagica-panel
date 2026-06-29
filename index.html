@@ -123,6 +123,17 @@
             border-top: 1px solid rgba(255,255,255,0.1);
             margin-top: 20px;
         }
+        .sidebar ul li.badge {
+            position: relative;
+        }
+        .sidebar ul li .badge-count {
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.7em;
+            margin-left: 5px;
+        }
 
         /* Main Content */
         .main-content {
@@ -150,6 +161,11 @@
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
         }
         textarea, input, select {
@@ -181,6 +197,9 @@
         .btn-danger { background: #c62828; }
         .btn-info { background: #00838f; }
         .btn-whatsapp { background: #25D366; }
+        .btn-email { background: #D44638; }
+        .btn-sms { background: #34B7F1; }
+        .btn-sm { padding: 5px 10px; font-size: 0.85em; }
         
         .client-list {
             max-height: 400px;
@@ -207,6 +226,14 @@
             display: flex;
             gap: 5px;
         }
+        .alert-badge {
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.7em;
+            margin-left: 5px;
+        }
         
         .modal {
             display: none;
@@ -224,7 +251,7 @@
             background: white;
             padding: 30px;
             border-radius: 10px;
-            max-width: 500px;
+            max-width: 600px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
@@ -258,6 +285,9 @@
             font-size: 1.8em;
             font-weight: bold;
             color: #0d47a1;
+        }
+        .stat-card .alert-count {
+            color: #c62828;
         }
         
         .product-item {
@@ -354,6 +384,50 @@
             color: #666;
             margin-top: 2px;
         }
+        .location-btn {
+            background: #34B7F1;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        .location-btn:hover {
+            opacity: 0.9;
+        }
+        .segment-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 5px 0;
+        }
+        .segment-tags label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        .segment-tags input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+        .file-upload {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .file-upload:hover {
+            border-color: #0d47a1;
+            background: #f5f5f5;
+        }
+        .file-upload input[type="file"] {
+            display: none;
+        }
 
         @media (max-width: 768px) {
             .sidebar {
@@ -368,7 +442,7 @@
             .main-content {
                 margin-left: 0;
             }
-            .grid-2 {
+            .grid-2, .grid-3 {
                 grid-template-columns: 1fr;
             }
             .header {
@@ -427,6 +501,23 @@
                     <div class="help-text">📱 Incluye código de área sin el 0</div>
                 </div>
 
+                <!-- Segmentación -->
+                <div class="form-group">
+                    <label>Segmento <span class="required">*</span></label>
+                    <div class="segment-tags">
+                        <label><input type="radio" name="segment" value="Hogar" checked> 🏠 Hogar</label>
+                        <label><input type="radio" name="segment" value="Comercio"> 🏪 Comercio</label>
+                        <label><input type="radio" name="segment" value="Institución"> 🏛️ Institución</label>
+                    </div>
+                </div>
+
+                <!-- Número de integrantes -->
+                <div class="form-group">
+                    <label>Número de integrantes/personas <span class="required">*</span></label>
+                    <input type="number" id="peopleCountOrder" min="1" value="1" required>
+                    <div class="help-text">👥 Para calcular el consumo estimado de agua</div>
+                </div>
+
                 <!-- Productos -->
                 <div class="form-group">
                     <label>Selecciona Producto <span class="required">*</span></label>
@@ -436,15 +527,19 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Cantidad <span class="required">*</span></label>
+                    <label>Cantidad de botellones <span class="required">*</span></label>
                     <input type="number" id="quantityOrder" min="1" value="1" onchange="updateOrderTotal()">
+                    <div class="help-text">💧 Recomendación: 1 botellón de 18L por persona cada 6 días</div>
                 </div>
 
                 <!-- Dirección de Entrega -->
                 <div class="form-group">
                     <label>Dirección de Entrega <span class="required">*</span></label>
                     <textarea id="deliveryAddressOrder" rows="2" placeholder="Dirección completa, puntos de referencia"></textarea>
-                    <div class="help-text">📍 Puedes compartir ubicación vía WhatsApp después de enviar el pedido</div>
+                    <button type="button" class="location-btn" onclick="shareLocation()">
+                        <i class="fas fa-location-dot"></i> Compartir Ubicación vía WhatsApp
+                    </button>
+                    <div class="help-text">📍 Haz clic en el botón para compartir tu ubicación en tiempo real</div>
                 </div>
 
                 <!-- Hora de Entrega -->
@@ -481,9 +576,20 @@
                 <div id="paymentInfo" class="payment-info">
                     <h4>💳 Información PagoMóvil</h4>
                     <p><strong>Banco:</strong> Banesco</p>
-                    <p><strong>Número de Cuenta:</strong> 16039118</p>
+                    <p><strong>C.I.:</strong> 16039118</p>
                     <p><strong>Teléfono:</strong> 04141485985</p>
                     <p style="font-size:0.9em;color:#666;margin-top:5px;">⚠️ Referencia: Tu nombre y número de pedido</p>
+                    
+                    <div class="form-group">
+                        <label>Comprobante de Pago:</label>
+                        <div class="file-upload" onclick="document.getElementById('paymentProof').click()">
+                            <i class="fas fa-cloud-upload-alt" style="font-size:2em;color:#0d47a1;"></i>
+                            <p>Haz clic para subir el comprobante</p>
+                            <p style="font-size:0.8em;color:#666;">Formatos: JPG, PNG, PDF</p>
+                            <input type="file" id="paymentProof" accept=".jpg,.jpeg,.png,.pdf">
+                        </div>
+                        <div id="proofFileName" style="font-size:0.9em;color:#2e7d32;margin-top:5px;"></div>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -514,6 +620,7 @@
             <ul>
                 <li onclick="showTab('dashboard')"><i class="fas fa-home"></i> Dashboard</li>
                 <li onclick="showTab('clientes')"><i class="fas fa-users"></i> Clientes</li>
+                <li onclick="showTab('alertas')" class="badge"><i class="fas fa-bell"></i> Alertas Recompra <span class="badge-count" id="alertBadge">0</span></li>
                 <li onclick="showTab('mensajes')"><i class="fas fa-envelope"></i> Mensajes</li>
                 <li onclick="showTab('pedidos')"><i class="fas fa-shopping-cart"></i> Pedidos</li>
                 <li onclick="showTab('productos')"><i class="fas fa-box"></i> Productos</li>
@@ -540,7 +647,7 @@
                     <div class="stat-card"><h3>Total Clientes</h3><p id="totalClients">0</p></div>
                     <div class="stat-card"><h3>Pedidos Hoy</h3><p id="todayOrders">0</p></div>
                     <div class="stat-card"><h3>Ventas Mes</h3><p id="monthSales">$0</p></div>
-                    <div class="stat-card"><h3>Mensajes Enviados</h3><p id="totalMessages">0</p></div>
+                    <div class="stat-card"><h3>Alertas Recompra</h3><p id="alertCount" class="alert-count">0</p></div>
                 </div>
                 <div class="card">
                     <h3>Accesos Rápidos</h3>
@@ -549,6 +656,7 @@
                         <a href="https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==" target="_blank" class="btn btn-info"><i class="fab fa-instagram"></i> Instagram</a>
                         <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> Generar QR</button>
                         <button class="btn btn-success" onclick="openOrderScreen()"><i class="fas fa-shopping-cart"></i> Sistema de Pedidos</button>
+                        <button class="btn btn-warning" onclick="showTab('alertas')"><i class="fas fa-bell"></i> Ver Alertas</button>
                     </div>
                 </div>
             </div>
@@ -558,14 +666,28 @@
                 <div class="grid-2">
                     <div class="card">
                         <h3><i class="fas fa-user-plus"></i> Agregar Clientes</h3>
-                        <label>Copiar y pegar lista (Nombre, Teléfono):</label>
-                        <textarea id="clientBulkInput" rows="5" placeholder="Juan Pérez, 04141234567&#10;María García, 04147654321"></textarea>
+                        <label>Copiar y pegar lista (Nombre, Teléfono, Segmento):</label>
+                        <textarea id="clientBulkInput" rows="5" placeholder="Juan Pérez, 04141234567, Hogar&#10;María García, 04147654321, Comercio"></textarea>
                         <button class="btn btn-success" onclick="addBulkClients()"><i class="fas fa-plus"></i> Agregar Clientes</button>
                     </div>
                     <div class="card">
                         <h3><i class="fas fa-search"></i> Buscar Cliente</h3>
                         <input type="text" id="clientSearch" placeholder="Buscar por nombre o teléfono" onkeyup="searchClients()">
                         <div class="client-list" id="clientList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alertas Recompra -->
+            <div id="alertas" class="tab">
+                <div class="card">
+                    <h3><i class="fas fa-bell"></i> Alertas de Recompra</h3>
+                    <p style="color:#666;margin-bottom:15px;">📊 Clientes que necesitan reabastecimiento según su consumo (1 botellón/18L por persona cada 6 días)</p>
+                    <div id="alertList"></div>
+                    <div style="margin-top:15px;">
+                        <button class="btn btn-whatsapp" onclick="sendAlerts('whatsapp')"><i class="fab fa-whatsapp"></i> Enviar Alertas por WhatsApp</button>
+                        <button class="btn btn-sms" onclick="sendAlerts('sms')"><i class="fas fa-sms"></i> Enviar Alertas por SMS</button>
+                        <button class="btn btn-email" onclick="sendAlerts('email')"><i class="fas fa-envelope"></i> Enviar Alertas por Email</button>
                     </div>
                 </div>
             </div>
@@ -665,9 +787,11 @@
             repoName: 'aguamagica-panel',
             paymentInfo: {
                 banco: 'Banesco',
-                cuenta: '16039118',
+                ci: '16039118',
                 telefono: '04141485985'
-            }
+            },
+            // Consumo: 1 botellón de 18L por persona cada 6 días
+            consumptionRate: 6 // días
         };
 
         // =============================================
@@ -688,13 +812,11 @@
         function initializeDB() {
             if (!localStorage.getItem('aguamagica_db')) {
                 db.products = [
-                    { name: 'Agua 5L', price: 2.50 },
-                    { name: 'Agua 10L', price: 4.00 },
-                    { name: 'Agua 20L', price: 7.50 }
+                    { name: 'Botellón 18L', price: 3.50 }
                 ];
                 db.messages = [
                     { name: 'Bienvenida', content: '¡Bienvenido a AguaMagica! 🚀' },
-                    { name: 'Promoción', content: '🔥 OFERTA: 2x1 en agua 5L' }
+                    { name: 'Promoción', content: '🔥 OFERTA: 2x1 en botellones 18L' }
                 ];
                 saveDB();
             }
@@ -742,6 +864,38 @@
         }
 
         // =============================================
+        // COMPARTIR UBICACIÓN
+        // =============================================
+        function shareLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                        const message = `📍 Mi ubicación actual: ${mapsUrl}`;
+                        
+                        // Mostrar en el campo de dirección
+                        const addressField = document.getElementById('deliveryAddressOrder');
+                        addressField.value = `📍 Ubicación compartida: ${mapsUrl}`;
+                        
+                        // Opcional: Enviar por WhatsApp directamente
+                        if (confirm('¿Enviar ubicación por WhatsApp ahora?')) {
+                            const phone = document.getElementById('clientPhoneOrder').value || CONFIG.whatsappNumber;
+                            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                            window.open(url, '_blank');
+                        }
+                    },
+                    function(error) {
+                        alert('⚠️ No se pudo obtener la ubicación. Por favor ingresa la dirección manualmente.');
+                    }
+                );
+            } else {
+                alert('⚠️ Tu navegador no soporta geolocalización. Por favor ingresa la dirección manualmente.');
+            }
+        }
+
+        // =============================================
         // SISTEMA DE PEDIDOS PARA CLIENTES
         // =============================================
         function openOrderScreen() {
@@ -750,10 +904,15 @@
             // Limpiar campos
             document.getElementById('clientNameOrder').value = '';
             document.getElementById('clientPhoneOrder').value = '';
+            document.getElementById('peopleCountOrder').value = '1';
             document.getElementById('deliveryAddressOrder').value = '';
             document.getElementById('instructionsOrder').value = '';
             document.getElementById('paymentMethodOrder').value = '';
             document.getElementById('paymentInfo').classList.remove('active');
+            document.getElementById('proofFileName').textContent = '';
+            document.getElementById('paymentProof').value = '';
+            // Segmento por defecto
+            document.querySelector('input[name="segment"][value="Hogar"]').checked = true;
         }
 
         function closeOrderScreen() {
@@ -769,6 +928,18 @@
                 infoDiv.classList.remove('active');
             }
         }
+
+        // Subir comprobante
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('paymentProof');
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        document.getElementById('proofFileName').textContent = `✅ Archivo: ${this.files[0].name}`;
+                    }
+                });
+            }
+        });
 
         function loadProductsOrder() {
             const select = document.getElementById('productSelectOrder');
@@ -807,6 +978,8 @@
             // Obtener todos los datos del pedido
             const clientName = document.getElementById('clientNameOrder').value.trim();
             const clientPhone = document.getElementById('clientPhoneOrder').value.trim();
+            const segment = document.querySelector('input[name="segment"]:checked')?.value || 'Hogar';
+            const peopleCount = document.getElementById('peopleCountOrder').value;
             const productSelect = document.getElementById('productSelectOrder');
             const productName = productSelect.options[productSelect.selectedIndex]?.text || '';
             const quantity = document.getElementById('quantityOrder').value;
@@ -815,6 +988,7 @@
             const paymentMethod = document.getElementById('paymentMethodOrder').value;
             const instructions = document.getElementById('instructionsOrder').value.trim();
             const total = document.getElementById('totalDisplayOrder').textContent;
+            const proofFile = document.getElementById('paymentProof').files[0];
 
             // Validaciones
             if (!clientName) {
@@ -835,7 +1009,7 @@
             }
 
             if (!deliveryAddress) {
-                alert('⚠️ Por favor ingresa la dirección de entrega');
+                alert('⚠️ Por favor ingresa la dirección de entrega o comparte tu ubicación');
                 document.getElementById('deliveryAddressOrder').focus();
                 return;
             }
@@ -846,14 +1020,24 @@
                 return;
             }
 
-            // Construir mensaje
+            // Construir mensaje con saludo según hora
+            const hour = new Date().getHours();
+            let greeting = '';
+            if (hour >= 5 && hour < 12) greeting = '🌅 Buenos días';
+            else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
+            else greeting = '🌙 Buenas noches';
+
             let message = `💧 *NUEVO PEDIDO - AGUAMAGICA*
+
+${greeting} *${clientName}*, gracias por tu pedido 🙏
 
 👤 *Cliente:* ${clientName}
 📱 *Teléfono:* ${clientPhone}
+🏷️ *Segmento:* ${segment}
+👥 *Integrantes:* ${peopleCount} personas
 
 📦 *Producto:* ${productName}
-🔢 *Cantidad:* ${quantity}
+🔢 *Cantidad:* ${quantity} botellones
 💰 *${total}*
 
 📍 *Dirección de entrega:* ${deliveryAddress}
@@ -867,10 +1051,22 @@
 
 💳 *Información PagoMóvil:*
 🏦 Banco: ${CONFIG.paymentInfo.banco}
-🔢 Cuenta: ${CONFIG.paymentInfo.cuenta}
+🆔 C.I.: ${CONFIG.paymentInfo.ci}
 📱 Teléfono: ${CONFIG.paymentInfo.telefono}
 ⚠️ Referencia: ${clientName} - Pedido ${Date.now().toString().slice(-6)}`;
+
+                if (proofFile) {
+                    message += `\n📎 *Comprobante:* ${proofFile.name}`;
+                }
             }
+
+            // Calcular próximo pedido
+            const nextOrder = parseInt(peopleCount) * CONFIG.consumptionRate;
+            message += `
+
+📊 *Consumo estimado:*
+💧 ${peopleCount} personas × 1 botellón cada ${CONFIG.consumptionRate} días
+🔄 Próximo pedido sugerido en ${nextOrder} días`;
 
             if (instructions) {
                 message += `
@@ -882,36 +1078,47 @@
 
 📸 ${CONFIG.instagramLink}
 
-¡Gracias por tu pedido, ${clientName.split(' ')[0]}! 🙏`;
+¡Gracias por confiar en AguaMagica! 🚀`;
 
             // Guardar en la base de datos
             const orderData = {
                 clientName: clientName,
                 clientPhone: clientPhone,
+                segment: segment,
+                peopleCount: parseInt(peopleCount),
                 product: productName,
-                quantity: quantity,
+                quantity: parseInt(quantity),
                 total: total,
                 deliveryAddress: deliveryAddress,
                 deliveryTime: deliveryTime,
                 paymentMethod: paymentMethod,
                 instructions: instructions,
+                proofFile: proofFile ? proofFile.name : null,
                 date: new Date().toISOString(),
-                status: 'enviado'
+                status: 'enviado',
+                nextOrderDays: parseInt(peopleCount) * CONFIG.consumptionRate
             };
 
             db.orders.push(orderData);
 
-            // Verificar si el cliente ya existe en la base de datos
+            // Verificar si el cliente ya existe
             const existingClient = db.clients.find(c => c.phone === clientPhone);
             if (!existingClient) {
-                // Nuevo cliente
                 db.clients.push({
                     name: clientName,
                     phone: clientPhone,
+                    segment: segment,
+                    peopleCount: parseInt(peopleCount),
                     history: [],
                     responses: [],
-                    firstOrder: new Date().toISOString()
+                    firstOrder: new Date().toISOString(),
+                    lastOrder: new Date().toISOString()
                 });
+            } else {
+                // Actualizar último pedido
+                existingClient.lastOrder = new Date().toISOString();
+                existingClient.peopleCount = parseInt(peopleCount);
+                existingClient.segment = segment;
             }
 
             // Registrar respuesta del cliente
@@ -934,8 +1141,171 @@
             
             // Mostrar confirmación
             setTimeout(() => {
-                alert(`✅ Pedido enviado exitosamente!\n\nGracias ${clientName.split(' ')[0]} por tu pedido. Nos pondremos en contacto contigo.`);
+                alert(`✅ Pedido enviado exitosamente!\n\n${greeting} ${clientName.split(' ')[0]}, gracias por tu pedido. Nos pondremos en contacto contigo.`);
             }, 500);
+        }
+
+        // =============================================
+        // ALERTAS DE RECOMPRA
+        // =============================================
+        function checkRecompraAlerts() {
+            const alerts = [];
+            const today = new Date();
+            
+            db.clients.forEach(client => {
+                // Buscar último pedido del cliente
+                const lastOrder = db.orders.filter(o => o.clientPhone === client.phone).sort((a, b) => 
+                    new Date(b.date) - new Date(a.date)
+                )[0];
+                
+                if (lastOrder) {
+                    const lastDate = new Date(lastOrder.date);
+                    const daysDiff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+                    const people = client.peopleCount || 1;
+                    const threshold = people * CONFIG.consumptionRate;
+                    
+                    if (daysDiff >= threshold) {
+                        alerts.push({
+                            client: client,
+                            lastOrder: lastOrder,
+                            daysDiff: daysDiff,
+                            threshold: threshold,
+                            peopleCount: people,
+                            suggestedQuantity: people
+                        });
+                    }
+                }
+            });
+            
+            return alerts;
+        }
+
+        function updateAlerts() {
+            const alerts = checkRecompraAlerts();
+            const alertDiv = document.getElementById('alertList');
+            const badge = document.getElementById('alertBadge');
+            const count = document.getElementById('alertCount');
+            
+            badge.textContent = alerts.length;
+            count.textContent = alerts.length;
+            
+            if (alerts.length === 0) {
+                alertDiv.innerHTML = '<p style="color:#999;">✅ No hay alertas de recompra pendientes</p>';
+                return;
+            }
+            
+            alertDiv.innerHTML = alerts.map((alert, index) => `
+                <div style="border:1px solid #ff6b6b;border-radius:8px;padding:15px;margin-bottom:10px;background:#fff5f5;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+                        <div>
+                            <strong>${alert.client.name}</strong> - ${alert.client.phone}
+                            <br><span style="font-size:0.9em;color:#666;">
+                                🏷️ ${alert.client.segment || 'Hogar'} | 👥 ${alert.peopleCount} personas
+                            </span>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="background:#ff6b6b;color:white;padding:3px 10px;border-radius:12px;font-size:0.85em;">
+                                ⚠️ ${alert.daysDiff} días sin pedir
+                            </span>
+                            <br><span style="font-size:0.8em;color:#666;">
+                                Recomendado: ${alert.suggestedQuantity} botellones
+                            </span>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;display:flex;gap:5px;flex-wrap:wrap;">
+                        <button class="btn btn-whatsapp btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'whatsapp')">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                        <button class="btn btn-sms btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'sms')">
+                            <i class="fas fa-sms"></i> SMS
+                        </button>
+                        <button class="btn btn-email btn-sm" onclick="sendAlertToClient('${alert.client.phone}', '${alert.client.name}', ${alert.suggestedQuantity}, 'email')">
+                            <i class="fas fa-envelope"></i> Email
+                        </button>
+                        <button class="btn btn-info btn-sm" onclick="viewClientAlerts(${db.clients.indexOf(alert.client)})">
+                            <i class="fas fa-eye"></i> Ver Detalles
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function sendAlertToClient(phone, name, quantity, method) {
+            const hour = new Date().getHours();
+            let greeting = '';
+            if (hour >= 5 && hour < 12) greeting = '🌅 Buenos días';
+            else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
+            else greeting = '🌙 Buenas noches';
+
+            const message = `${greeting} *${name}*, 
+            
+💧 En AguaMagica estamos listos para hacer el mantenimiento y llenado de tus botellones.
+
+📦 *Tu último pedido fue de ${quantity} botellones*
+🔄 ¿Necesitas la misma cantidad o deseas modificarla?
+
+✅ *Confirma tu pedido:*
+- Cantidad: ${quantity} botellones
+- Precio: $${(quantity * 3.50).toFixed(2)}
+
+📱 Responde este mensaje para confirmar o modificar tu pedido.
+
+¡Gracias por confiar en AguaMagica! 🚀
+
+📸 ${CONFIG.instagramLink}`;
+
+            let url = '';
+            switch(method) {
+                case 'whatsapp':
+                    url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                    break;
+                case 'sms':
+                    url = `sms:${phone}?body=${encodeURIComponent(message)}`;
+                    break;
+                case 'email':
+                    url = `mailto:?subject=Recompra AguaMagica&body=${encodeURIComponent(message)}`;
+                    break;
+            }
+            
+            window.open(url, '_blank');
+            
+            // Registrar alerta enviada
+            db.responses.push({
+                client: name,
+                phone: phone,
+                message: message,
+                date: new Date().toISOString(),
+                type: 'alerta_recompra',
+                method: method
+            });
+            saveDB();
+        }
+
+        function sendAlerts(method) {
+            const alerts = checkRecompraAlerts();
+            if (alerts.length === 0) {
+                alert('✅ No hay alertas pendientes');
+                return;
+            }
+            
+            if (!confirm(`¿Enviar ${alerts.length} alertas por ${method.toUpperCase()}?`)) return;
+            
+            alerts.forEach(alert => {
+                sendAlertToClient(
+                    alert.client.phone,
+                    alert.client.name,
+                    alert.suggestedQuantity,
+                    method
+                );
+                // Pequeña pausa entre envíos
+                setTimeout(() => {}, 1000);
+            });
+            
+            alert(`✅ ${alerts.length} alertas enviadas por ${method.toUpperCase()}`);
+        }
+
+        function viewClientAlerts(index) {
+            viewClient(index);
         }
 
         // =============================================
@@ -978,6 +1348,7 @@
             updateProductList();
             updateOrderHistory();
             updateReports();
+            updateAlerts();
         }
 
         // =============================================
@@ -995,18 +1366,24 @@
             
             filtered.forEach((client, index) => {
                 const realIndex = db.clients.indexOf(client);
+                // Verificar si tiene alerta
+                const alerts = checkRecompraAlerts();
+                const hasAlert = alerts.some(a => a.client.phone === client.phone);
+                
                 const divItem = document.createElement('div');
                 divItem.className = 'client-item';
                 divItem.innerHTML = `
                     <div class="client-info">
                         <input type="checkbox" onchange="selectClient(${realIndex})">
                         <strong>${client.name}</strong> - ${client.phone}
-                        <span style="font-size:0.8em;color:#999;margin-left:5px;">(${client.responses?.length || 0} pedidos)</span>
-                        ${client.firstOrder ? `<span style="font-size:0.7em;color:#999;margin-left:5px;">📅 ${new Date(client.firstOrder).toLocaleDateString()}</span>` : ''}
+                        <span style="font-size:0.8em;color:#999;margin-left:5px;">
+                            🏷️ ${client.segment || 'Hogar'} | 👥 ${client.peopleCount || 1}
+                            ${hasAlert ? '<span class="alert-badge">⚠️ Recompra</span>' : ''}
+                        </span>
                     </div>
                     <div class="client-actions">
-                        <button class="btn btn-info" onclick="viewClient(${realIndex})"><i class="fas fa-eye"></i></button>
-                        <button class="btn btn-danger" onclick="deleteClient(${realIndex})"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-info btn-sm" onclick="viewClient(${realIndex})"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteClient(${realIndex})"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
                 div.appendChild(divItem);
@@ -1027,13 +1404,17 @@
                 if (parts.length >= 2) {
                     const name = parts[0];
                     const phone = parts[1].replace(/\s/g, '');
+                    const segment = parts[2] || 'Hogar';
                     if (name && phone) {
                         db.clients.push({
                             name: name,
                             phone: phone,
+                            segment: segment,
+                            peopleCount: 1,
                             history: [],
                             responses: [],
-                            firstOrder: new Date().toISOString()
+                            firstOrder: new Date().toISOString(),
+                            lastOrder: new Date().toISOString()
                         });
                         added++;
                     }
@@ -1045,7 +1426,7 @@
                 document.getElementById('clientBulkInput').value = '';
                 alert(`✅ ${added} clientes agregados exitosamente!`);
             } else {
-                alert('⚠️ No se pudo agregar ningún cliente. Verifica el formato (Nombre, Teléfono)');
+                alert('⚠️ No se pudo agregar ningún cliente. Verifica el formato (Nombre, Teléfono, Segmento)');
             }
         }
 
@@ -1054,12 +1435,20 @@
             const modal = document.getElementById('clientModal');
             const orders = db.orders.filter(o => o.clientPhone === client.phone);
             
+            // Verificar alertas
+            const alerts = checkRecompraAlerts();
+            const hasAlert = alerts.some(a => a.client.phone === client.phone);
+            const alertInfo = alerts.find(a => a.client.phone === client.phone);
+            
             document.getElementById('clientDetails').innerHTML = `
                 <h4>${client.name}</h4>
                 <p>📱 ${client.phone}</p>
+                <p>🏷️ ${client.segment || 'Hogar'}</p>
+                <p>👥 ${client.peopleCount || 1} integrantes</p>
                 <p>📝 ${client.responses?.length || 0} pedidos realizados</p>
                 <p>🛒 ${orders.length} compras totales</p>
                 ${client.firstOrder ? `<p>📅 Cliente desde: ${new Date(client.firstOrder).toLocaleDateString()}</p>` : ''}
+                ${hasAlert ? `<p style="color:#c62828;">⚠️ <strong>Alerta:</strong> ${alertInfo.daysDiff} días sin pedir. Recomendado: ${alertInfo.suggestedQuantity} botellones</p>` : ''}
                 <div style="margin-top:15px;">
                     <h5>Últimos pedidos:</h5>
                     ${orders.slice(-3).map(o => `
@@ -1069,9 +1458,23 @@
                             <br><small>${new Date(o.date).toLocaleString()}</small>
                             <br>📍 ${o.deliveryAddress}
                             <br>💳 ${o.paymentMethod}
+                            ${o.proofFile ? `<br>📎 Comprobante: ${o.proofFile}` : ''}
                         </div>
                     `).join('') || 'Sin pedidos registrados'}
                 </div>
+                ${hasAlert ? `
+                    <div style="margin-top:15px;display:flex;gap:5px;flex-wrap:wrap;">
+                        <button class="btn btn-whatsapp btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'whatsapp')">
+                            <i class="fab fa-whatsapp"></i> Enviar Alerta WhatsApp
+                        </button>
+                        <button class="btn btn-sms btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'sms')">
+                            <i class="fas fa-sms"></i> SMS
+                        </button>
+                        <button class="btn btn-email btn-sm" onclick="sendAlertToClient('${client.phone}', '${client.name}', ${alertInfo.suggestedQuantity}, 'email')">
+                            <i class="fas fa-envelope"></i> Email
+                        </button>
+                    </div>
+                ` : ''}
             `;
             modal.style.display = 'flex';
         }
@@ -1138,7 +1541,6 @@
                 return;
             }
 
-            // Simular sincronización con GitHub
             const githubData = {
                 message: content,
                 user: CONFIG.githubUser,
@@ -1175,13 +1577,18 @@
                 return;
             }
 
-            const fullMessage = `${message}\n\n📦 Pedido: [Producto] - [Cantidad]\n⏰ Hora de entrega: [Selecciona]\n\n📱 WhatsApp: https://wa.me/${CONFIG.whatsappNumber}\n📸 ${CONFIG.instagramLink}`;
+            const hour = new Date().getHours();
+            let greeting = '';
+            if (hour >= 5 && hour < 12) greeting = '🌅 Buenos días';
+            else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
+            else greeting = '🌙 Buenas noches';
 
             let sent = 0;
             selected.forEach(checkbox => {
                 const index = Array.from(document.querySelectorAll('.client-item input[type="checkbox"]')).indexOf(checkbox);
                 const client = db.clients[index];
                 if (client) {
+                    const fullMessage = `${greeting} *${client.name}*,\n\n${message}\n\n📱 WhatsApp: https://wa.me/${CONFIG.whatsappNumber}\n📸 ${CONFIG.instagramLink}`;
                     const url = `https://wa.me/${client.phone}?text=${encodeURIComponent(fullMessage)}`;
                     window.open(url, '_blank');
                     
@@ -1190,7 +1597,7 @@
                         phone: client.phone,
                         message: fullMessage,
                         date: new Date().toISOString(),
-                        type: 'whatsapp'
+                        type: 'campaign'
                     });
                     sent++;
                 }
@@ -1233,7 +1640,7 @@
                 item.innerHTML = `
                     <span>${product.name}</span>
                     <span>$${product.price.toFixed(2)}</span>
-                    <button class="btn btn-danger" onclick="deleteProduct(${index})"><i class="fas fa-trash"></i></button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteProduct(${index})"><i class="fas fa-trash"></i></button>
                 `;
                 div.appendChild(item);
             });
@@ -1303,6 +1710,8 @@
                         <br>${o.quantity} unidades - ${o.total}
                         <br>📍 ${o.deliveryAddress}
                         <br>⏰ ${o.deliveryTime} - 💳 ${o.paymentMethod}
+                        ${o.proofFile ? `<br>📎 Comprobante: ${o.proofFile}` : ''}
+                        <br>👥 ${o.peopleCount || 1} personas - 🏷️ ${o.segment || 'Hogar'}
                         <br><small>${new Date(o.date).toLocaleString()}</small>
                     </div>
                 `).join('')}
@@ -1341,14 +1750,23 @@
                 paymentMethods[o.paymentMethod] = (paymentMethods[o.paymentMethod] || 0) + 1;
             });
             
+            // Segmentos
+            const segments = {};
+            db.clients.forEach(c => {
+                segments[c.segment || 'Hogar'] = (segments[c.segment || 'Hogar'] || 0) + 1;
+            });
+            
+            // Alertas
+            const alerts = checkRecompraAlerts();
+            
             div.innerHTML = `
                 <div class="stats-grid">
                     <div class="stat-card"><h3>Total Clientes</h3><p>${totalClients}</p></div>
                     <div class="stat-card"><h3>Total Pedidos</h3><p>${totalOrders}</p></div>
                     <div class="stat-card"><h3>Ventas Totales</h3><p>$${totalSales.toFixed(2)}</p></div>
-                    <div class="stat-card"><h3>Mensajes Enviados</h3><p>${totalMessages}</p></div>
+                    <div class="stat-card"><h3>Alertas Activas</h3><p class="alert-count">${alerts.length}</p></div>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
                     <div>
                         <h4>🏆 Productos Más Vendidos</h4>
                         ${topProducts.length > 0 ? topProducts.map(([name, count]) => `
@@ -1365,6 +1783,21 @@
                             </div>
                         `).join('') || '<p style="color:#999;">Sin datos de pagos</p>'}
                     </div>
+                    <div>
+                        <h4>🏷️ Segmentos</h4>
+                        ${Object.entries(segments).map(([segment, count]) => `
+                            <div style="padding:8px;border-bottom:1px solid #eee;">
+                                ${segment}: ${count} clientes
+                            </div>
+                        `).join('') || '<p style="color:#999;">Sin datos de segmentos</p>'}
+                    </div>
+                </div>
+                <div style="margin-top:20px;padding:15px;background:#fff3e0;border-radius:8px;">
+                    <h4>📊 Consumo Estimado</h4>
+                    <p style="font-size:0.9em;color:#666;">
+                        💧 1 botellón de 18L por persona cada ${CONFIG.consumptionRate} días
+                        <br>🔔 ${alerts.length} clientes necesitan reabastecimiento
+                    </p>
                 </div>
             `;
         }
@@ -1403,6 +1836,9 @@
         function showTab(tabId) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
+            if (tabId === 'alertas') {
+                updateAlerts();
+            }
         }
 
         function closeModal() {
@@ -1429,15 +1865,23 @@
         // =============================================
         // INICIALIZACIÓN
         // =============================================
-        console.log('💧 AguaMagica - Sistema Integral');
+        console.log('💧 AguaMagica - Sistema Integral v2.0');
         console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
         console.log('🔗 GitHub:', CONFIG.githubUser);
         console.log('🔑 Contraseña:', CONFIG.password);
+        console.log('📊 Consumo: 1 botellón/18L por persona cada', CONFIG.consumptionRate, 'días');
 
         // Si la URL tiene el parámetro "pedido"
         if (window.location.search.includes('pedido')) {
             document.querySelector('.login-box h3').textContent = '🔑 Ingresa para hacer tu pedido';
         }
+
+        // Verificar alertas cada 30 segundos
+        setInterval(() => {
+            if (document.getElementById('mainApp').style.display !== 'none') {
+                updateAlerts();
+            }
+        }, 30000);
     </script>
 </body>
 </html>
