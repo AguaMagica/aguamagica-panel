@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Control - AguaMagica</title>
+    <title>AguaMagica - Sistema Integral</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -15,6 +15,68 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f0f2f5;
         }
+        
+        /* Pantalla de Login */
+        #loginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a237e, #0d47a1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .login-box h2 {
+            text-align: center;
+            color: #0d47a1;
+            margin-bottom: 30px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        .login-box input:focus {
+            border-color: #0d47a1;
+            outline: none;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0d47a1, #1a237e);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .login-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(13,71,161,0.3);
+        }
+        .login-error {
+            color: #c62828;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Sidebar */
         .sidebar {
             width: 250px;
             height: 100vh;
@@ -22,6 +84,7 @@
             color: white;
             position: fixed;
             padding: 20px 0;
+            overflow-y: auto;
         }
         .sidebar h2 {
             text-align: center;
@@ -44,6 +107,8 @@
             margin-right: 10px;
             width: 20px;
         }
+
+        /* Main Content */
         .main-content {
             margin-left: 250px;
             padding: 20px;
@@ -57,6 +122,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
         .card {
             background: white;
@@ -76,6 +142,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             margin: 5px 0 15px 0;
+            font-family: inherit;
         }
         .btn {
             background: #0d47a1;
@@ -85,15 +152,18 @@
             border-radius: 5px;
             cursor: pointer;
             transition: 0.3s;
+            margin: 5px;
         }
         .btn:hover {
-            background: #1565c0;
             transform: scale(1.05);
+            opacity: 0.9;
         }
         .btn-success { background: #2e7d32; }
         .btn-warning { background: #f57c00; }
         .btn-danger { background: #c62828; }
         .btn-info { background: #00838f; }
+        .btn-whatsapp { background: #25D366; }
+        
         .client-list {
             max-height: 400px;
             overflow-y: auto;
@@ -109,6 +179,7 @@
             width: 20px;
             margin-right: 10px;
         }
+        
         .modal {
             display: none;
             position: fixed;
@@ -119,6 +190,7 @@
             background: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
+            z-index: 1000;
         }
         .modal-content {
             background: white;
@@ -126,6 +198,8 @@
             border-radius: 10px;
             max-width: 500px;
             width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         .tab {
             display: none;
@@ -133,9 +207,10 @@
         .tab.active {
             display: block;
         }
+        
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin: 20px 0;
         }
@@ -145,146 +220,303 @@
             border-radius: 8px;
             text-align: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid #0d47a1;
         }
-        .qr-code {
-            text-align: center;
-            padding: 20px;
+        .stat-card h3 {
+            font-size: 0.9em;
+            color: #666;
         }
+        .stat-card p {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #0d47a1;
+        }
+        
         .product-item {
             display: flex;
             justify-content: space-between;
             padding: 10px;
             border-bottom: 1px solid #eee;
         }
+        
+        .qr-container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* Sistema de Pedidos para Clientes */
+        #clientOrderScreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .order-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .order-container .logo {
+            text-align: center;
+            font-size: 2em;
+            color: #0d47a1;
+            margin-bottom: 20px;
+        }
+        .order-container input,
+        .order-container select,
+        .order-container textarea {
+            margin: 8px 0;
+        }
+        .total-display {
+            font-size: 1.5em;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        .close-order-btn {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            color: #666;
+        }
+        .close-order-btn:hover {
+            color: #c62828;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <h2>💧 AguaMagica</h2>
-        <ul>
-            <li onclick="showTab('dashboard')"><i class="fas fa-home"></i> Dashboard</li>
-            <li onclick="showTab('clientes')"><i class="fas fa-users"></i> Clientes</li>
-            <li onclick="showTab('mensajes')"><i class="fas fa-envelope"></i> Mensajes</li>
-            <li onclick="showTab('pedidos')"><i class="fas fa-shopping-cart"></i> Pedidos</li>
-            <li onclick="showTab('productos')"><i class="fas fa-box"></i> Productos</li>
-            <li onclick="showTab('reportes')"><i class="fas fa-chart-bar"></i> Reportes</li>
-            <li onclick="showTab('configuracion')"><i class="fas fa-cog"></i> Configuración</li>
-        </ul>
+
+    <!-- ===== PANTALLA DE LOGIN ===== -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2>💧 AguaMagica</h2>
+            <h3 style="text-align:center;color:#666;margin-bottom:20px;">Panel de Control</h3>
+            <input type="password" id="passwordInput" placeholder="Ingresa la contraseña" onkeydown="if(event.key==='Enter') login()">
+            <button class="login-btn" onclick="login()"><i class="fas fa-lock"></i> Acceder</button>
+            <div id="loginError" class="login-error">❌ Contraseña incorrecta</div>
+        </div>
     </div>
 
-    <div class="main-content">
-        <div class="header">
-            <h2>Panel de Control</h2>
-            <div>
-                <span id="currentTime"></span>
-                <button class="btn btn-success" onclick="sendBulkMessage()"><i class="fab fa-whatsapp"></i> Enviar Campaña</button>
+    <!-- ===== SISTEMA DE PEDIDOS PARA CLIENTES ===== -->
+    <div id="clientOrderScreen">
+        <div class="order-container">
+            <span class="close-order-btn" onclick="closeOrderScreen()">&times;</span>
+            <div class="logo">💧 AguaMagica</div>
+            <h3 style="text-align:center;">Haz tu Pedido</h3>
+            
+            <div id="productListOrder">
+                <h4>Productos:</h4>
+                <div id="orderProductItems"></div>
             </div>
-        </div>
 
-        <!-- Dashboard -->
-        <div id="dashboard" class="tab active">
-            <div class="stats-grid">
-                <div class="stat-card"><h3>Total Clientes</h3><p id="totalClients">0</p></div>
-                <div class="stat-card"><h3>Pedidos Hoy</h3><p id="todayOrders">0</p></div>
-                <div class="stat-card"><h3>Ventas Mes</h3><p id="monthSales">$0</p></div>
-                <div class="stat-card"><h3>Mensajes Enviados</h3><p id="totalMessages">0</p></div>
-            </div>
-            <div class="card">
-                <h3>Accesos Rápidos</h3>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <a href="https://wa.me/584141485985" target="_blank" class="btn btn-success"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-                    <a href="https://www.instagram.com/aguamagica" target="_blank" class="btn btn-info"><i class="fab fa-instagram"></i> Instagram</a>
-                    <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> Generar QR</button>
-                </div>
-            </div>
-        </div>
+            <div id="orderForm">
+                <label>Selecciona Producto:</label>
+                <select id="productSelectOrder" onchange="updateOrderTotal()"></select>
 
-        <!-- Clientes -->
-        <div id="clientes" class="tab">
-            <div class="grid-2">
-                <div class="card">
-                    <h3><i class="fas fa-user-plus"></i> Agregar Clientes</h3>
-                    <label>Copiar y pegar lista (Nombre, Teléfono):</label>
-                    <textarea id="clientBulkInput" rows="5" placeholder="Juan Pérez, 04141234567&#10;María García, 04147654321"></textarea>
-                    <button class="btn btn-success" onclick="addBulkClients()"><i class="fas fa-plus"></i> Agregar Clientes</button>
-                </div>
-                <div class="card">
-                    <h3><i class="fas fa-search"></i> Buscar Cliente</h3>
-                    <input type="text" id="clientSearch" placeholder="Buscar por nombre o teléfono" onkeyup="searchClients()">
-                    <div class="client-list" id="clientList"></div>
-                </div>
-            </div>
-        </div>
+                <label>Cantidad:</label>
+                <input type="number" id="quantityOrder" min="1" value="1" onchange="updateOrderTotal()">
 
-        <!-- Mensajes -->
-        <div id="mensajes" class="tab">
-            <div class="card">
-                <h3><i class="fas fa-edit"></i> Editor de Mensajes</h3>
-                <textarea id="messageEditor" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
-                <button class="btn" onclick="saveMessage()"><i class="fas fa-save"></i> Guardar Mensaje</button>
-                <button class="btn btn-success" onclick="syncToGitHub()"><i class="fab fa-github"></i> Sincronizar con GitHub</button>
-                <div style="margin-top: 10px;">
-                    <label>Mensajes Guardados:</label>
-                    <select id="savedMessages" onchange="loadMessage()"></select>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pedidos -->
-        <div id="pedidos" class="tab">
-            <div class="card">
-                <h3><i class="fas fa-clipboard-list"></i> Historial de Pedidos</h3>
-                <select id="periodFilter" onchange="filterOrders()">
-                    <option value="hour">Hora</option>
-                    <option value="day">Día</option>
-                    <option value="week">Semana</option>
-                    <option value="biweek">Quincena</option>
-                    <option value="month">Mes</option>
-                    <option value="quarter">Trimestre</option>
-                    <option value="semester">Semestre</option>
-                    <option value="year">Año</option>
+                <label>Hora de Entrega:</label>
+                <select id="deliveryTimeOrder">
+                    <option value="08:00">8:00 AM</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                    <option value="19:00">7:00 PM</option>
                 </select>
-                <div id="orderHistory"></div>
+
+                <label>Instrucciones especiales:</label>
+                <textarea id="instructionsOrder" rows="3" placeholder="Dirección, piso, referencias..."></textarea>
+
+                <div class="total-display" id="totalDisplayOrder">Total: $0.00</div>
+
+                <button class="btn btn-whatsapp" onclick="sendOrderWhatsApp()" style="width:100%;padding:15px;font-size:1.1em;">
+                    <i class="fab fa-whatsapp"></i> Enviar Pedido por WhatsApp
+                </button>
+            </div>
+
+            <div style="text-align:center;margin-top:20px;">
+                <a href="https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==" target="_blank" style="color:#E4405F;text-decoration:none;">
+                    📸 Ver Publicación
+                </a>
             </div>
         </div>
+    </div>
 
-        <!-- Productos -->
-        <div id="productos" class="tab">
-            <div class="card">
-                <h3><i class="fas fa-boxes"></i> Gestión de Productos</h3>
-                <div class="grid-2">
-                    <div>
-                        <input type="text" id="productName" placeholder="Nombre del producto">
-                        <input type="number" id="productPrice" placeholder="Precio">
-                        <button class="btn btn-success" onclick="addProduct()"><i class="fas fa-plus"></i> Agregar Producto</button>
+    <!-- ===== PANEL DE CONTROL ===== -->
+    <div id="mainApp" style="display:none;">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>💧 AguaMagica</h2>
+            <ul>
+                <li onclick="showTab('dashboard')"><i class="fas fa-home"></i> Dashboard</li>
+                <li onclick="showTab('clientes')"><i class="fas fa-users"></i> Clientes</li>
+                <li onclick="showTab('mensajes')"><i class="fas fa-envelope"></i> Mensajes</li>
+                <li onclick="showTab('pedidos')"><i class="fas fa-shopping-cart"></i> Pedidos</li>
+                <li onclick="showTab('productos')"><i class="fas fa-box"></i> Productos</li>
+                <li onclick="showTab('reportes')"><i class="fas fa-chart-bar"></i> Reportes</li>
+                <li onclick="showTab('configuracion')"><i class="fas fa-cog"></i> Configuración</li>
+                <li onclick="logout()" style="color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2>Panel de Control</h2>
+                <div>
+                    <span id="currentTime"></span>
+                    <button class="btn btn-success" onclick="sendBulkMessage()"><i class="fab fa-whatsapp"></i> Enviar Campaña</button>
+                    <button class="btn btn-info" onclick="openOrderScreen()"><i class="fas fa-shopping-cart"></i> Ver Pedidos</button>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="dashboard" class="tab active">
+                <div class="stats-grid">
+                    <div class="stat-card"><h3>Total Clientes</h3><p id="totalClients">0</p></div>
+                    <div class="stat-card"><h3>Pedidos Hoy</h3><p id="todayOrders">0</p></div>
+                    <div class="stat-card"><h3>Ventas Mes</h3><p id="monthSales">$0</p></div>
+                    <div class="stat-card"><h3>Mensajes Enviados</h3><p id="totalMessages">0</p></div>
+                </div>
+                <div class="card">
+                    <h3>Accesos Rápidos</h3>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <a href="https://wa.me/584141485985" target="_blank" class="btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                        <a href="https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==" target="_blank" class="btn btn-info"><i class="fab fa-instagram"></i> Instagram</a>
+                        <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> Generar QR</button>
+                        <button class="btn btn-success" onclick="openOrderScreen()"><i class="fas fa-shopping-cart"></i> Sistema de Pedidos</button>
                     </div>
-                    <div id="productList"></div>
                 </div>
             </div>
-        </div>
 
-        <!-- Reportes -->
-        <div id="reportes" class="tab">
-            <div class="card">
-                <h3><i class="fas fa-chart-line"></i> Reportes y Estadísticas</h3>
-                <div id="reportsContent">
-                    <p>Selecciona un período para ver las estadísticas</p>
+            <!-- Clientes -->
+            <div id="clientes" class="tab">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fas fa-user-plus"></i> Agregar Clientes</h3>
+                        <label>Copiar y pegar lista (Nombre, Teléfono):</label>
+                        <textarea id="clientBulkInput" rows="5" placeholder="Juan Pérez, 04141234567&#10;María García, 04147654321"></textarea>
+                        <button class="btn btn-success" onclick="addBulkClients()"><i class="fas fa-plus"></i> Agregar Clientes</button>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-search"></i> Buscar Cliente</h3>
+                        <input type="text" id="clientSearch" placeholder="Buscar por nombre o teléfono" onkeyup="searchClients()">
+                        <div class="client-list" id="clientList"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Configuración -->
-        <div id="configuracion" class="tab">
-            <div class="card">
-                <h3><i class="fas fa-qrcode"></i> Código QR</h3>
-                <div class="qr-code" id="qrDisplay">
-                    <p>Click en "Generar QR" para crear el código</p>
-                    <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> Generar QR</button>
-                    <div id="qrResult"></div>
+            <!-- Mensajes -->
+            <div id="mensajes" class="tab">
+                <div class="card">
+                    <h3><i class="fas fa-edit"></i> Editor de Mensajes</h3>
+                    <textarea id="messageEditor" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
+                    <button class="btn" onclick="saveMessage()"><i class="fas fa-save"></i> Guardar Mensaje</button>
+                    <button class="btn btn-success" onclick="syncToGitHub()"><i class="fab fa-github"></i> Sincronizar con GitHub</button>
+                    <div style="margin-top:10px;">
+                        <label>Mensajes Guardados:</label>
+                        <select id="savedMessages" onchange="loadMessage()"></select>
+                    </div>
                 </div>
-                <h3>Link Corto</h3>
-                <input type="text" id="shortLink" value="https://bit.ly/aguamagica" readonly>
-                <button class="btn" onclick="copyLink()"><i class="fas fa-copy"></i> Copiar Link</button>
+            </div>
+
+            <!-- Pedidos -->
+            <div id="pedidos" class="tab">
+                <div class="card">
+                    <h3><i class="fas fa-clipboard-list"></i> Historial de Pedidos</h3>
+                    <select id="periodFilter" onchange="filterOrders()">
+                        <option value="hour">Hora</option>
+                        <option value="day">Día</option>
+                        <option value="week">Semana</option>
+                        <option value="biweek">Quincena</option>
+                        <option value="month">Mes</option>
+                        <option value="quarter">Trimestre</option>
+                        <option value="semester">Semestre</option>
+                        <option value="year">Año</option>
+                    </select>
+                    <div id="orderHistory"></div>
+                </div>
+            </div>
+
+            <!-- Productos -->
+            <div id="productos" class="tab">
+                <div class="card">
+                    <h3><i class="fas fa-boxes"></i> Gestión de Productos</h3>
+                    <div class="grid-2">
+                        <div>
+                            <input type="text" id="productName" placeholder="Nombre del producto">
+                            <input type="number" id="productPrice" placeholder="Precio">
+                            <button class="btn btn-success" onclick="addProduct()"><i class="fas fa-plus"></i> Agregar Producto</button>
+                        </div>
+                        <div id="productList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reportes -->
+            <div id="reportes" class="tab">
+                <div class="card">
+                    <h3><i class="fas fa-chart-line"></i> Reportes y Estadísticas</h3>
+                    <div id="reportsContent"></div>
+                </div>
+            </div>
+
+            <!-- Configuración -->
+            <div id="configuracion" class="tab">
+                <div class="card">
+                    <h3><i class="fas fa-qrcode"></i> Código QR</h3>
+                    <div class="qr-container">
+                        <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> Generar QR</button>
+                        <div id="qrResult"></div>
+                    </div>
+                    <h3>Link de Acceso</h3>
+                    <input type="text" id="shortLink" value="https://aguamagica.github.io/panel-control/" readonly>
+                    <button class="btn" onclick="copyLink()"><i class="fas fa-copy"></i> Copiar Link</button>
+                    <h3>Link de Pedidos</h3>
+                    <input type="text" id="orderLink" value="https://aguamagica.github.io/panel-control/?pedido" readonly>
+                    <button class="btn" onclick="copyOrderLink()"><i class="fas fa-copy"></i> Copiar Link</button>
+                </div>
             </div>
         </div>
     </div>
@@ -299,20 +531,163 @@
     </div>
 
     <script>
-        // Base de datos simulada
+        // ===== CONFIGURACIÓN =====
+        const CONFIG = {
+            password: 'agua2026',
+            whatsappNumber: '584141485985',
+            instagramLink: 'https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==',
+            githubUser: 'AguaMagica',
+            repoName: 'panel-control'
+        };
+
+        // ===== BASE DE DATOS =====
         let db = {
             clients: [],
             messages: [],
             products: [],
             orders: [],
-            responses: []
+            responses: [],
+            campaigns: []
         };
 
-        // Cargar datos desde localStorage
+        // ===== LOGIN =====
+        function login() {
+            const input = document.getElementById('passwordInput').value;
+            if (input === CONFIG.password) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                loadDB();
+                updateUI();
+                updateClock();
+                setInterval(updateClock, 1000);
+                checkOrderParam();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('loginError').style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function logout() {
+            if (confirm('¿Cerrar sesión?')) {
+                document.getElementById('mainApp').style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        // ===== DETECTAR PARÁMETRO DE PEDIDO =====
+        function checkOrderParam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('pedido')) {
+                setTimeout(() => openOrderScreen(), 500);
+            }
+        }
+
+        // ===== SISTEMA DE PEDIDOS PARA CLIENTES =====
+        function openOrderScreen() {
+            document.getElementById('clientOrderScreen').style.display = 'flex';
+            loadProductsOrder();
+        }
+
+        function closeOrderScreen() {
+            document.getElementById('clientOrderScreen').style.display = 'none';
+        }
+
+        function loadProductsOrder() {
+            const select = document.getElementById('productSelectOrder');
+            const itemsDiv = document.getElementById('orderProductItems');
+            
+            select.innerHTML = '<option value="">Selecciona un producto</option>';
+            itemsDiv.innerHTML = '';
+            
+            db.products.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.price;
+                option.textContent = `${product.name} - $${product.price.toFixed(2)}`;
+                select.appendChild(option);
+                
+                const item = document.createElement('div');
+                item.className = 'product-item';
+                item.innerHTML = `<span>${product.name}</span><span>$${product.price.toFixed(2)}</span>`;
+                itemsDiv.appendChild(item);
+            });
+            
+            if (db.products.length === 0) {
+                itemsDiv.innerHTML = '<p style="color:#999;">No hay productos cargados</p>';
+            }
+            
+            updateOrderTotal();
+        }
+
+        function updateOrderTotal() {
+            const price = parseFloat(document.getElementById('productSelectOrder').value);
+            const quantity = parseInt(document.getElementById('quantityOrder').value) || 0;
+            const total = price * quantity;
+            document.getElementById('totalDisplayOrder').textContent = `Total: $${total.toFixed(2)}`;
+        }
+
+        function sendOrderWhatsApp() {
+            const productSelect = document.getElementById('productSelectOrder');
+            const productName = productSelect.options[productSelect.selectedIndex]?.text || '';
+            const quantity = document.getElementById('quantityOrder').value;
+            const deliveryTime = document.getElementById('deliveryTimeOrder').value;
+            const instructions = document.getElementById('instructionsOrder').value;
+            const total = document.getElementById('totalDisplayOrder').textContent;
+
+            if (!productSelect.value) {
+                alert('⚠️ Por favor selecciona un producto');
+                return;
+            }
+
+            const message = `💧 *NUEVO PEDIDO - AGUAMAGICA*
+
+📦 *Producto:* ${productName}
+🔢 *Cantidad:* ${quantity}
+💰 *${total}*
+⏰ *Hora de entrega:* ${deliveryTime}
+📝 *Instrucciones:* ${instructions || 'Sin instrucciones'}
+
+📱 WhatsApp: https://wa.me/${CONFIG.whatsappNumber}
+📸 ${CONFIG.instagramLink}
+
+¡Gracias por tu pedido! 🙏`;
+
+            const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+            
+            // Guardar pedido
+            db.orders.push({
+                product: productName,
+                quantity: quantity,
+                total: total,
+                deliveryTime: deliveryTime,
+                instructions: instructions,
+                date: new Date().toISOString(),
+                status: 'enviado'
+            });
+            saveDB();
+            closeOrderScreen();
+        }
+
+        // ===== GESTIÓN DE DATOS =====
         function loadDB() {
             const saved = localStorage.getItem('aguamagica_db');
             if (saved) {
                 db = JSON.parse(saved);
+            } else {
+                // Datos de ejemplo
+                db.products = [
+                    { name: 'Agua 5L', price: 2.50 },
+                    { name: 'Agua 10L', price: 4.00 },
+                    { name: 'Agua 20L', price: 7.50 }
+                ];
+                db.messages = [
+                    { name: 'Bienvenida', content: '¡Bienvenido a AguaMagica! 🚀' },
+                    { name: 'Promoción', content: '🔥 OFERTA: 2x1 en agua 5L' }
+                ];
+                saveDB();
             }
             updateUI();
         }
@@ -324,54 +699,143 @@
 
         function updateUI() {
             document.getElementById('totalClients').textContent = db.clients.length;
-            document.getElementById('clientList').innerHTML = '';
-            db.clients.forEach((client, index) => {
-                const div = document.createElement('div');
-                div.className = 'client-item';
-                div.innerHTML = `
-                    <div>
-                        <input type="checkbox" onchange="selectClient(${index})">
-                        <strong>${client.name}</strong> - ${client.phone}
-                    </div>
-                    <button class="btn btn-info" onclick="viewClient(${index})"><i class="fas fa-eye"></i></button>
-                `;
-                document.getElementById('clientList').appendChild(div);
-            });
-            updateProductList();
+            document.getElementById('totalMessages').textContent = db.responses.length;
+            
+            // Pedidos hoy
+            const today = new Date().toDateString();
+            const todayOrders = db.orders.filter(o => new Date(o.date).toDateString() === today);
+            document.getElementById('todayOrders').textContent = todayOrders.length;
+            
+            // Ventas mes
+            const month = new Date().getMonth();
+            const monthOrders = db.orders.filter(o => new Date(o.date).getMonth() === month);
+            const totalSales = monthOrders.reduce((sum, o) => {
+                const num = parseFloat(o.total.replace(/[^0-9.]/g, ''));
+                return sum + (isNaN(num) ? 0 : num);
+            }, 0);
+            document.getElementById('monthSales').textContent = `$${totalSales.toFixed(2)}`;
+            
+            // Actualizar lista de clientes
+            updateClientList();
             updateSavedMessages();
+            updateProductList();
+            updateOrderHistory();
+            updateReports();
         }
 
-        // Agregar clientes en masa
+        // ===== CLIENTES =====
+        function updateClientList() {
+            const search = document.getElementById('clientSearch').value.toLowerCase();
+            const div = document.getElementById('clientList');
+            div.innerHTML = '';
+            
+            const filtered = db.clients.filter(c => 
+                c.name.toLowerCase().includes(search) || 
+                c.phone.includes(search)
+            );
+            
+            filtered.forEach((client, index) => {
+                const realIndex = db.clients.indexOf(client);
+                const divItem = document.createElement('div');
+                divItem.className = 'client-item';
+                divItem.innerHTML = `
+                    <div>
+                        <input type="checkbox" onchange="selectClient(${realIndex})">
+                        <strong>${client.name}</strong> - ${client.phone}
+                        <span style="font-size:0.8em;color:#999;">(${client.responses?.length || 0} respuestas)</span>
+                    </div>
+                    <div>
+                        <button class="btn btn-info" onclick="viewClient(${realIndex})"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-danger" onclick="deleteClient(${realIndex})"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                div.appendChild(divItem);
+            });
+            
+            if (filtered.length === 0) {
+                div.innerHTML = '<p style="color:#999;text-align:center;">No hay clientes registrados</p>';
+            }
+        }
+
         function addBulkClients() {
             const input = document.getElementById('clientBulkInput').value;
-            const lines = input.split('\n');
+            const lines = input.split('\n').filter(l => l.trim());
+            let added = 0;
+            
             lines.forEach(line => {
                 const parts = line.split(',').map(s => s.trim());
-                if (parts.length === 2) {
-                    db.clients.push({
-                        name: parts[0],
-                        phone: parts[1],
-                        history: [],
-                        responses: []
-                    });
+                if (parts.length >= 2) {
+                    const name = parts[0];
+                    const phone = parts[1].replace(/\s/g, '');
+                    if (name && phone) {
+                        db.clients.push({
+                            name: name,
+                            phone: phone,
+                            history: [],
+                            responses: []
+                        });
+                        added++;
+                    }
                 }
             });
-            saveDB();
-            document.getElementById('clientBulkInput').value = '';
-            alert('Clientes agregados exitosamente!');
+            
+            if (added > 0) {
+                saveDB();
+                document.getElementById('clientBulkInput').value = '';
+                alert(`✅ ${added} clientes agregados exitosamente!`);
+            } else {
+                alert('⚠️ No se pudo agregar ningún cliente. Verifica el formato (Nombre, Teléfono)');
+            }
         }
 
-        // Mensajes
+        function viewClient(index) {
+            const client = db.clients[index];
+            const modal = document.getElementById('clientModal');
+            document.getElementById('clientDetails').innerHTML = `
+                <h4>${client.name}</h4>
+                <p>📱 ${client.phone}</p>
+                <p>📝 ${client.responses?.length || 0} respuestas registradas</p>
+                <p>🛒 ${client.history?.length || 0} compras</p>
+                <div style="margin-top:15px;">
+                    <h5>Últimas interacciones:</h5>
+                    ${client.responses?.slice(-3).map(r => `<p style="font-size:0.9em;border-bottom:1px solid #eee;padding:5px;">${r}</p>`).join('') || 'Sin registros'}
+                </div>
+            `;
+            modal.style.display = 'flex';
+        }
+
+        function deleteClient(index) {
+            if (confirm('¿Eliminar este cliente?')) {
+                db.clients.splice(index, 1);
+                saveDB();
+            }
+        }
+
+        function searchClients() {
+            updateClientList();
+        }
+
+        function selectClient(index) {
+            // Para selección de clientes en campañas
+        }
+
+        // ===== MENSAJES =====
         function saveMessage() {
             const content = document.getElementById('messageEditor').value;
             if (content) {
                 const name = prompt('Nombre del mensaje:');
                 if (name) {
-                    db.messages.push({ name, content, date: new Date().toISOString() });
+                    db.messages.push({ 
+                        name, 
+                        content, 
+                        date: new Date().toISOString() 
+                    });
                     saveDB();
                     document.getElementById('messageEditor').value = '';
-                    alert('Mensaje guardado!');
+                    alert('✅ Mensaje guardado!');
                 }
+            } else {
+                alert('⚠️ Escribe un mensaje primero');
             }
         }
 
@@ -381,7 +845,7 @@
             db.messages.forEach((msg, index) => {
                 const option = document.createElement('option');
                 option.value = index;
-                option.textContent = msg.name;
+                option.textContent = `${msg.name} (${new Date(msg.date).toLocaleDateString()})`;
                 select.appendChild(option);
             });
         }
@@ -393,87 +857,100 @@
             }
         }
 
-        // Enviar mensaje masivo
-        function sendBulkMessage() {
-            const selected = document.querySelectorAll('.client-item input[type="checkbox"]:checked');
-            if (selected.length === 0) {
-                alert('Selecciona al menos un cliente');
-                return;
-            }
-            
-            const message = document.getElementById('messageEditor').value;
-            if (!message) {
-                alert('Escribe un mensaje primero');
-                return;
-            }
-
-            const fullMessage = `${message}\n\n📦 Pedido: [Producto] - [Cantidad]\n⏰ Hora de entrega: [Selecciona]\n\n📱 WhatsApp: https://wa.me/584141485985\n📸 Instagram: https://www.instagram.com/reel/C7bqvkYuHb0/?igsh=MXJkaGV1NXl3emh4Yw==`;
-
-            selected.forEach(checkbox => {
-                const index = Array.from(document.querySelectorAll('.client-item input[type="checkbox"]')).indexOf(checkbox);
-                const client = db.clients[index];
-                const url = `https://wa.me/${client.phone}?text=${encodeURIComponent(fullMessage)}`;
-                window.open(url, '_blank');
-                
-                // Registrar envío
-                db.responses.push({
-                    client: client.name,
-                    phone: client.phone,
-                    message: fullMessage,
-                    date: new Date().toISOString(),
-                    type: 'whatsapp'
-                });
-            });
-            saveDB();
-        }
-
-        // Sincronizar con GitHub
         function syncToGitHub() {
             const content = document.getElementById('messageEditor').value;
             if (!content) {
-                alert('Escribe un mensaje primero');
+                alert('⚠️ Escribe un mensaje primero');
                 return;
             }
 
             // Simular sincronización con GitHub
             const githubData = {
                 message: content,
-                user: 'AguaMagica',
+                user: CONFIG.githubUser,
+                repo: CONFIG.repoName,
                 date: new Date().toISOString()
             };
 
-            console.log('Sincronizando con GitHub...', githubData);
-            
-            // Aquí iría la integración real con GitHub API
-            // fetch('https://api.github.com/repos/AguaMagica/...', { ... })
-            
-            alert('✅ Mensaje sincronizado con GitHub!\nUsuario: AguaMagica\nRepositorio: aguamagica-panel');
+            console.log('📤 Sincronizando con GitHub...', githubData);
             
             // Guardar en historial
             db.messages.push({
                 name: `Sync ${new Date().toLocaleString()}`,
                 content: content,
-                github: true
+                github: true,
+                date: new Date().toISOString()
             });
             saveDB();
+            
+            alert(`✅ Mensaje sincronizado con GitHub!\nUsuario: ${CONFIG.githubUser}\nRepositorio: ${CONFIG.repoName}`);
         }
 
-        // Productos
+        // ===== ENVÍO DE CAMPAÑAS =====
+        function sendBulkMessage() {
+            const selected = document.querySelectorAll('.client-item input[type="checkbox"]:checked');
+            if (selected.length === 0) {
+                alert('⚠️ Selecciona al menos un cliente');
+                return;
+            }
+            
+            const message = document.getElementById('messageEditor').value;
+            if (!message) {
+                alert('⚠️ Escribe un mensaje primero');
+                return;
+            }
+
+            const fullMessage = `${message}\n\n📦 Pedido: [Producto] - [Cantidad]\n⏰ Hora de entrega: [Selecciona]\n\n📱 WhatsApp: https://wa.me/${CONFIG.whatsappNumber}\n📸 ${CONFIG.instagramLink}`;
+
+            let sent = 0;
+            selected.forEach(checkbox => {
+                const index = Array.from(document.querySelectorAll('.client-item input[type="checkbox"]')).indexOf(checkbox);
+                const client = db.clients[index];
+                if (client) {
+                    const url = `https://wa.me/${client.phone}?text=${encodeURIComponent(fullMessage)}`;
+                    window.open(url, '_blank');
+                    
+                    // Registrar envío
+                    db.responses.push({
+                        client: client.name,
+                        phone: client.phone,
+                        message: fullMessage,
+                        date: new Date().toISOString(),
+                        type: 'whatsapp'
+                    });
+                    sent++;
+                }
+            });
+            
+            saveDB();
+            alert(`✅ Mensaje enviado a ${sent} clientes`);
+        }
+
+        // ===== PRODUCTOS =====
         function addProduct() {
-            const name = document.getElementById('productName').value;
-            const price = document.getElementById('productPrice').value;
-            if (name && price) {
-                db.products.push({ name, price: parseFloat(price) });
+            const name = document.getElementById('productName').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value);
+            
+            if (name && price > 0) {
+                db.products.push({ name, price });
                 saveDB();
                 document.getElementById('productName').value = '';
                 document.getElementById('productPrice').value = '';
-                alert('Producto agregado!');
+                alert('✅ Producto agregado!');
+            } else {
+                alert('⚠️ Ingresa nombre y precio válido');
             }
         }
 
         function updateProductList() {
             const div = document.getElementById('productList');
             div.innerHTML = '<h4>Productos disponibles:</h4>';
+            
+            if (db.products.length === 0) {
+                div.innerHTML += '<p style="color:#999;">No hay productos cargados</p>';
+                return;
+            }
+            
             db.products.forEach((product, index) => {
                 const item = document.createElement('div');
                 item.className = 'product-item';
@@ -487,80 +964,183 @@
         }
 
         function deleteProduct(index) {
-            db.products.splice(index, 1);
-            saveDB();
+            if (confirm('¿Eliminar este producto?')) {
+                db.products.splice(index, 1);
+                saveDB();
+            }
         }
 
-        // Generar QR
+        // ===== PEDIDOS =====
+        function updateOrderHistory() {
+            const period = document.getElementById('periodFilter').value;
+            const div = document.getElementById('orderHistory');
+            let filtered = [...db.orders];
+            
+            const now = new Date();
+            switch(period) {
+                case 'hour':
+                    filtered = db.orders.filter(o => new Date(o.date).getHours() === now.getHours());
+                    break;
+                case 'day':
+                    filtered = db.orders.filter(o => new Date(o.date).toDateString() === now.toDateString());
+                    break;
+                case 'week':
+                    const weekStart = new Date(now);
+                    weekStart.setDate(now.getDate() - now.getDay());
+                    filtered = db.orders.filter(o => new Date(o.date) >= weekStart);
+                    break;
+                case 'biweek':
+                    const biweekStart = new Date(now);
+                    biweekStart.setDate(now.getDate() - 15);
+                    filtered = db.orders.filter(o => new Date(o.date) >= biweekStart);
+                    break;
+                case 'month':
+                    filtered = db.orders.filter(o => new Date(o.date).getMonth() === now.getMonth());
+                    break;
+                case 'quarter':
+                    const quarterStart = new Date(now);
+                    quarterStart.setMonth(now.getMonth() - 3);
+                    filtered = db.orders.filter(o => new Date(o.date) >= quarterStart);
+                    break;
+                case 'semester':
+                    const semesterStart = new Date(now);
+                    semesterStart.setMonth(now.getMonth() - 6);
+                    filtered = db.orders.filter(o => new Date(o.date) >= semesterStart);
+                    break;
+                case 'year':
+                    filtered = db.orders.filter(o => new Date(o.date).getFullYear() === now.getFullYear());
+                    break;
+            }
+            
+            if (filtered.length === 0) {
+                div.innerHTML = '<p style="color:#999;">No hay pedidos en este período</p>';
+                return;
+            }
+            
+            div.innerHTML = `
+                <p><strong>Total pedidos:</strong> ${filtered.length}</p>
+                ${filtered.slice().reverse().map(o => `
+                    <div style="border-bottom:1px solid #eee;padding:10px;">
+                        <strong>${o.product}</strong> - ${o.quantity} unidades
+                        <br>${o.total} - ${o.deliveryTime}
+                        <br><small>${new Date(o.date).toLocaleString()}</small>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function filterOrders() {
+            updateOrderHistory();
+        }
+
+        // ===== REPORTES =====
+        function updateReports() {
+            const div = document.getElementById('reportsContent');
+            const totalClients = db.clients.length;
+            const totalOrders = db.orders.length;
+            const totalMessages = db.responses.length;
+            
+            // Ventas totales
+            const totalSales = db.orders.reduce((sum, o) => {
+                const num = parseFloat(o.total.replace(/[^0-9.]/g, ''));
+                return sum + (isNaN(num) ? 0 : num);
+            }, 0);
+            
+            // Productos más vendidos
+            const productCount = {};
+            db.orders.forEach(o => {
+                productCount[o.product] = (productCount[o.product] || 0) + parseInt(o.quantity);
+            });
+            const topProducts = Object.entries(productCount).sort((a,b) => b[1] - a[1]).slice(0,5);
+            
+            div.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card"><h3>Total Clientes</h3><p>${totalClients}</p></div>
+                    <div class="stat-card"><h3>Total Pedidos</h3><p>${totalOrders}</p></div>
+                    <div class="stat-card"><h3>Ventas Totales</h3><p>$${totalSales.toFixed(2)}</p></div>
+                    <div class="stat-card"><h3>Mensajes Enviados</h3><p>${totalMessages}</p></div>
+                </div>
+                <h4>🏆 Productos Más Vendidos</h4>
+                ${topProducts.length > 0 ? topProducts.map(([name, count]) => `
+                    <div style="padding:8px;border-bottom:1px solid #eee;">
+                        ${name}: ${count} unidades
+                    </div>
+                `).join('') : '<p style="color:#999;">Sin datos de ventas</p>'}
+            `;
+        }
+
+        // ===== QR Y LINKS =====
         function generateQR() {
-            const url = 'https://aguamagica.com/pedido';
+            const url = 'https://aguamagica.github.io/panel-control/?pedido';
             const qrDiv = document.getElementById('qrResult');
             qrDiv.innerHTML = `
-                <div style="padding: 20px; background: white; display: inline-block;">
+                <div style="padding:20px;background:white;display:inline-block;">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}" alt="QR Code">
                     <p><small>${url}</small></p>
                 </div>
             `;
         }
 
-        // Navegación
+        function copyLink() {
+            const link = document.getElementById('shortLink');
+            link.select();
+            document.execCommand('copy');
+            alert('✅ Link copiado!');
+        }
+
+        function copyOrderLink() {
+            const link = document.getElementById('orderLink');
+            link.select();
+            document.execCommand('copy');
+            alert('✅ Link de pedidos copiado!');
+        }
+
+        // ===== NAVEGACIÓN =====
         function showTab(tabId) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-        }
-
-        // Reloj
-        function updateClock() {
-            document.getElementById('currentTime').textContent = new Date().toLocaleString();
-        }
-        setInterval(updateClock, 1000);
-
-        // Inicializar
-        loadDB();
-        updateClock();
-
-        // Funciones adicionales
-        function searchClients() {
-            // Implementar búsqueda
-        }
-
-        function viewClient(index) {
-            const client = db.clients[index];
-            const modal = document.getElementById('clientModal');
-            document.getElementById('clientDetails').innerHTML = `
-                <h4>${client.name}</h4>
-                <p>📱 ${client.phone}</p>
-                <p>📝 Historial de compras: ${client.history ? client.history.length : 0} compras</p>
-                <div style="margin-top: 10px;">
-                    <h5>Últimas respuestas:</h5>
-                    ${client.responses ? client.responses.slice(-3).map(r => `<p>${r}</p>`).join('') : 'Sin respuestas'}
-                </div>
-            `;
-            modal.style.display = 'flex';
         }
 
         function closeModal() {
             document.getElementById('clientModal').style.display = 'none';
         }
 
-        function filterOrders() {
-            // Implementar filtro de pedidos
+        // ===== RELOJ =====
+        function updateClock() {
+            document.getElementById('currentTime').textContent = new Date().toLocaleString();
         }
 
-        function copyLink() {
-            const link = document.getElementById('shortLink');
-            link.select();
-            document.execCommand('copy');
-            alert('Link copiado!');
-        }
-
-        // Cerrar modal al hacer click fuera
+        // ===== CERRAR MODAL CLICK FUERA =====
         window.onclick = function(event) {
             const modal = document.getElementById('clientModal');
             if (event.target === modal) {
                 modal.style.display = 'none';
             }
+            const orderScreen = document.getElementById('clientOrderScreen');
+            if (event.target === orderScreen) {
+                // No cerramos automáticamente para evitar pérdida de datos
+            }
         };
+
+        // ===== INICIALIZACIÓN =====
+        // Si la contraseña es correcta, ya se carga automáticamente
+        console.log('💧 AguaMagica - Sistema Integral');
+        console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
+        console.log('🔗 GitHub:', CONFIG.githubUser);
+
+        // Si la URL tiene el parámetro "pedido", abrir la pantalla de pedidos
+        if (window.location.search.includes('pedido')) {
+            // Esperar a que cargue todo
+            setTimeout(() => {
+                // Si no está logueado, mostrar login primero
+                if (document.getElementById('loginScreen').style.display !== 'none') {
+                    // Mostrar mensaje
+                    document.querySelector('.login-box h3').textContent = '🔑 Ingresa para hacer tu pedido';
+                } else {
+                    openOrderScreen();
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>
