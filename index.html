@@ -9,6 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
         
+        /* ===== LOGIN ===== */
         #loginScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #1a237e, #0d47a1);
@@ -33,8 +34,9 @@
         }
         .login-btn:hover { transform: scale(1.02); opacity: 0.9; }
         .login-error { color: #c62828; text-align: center; margin-top: 10px; display: none; }
-        .login-info { text-align: center; margin-top: 15px; color: #666; font-size: 0.9em; }
+        .login-token { color: #0d47a1; text-align: center; margin-top: 10px; font-size: 0.9em; display: none; }
 
+        /* ===== SIDEBAR ===== */
         .sidebar {
             width: 250px; height: 100vh;
             background: linear-gradient(135deg, #1a237e, #0d47a1);
@@ -56,6 +58,7 @@
             padding: 2px 8px; font-size: 0.7em; margin-left: 5px;
         }
 
+        /* ===== MAIN CONTENT ===== */
         .main-content { margin-left: 250px; padding: 20px; }
         .header {
             background: white; padding: 20px; border-radius: 10px;
@@ -68,8 +71,6 @@
         }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; }
-        .grid-5 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 20px; }
         
         textarea, input, select {
             width: 100%; padding: 10px;
@@ -137,71 +138,39 @@
         
         .qr-container { text-align: center; padding: 20px; }
 
-        /* Publicidad Dashboard - 5 espacios */
-        .ad-container {
-            display: grid;
-            grid-template-columns: 1fr 2fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            gap: 15px;
+        /* ===== BANNER PUBLICITARIO ===== */
+        .banner-container {
             margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .ad-item {
-            background: #f5f5f5; border-radius: 8px; overflow: hidden;
-            border: 1px solid #ddd; min-height: 150px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative;
+        .banner-container img, .banner-container video {
+            width: 100%;
+            max-height: 250px;
+            object-fit: cover;
         }
-        .ad-item:nth-child(1) { grid-column: 1; grid-row: 1; }
-        .ad-item:nth-child(2) { grid-column: 2; grid-row: 1; }
-        .ad-item:nth-child(3) { grid-column: 3; grid-row: 1; }
-        .ad-item:nth-child(4) { grid-column: 1; grid-row: 2; }
-        .ad-item:nth-child(5) { grid-column: 3; grid-row: 2; }
-        
-        .ad-item img, .ad-item video {
-            width: 100%; height: auto; max-height: 200px; object-fit: cover;
+        .banner-container .banner-placeholder {
+            color: #999;
+            padding: 30px;
+            text-align: center;
+            font-size: 1.1em;
         }
-        .ad-item .ad-placeholder {
-            color: #999; font-size: 0.9em; padding: 20px; text-align: center;
-        }
-        .ad-item a {
-            display: block; width: 100%; text-decoration: none;
-        }
-
-        .order-ads {
-            display: grid; grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px; margin: 15px 0;
-        }
-        .order-ad-item {
-            background: #f5f5f5; border-radius: 8px; overflow: hidden;
-            border: 1px solid #ddd; min-height: 80px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative;
-        }
-        .order-ad-item img, .order-ad-item video {
-            width: 100%; height: auto; max-height: 100px; object-fit: cover;
-        }
-        .order-ad-item .ad-placeholder {
-            color: #999; font-size: 0.8em; padding: 10px; text-align: center;
-        }
-        .order-ad-item a {
-            display: block; width: 100%; text-decoration: none;
+        .banner-container a {
+            display: block;
+            width: 100%;
+            text-decoration: none;
         }
 
-        .ad-manager-item {
-            border: 1px solid #ddd; padding: 15px; border-radius: 8px;
-            background: #fafafa;
-        }
-        .ad-manager-item input, .ad-manager-item textarea {
-            font-size: 0.9em; margin: 5px 0;
-        }
-        .ad-manager-item .preview-thumb {
-            max-width: 100%; max-height: 80px; border-radius: 4px;
-            margin-top: 5px;
-        }
-
+        /* ===== SISTEMA DE PEDIDOS (PÚBLICO) ===== */
         #clientOrderScreen {
             display: none; position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            width: 100%; height: 100%; background: rgba(0,0,0,0.85);
             justify-content: center; align-items: center; z-index: 10000;
         }
         .order-container {
@@ -279,21 +248,23 @@
         .report-summary-item .label { font-size: 0.85em; color: #666; }
         .report-summary-item .value { font-size: 1.5em; font-weight: bold; color: #0d47a1; }
 
+        .banner-config {
+            border: 1px solid #ddd; padding: 20px; border-radius: 8px;
+            background: #fafafa;
+        }
+        .banner-config input, .banner-config textarea {
+            font-size: 0.9em;
+        }
+
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: auto; position: relative; }
             .sidebar ul li { display: inline-block; padding: 10px 15px; }
             .main-content { margin-left: 0; }
-            .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
             .header { flex-direction: column; text-align: center; }
             .header div { margin-top: 10px; }
             .client-item { flex-direction: column; align-items: flex-start; }
             .client-item .client-actions { margin-top: 5px; }
-            .ad-container { grid-template-columns: 1fr; grid-template-rows: auto; }
-            .ad-item:nth-child(1), .ad-item:nth-child(2), .ad-item:nth-child(3),
-            .ad-item:nth-child(4), .ad-item:nth-child(5) {
-                grid-column: 1; grid-row: auto;
-            }
-            .order-ads { grid-template-columns: 1fr; }
             .report-table { font-size: 0.7em; }
             .report-table th, .report-table td { padding: 5px; }
             .bank-info { grid-template-columns: 1fr; }
@@ -302,26 +273,25 @@
 </head>
 <body>
 
-    <!-- LOGIN -->
+    <!-- ===== LOGIN ===== -->
     <div id="loginScreen">
         <div class="login-box">
             <h2>💧 AguaMagica</h2>
             <h3>Panel de Control</h3>
             <input type="password" id="passwordInput" placeholder="Ingresa la contraseña" onkeydown="if(event.key==='Enter') login()">
+            <input type="text" id="tokenInput" placeholder="Token de 5 dígitos" maxlength="5" onkeydown="if(event.key==='Enter') login()" style="display:none;">
             <button class="login-btn" onclick="login()"><i class="fas fa-lock"></i> Acceder</button>
-            <div id="loginError" class="login-error">❌ Contraseña incorrecta</div>
-            <div class="login-info">🔑 Contraseña: agua2026</div>
+            <div id="loginError" class="login-error">❌ Credenciales incorrectas</div>
+            <div id="loginToken" class="login-token">📧 Se ha enviado un token a tu correo</div>
         </div>
     </div>
 
-    <!-- SISTEMA DE PEDIDOS -->
+    <!-- ===== SISTEMA DE PEDIDOS (PÚBLICO - SIN CONTRASEÑA) ===== -->
     <div id="clientOrderScreen">
         <div class="order-container">
             <span class="close-order-btn" onclick="closeOrderScreen()">&times;</span>
             <div class="logo">💧 AguaMagica</div>
             <h3 style="text-align:center;">Haz tu Pedido</h3>
-            
-            <div id="orderAdsContainer" class="order-ads"></div>
 
             <div id="productListOrder">
                 <h4>Productos:</h4>
@@ -343,7 +313,6 @@
                 <div class="form-group">
                     <label>Correo Electrónico <span class="required">*</span></label>
                     <input type="email" id="clientEmailOrder" placeholder="Ej: cliente@email.com">
-                    <div class="help-text">📧 Para conciliación de pagos</div>
                 </div>
 
                 <div class="form-group">
@@ -356,9 +325,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Número de integrantes/personas <span class="required">*</span></label>
+                    <label>Número de integrantes <span class="required">*</span></label>
                     <input type="number" id="peopleCountOrder" min="1" value="1">
-                    <div class="help-text">👥 Para calcular el consumo estimado de agua</div>
                 </div>
 
                 <div class="form-group">
@@ -369,14 +337,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Cantidad de botellones <span class="required">*</span></label>
+                    <label>Cantidad <span class="required">*</span></label>
                     <input type="number" id="quantityOrder" min="1" value="1" onchange="updateOrderTotal()">
-                    <div class="help-text">💧 Recomendación: 1 botellón de 18L por persona cada 6 días</div>
                 </div>
 
                 <div class="form-group">
                     <label>Dirección de Entrega <span class="required">*</span></label>
-                    <textarea id="deliveryAddressOrder" rows="2" placeholder="Dirección completa, puntos de referencia"></textarea>
+                    <textarea id="deliveryAddressOrder" rows="2" placeholder="Dirección completa"></textarea>
                     <button type="button" class="location-btn" onclick="shareLocation()">
                         <i class="fas fa-location-dot"></i> Compartir Ubicación
                     </button>
@@ -416,7 +383,6 @@
                     <p><strong>C.I.:</strong> 16039118</p>
                     <p><strong>Teléfono:</strong> 04141485985</p>
                     <p><strong>Monto en Bs:</strong> <span id="montoBs">Calculando...</span></p>
-                    <p style="font-size:0.9em;color:#666;margin-top:5px;">⚠️ Referencia: Tu nombre y número de pedido</p>
                     
                     <div class="form-group">
                         <label>Banco Emisor:</label>
@@ -450,8 +416,12 @@
                     <div class="form-group">
                         <label>Monto Pagado (Bs):</label>
                         <input type="number" id="paidAmount" step="0.01" placeholder="Monto en Bolívares">
-                        <div class="help-text">💳 Este monto se usa para conciliación bancaria</div>
                     </div>
+                </div>
+
+                <!-- BANNER PUBLICITARIO (ÚNICO) -->
+                <div id="bannerPublicitario" class="banner-container">
+                    <div class="banner-placeholder">📢 Espacio Publicitario</div>
                 </div>
 
                 <div class="form-group">
@@ -461,7 +431,6 @@
 
                 <div class="total-display" id="totalDisplayOrder">Total: $0.00</div>
 
-                <!-- BOTÓN WHATSAPP DIRECTO -->
                 <a href="#" id="whatsappDirectLink" target="_blank" class="btn-whatsapp-directo">
                     <i class="fab fa-whatsapp" style="font-size:1.5em;"></i> 
                     📱 ENVIAR PEDIDO POR WHATSAPP
@@ -476,7 +445,7 @@
         </div>
     </div>
 
-    <!-- PANEL DE CONTROL -->
+    <!-- ===== PANEL DE CONTROL ===== -->
     <div id="mainApp" style="display:none;">
         <div class="sidebar">
             <h2>💧 AguaMagica</h2>
@@ -487,9 +456,8 @@
                 <li onclick="showTab('mensajes')"><i class="fas fa-envelope"></i> Mensajes</li>
                 <li onclick="showTab('pedidos')"><i class="fas fa-shopping-cart"></i> Pedidos</li>
                 <li onclick="showTab('productos')"><i class="fas fa-box"></i> Productos</li>
-                <li onclick="showTab('publicidad')"><i class="fas fa-ad"></i> Publicidad</li>
-                <li onclick="showTab('reportes')"><i class="fas fa-chart-bar"></i> Reportes</li>
                 <li onclick="showTab('configuracion')"><i class="fas fa-cog"></i> Configuración</li>
+                <li onclick="showTab('reportes')"><i class="fas fa-chart-bar"></i> Reportes</li>
                 <li class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</li>
             </ul>
         </div>
@@ -513,10 +481,12 @@
                     <div class="stat-card"><h3>Alertas</h3><p id="alertCount" class="alert-count">0</p></div>
                 </div>
                 
-                <!-- 5 Espacios Publicitarios en Dashboard -->
+                <!-- BANNER PUBLICITARIO EN DASHBOARD -->
                 <div class="card">
                     <h3>📢 Publicidad</h3>
-                    <div class="ad-container" id="dashboardAds"></div>
+                    <div id="dashboardBanner" class="banner-container">
+                        <div class="banner-placeholder">📢 Espacio Publicitario</div>
+                    </div>
                 </div>
 
                 <div class="card">
@@ -539,8 +509,9 @@
                     <div class="card">
                         <h3><i class="fas fa-user-plus"></i> Agregar Clientes</h3>
                         <label>Copiar y pegar lista (Nombre, Teléfono, Email, Segmento):</label>
-                        <textarea id="clientBulkInput" rows="5" placeholder="Juan Pérez, 04141234567, juan@email.com, Hogar"></textarea>
-                        <button class="btn btn-success" onclick="addBulkClients()"><i class="fas fa-plus"></i> Agregar</button>
+                        <textarea id="clientBulkInput" rows="6" placeholder="Juan Pérez, 04141234567, juan@email.com, Hogar"></textarea>
+                        <button class="btn btn-success" onclick="addBulkClients()"><i class="fas fa-plus"></i> Agregar Clientes</button>
+                        <div id="bulkResult" style="margin-top:10px;display:none;"></div>
                     </div>
                     <div class="card">
                         <h3><i class="fas fa-search"></i> Buscar</h3>
@@ -568,7 +539,7 @@
             <!-- MENSAJES -->
             <div id="mensajes" class="tab">
                 <div class="card">
-                    <h3><i class="fas fa-edit"></i> Editor</h3>
+                    <h3><i class="fas fa-edit"></i> Editor de Mensajes</h3>
                     <textarea id="messageEditor" rows="4" placeholder="Escribe tu mensaje..."></textarea>
                     <button class="btn" onclick="saveMessage()"><i class="fas fa-save"></i> Guardar</button>
                     <button class="btn btn-success" onclick="syncToGitHub()"><i class="fab fa-github"></i> Sincronizar</button>
@@ -612,17 +583,60 @@
                 </div>
             </div>
 
-            <!-- PUBLICIDAD - GESTIÓN -->
-            <div id="publicidad" class="tab">
+            <!-- CONFIGURACIÓN -->
+            <div id="configuracion" class="tab">
                 <div class="card">
-                    <h3><i class="fas fa-ad"></i> Gestión de Publicidad</h3>
-                    <p style="color:#666;margin-bottom:15px;">📢 Administra los espacios publicitarios del Dashboard (5 espacios) y del sistema de pedidos (3 espacios)</p>
+                    <h3><i class="fas fa-cog"></i> Configuración</h3>
                     
-                    <h4>Dashboard - 5 Espacios</h4>
-                    <div id="dashboardAdsManager" style="margin-bottom:20px;"></div>
-                    
-                    <h4>Sistema de Pedidos - 3 Espacios</h4>
-                    <div id="orderAdsManager"></div>
+                    <h4>📢 Banner Publicitario</h4>
+                    <div class="banner-config">
+                        <div class="form-group">
+                            <label>URL de imagen o video:</label>
+                            <input type="text" id="bannerUrl" placeholder="https://ejemplo.com/imagen.jpg">
+                        </div>
+                        <div class="form-group">
+                            <label>Hipervínculo:</label>
+                            <input type="text" id="bannerLink" placeholder="https://ejemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="bannerActive"> Activo
+                            </label>
+                        </div>
+                        <button class="btn btn-success" onclick="saveBanner()">Guardar Banner</button>
+                        <div id="bannerPreview" style="margin-top:10px;"></div>
+                    </div>
+
+                    <hr style="margin:20px 0;">
+
+                    <h4>📊 Tasa BCV</h4>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                        <input type="number" id="tasaBcvInput" step="0.01" placeholder="Tasa BCV USD/BS" style="width:200px;">
+                        <button class="btn" onclick="updateTasaBCV()"><i class="fas fa-save"></i> Actualizar</button>
+                        <span id="tasaBcvDisplay" style="font-weight:bold;color:#0d47a1;">Tasa: $1 = 0 Bs</span>
+                    </div>
+
+                    <hr style="margin:20px 0;">
+
+                    <h4>🔗 Links</h4>
+                    <div class="form-group">
+                        <label>Link del Panel:</label>
+                        <input type="text" id="shortLink" value="https://aguamagica.github.io/aguamagica-panel/" readonly>
+                        <button class="btn" onclick="copyLink()"><i class="fas fa-copy"></i> Copiar</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Link de Pedidos (Público):</label>
+                        <input type="text" id="orderLink" value="https://aguamagica.github.io/aguamagica-panel/?pedido" readonly>
+                        <button class="btn" onclick="copyOrderLink()"><i class="fas fa-copy"></i> Copiar</button>
+                    </div>
+
+                    <hr style="margin:20px 0;">
+
+                    <h4>📱 Código QR</h4>
+                    <div class="qr-container">
+                        <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> Generar QR</button>
+                        <div id="qrResult"></div>
+                    </div>
                 </div>
             </div>
 
@@ -631,31 +645,6 @@
                 <div class="card">
                     <h3><i class="fas fa-chart-line"></i> Reportes</h3>
                     <div id="reportsContent"></div>
-                </div>
-            </div>
-
-            <!-- CONFIGURACIÓN -->
-            <div id="configuracion" class="tab">
-                <div class="card">
-                    <h3><i class="fas fa-qrcode"></i> Código QR</h3>
-                    <div class="qr-container">
-                        <button class="btn" onclick="generateQR()"><i class="fas fa-qrcode"></i> Generar QR</button>
-                        <div id="qrResult"></div>
-                    </div>
-                    
-                    <h3>Tasa BCV</h3>
-                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                        <input type="number" id="tasaBcvInput" step="0.01" placeholder="Tasa BCV USD/BS" style="width:200px;">
-                        <button class="btn" onclick="updateTasaBCV()"><i class="fas fa-save"></i> Actualizar</button>
-                        <span id="tasaBcvDisplay" style="font-weight:bold;color:#0d47a1;">Tasa: $1 = 0 Bs</span>
-                    </div>
-                    <div class="help-text">📊 La tasa se actualiza automáticamente cada día. También puedes ingresarla manualmente.</div>
-                    
-                    <h3>Links</h3>
-                    <input type="text" id="shortLink" value="https://aguamagica.github.io/aguamagica-panel/" readonly>
-                    <button class="btn" onclick="copyLink()"><i class="fas fa-copy"></i> Copiar</button>
-                    <input type="text" id="orderLink" value="https://aguamagica.github.io/aguamagica-panel/?pedido" readonly>
-                    <button class="btn" onclick="copyOrderLink()"><i class="fas fa-copy"></i> Copiar</button>
                 </div>
             </div>
         </div>
@@ -699,20 +688,7 @@
         orders: [],
         responses: [],
         campaigns: [],
-        ads: {
-            dashboard: [
-                { id: 0, type: 'image', content: '', link: '', active: false },
-                { id: 1, type: 'image', content: '', link: '', active: false },
-                { id: 2, type: 'image', content: '', link: '', active: false },
-                { id: 3, type: 'image', content: '', link: '', active: false },
-                { id: 4, type: 'image', content: '', link: '', active: false }
-            ],
-            order: [
-                { id: 0, type: 'image', content: '', link: '', active: false },
-                { id: 1, type: 'image', content: '', link: '', active: false },
-                { id: 2, type: 'image', content: '', link: '', active: false }
-            ]
-        },
+        banner: { content: '', link: '', active: false },
         tasaBcv: 0
     };
 
@@ -725,70 +701,70 @@
                 { name: 'Botellón 18L', price: 3.50 }
             ];
             db.messages = [
-                { name: 'Bienvenida', content: '¡Bienvenido a AguaMagica! 🚀' },
-                { name: 'Promoción', content: '🔥 OFERTA: 2x1 en botellones 18L' }
+                { name: 'Bienvenida', content: '¡Bienvenido a AguaMagica! 🚀' }
             ];
             db.tasaBcv = 40;
+            db.banner = { content: '', link: '', active: false };
             saveDB();
         }
     }
 
     // =============================================
-    // TASA BCV
+    // TOKEN DE 5 DÍGITOS
     // =============================================
-    function getTasaBCV() {
-        let tasa = parseFloat(localStorage.getItem('aguamagica_tasa'));
-        if (!tasa || isNaN(tasa)) {
-            tasa = db.tasaBcv || 0;
-        }
-        return tasa;
+    let tokenActual = '';
+
+    function generarToken() {
+        tokenActual = Math.floor(10000 + Math.random() * 90000).toString();
+        return tokenActual;
     }
 
-    function updateTasaBCV() {
-        const input = document.getElementById('tasaBcvInput');
-        const val = parseFloat(input.value);
-        if (val > 0) {
-            db.tasaBcv = val;
-            localStorage.setItem('aguamagica_tasa', val.toString());
-            saveDB();
-            document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${val.toFixed(2)} Bs`;
-        }
-    }
-
-    function getMontoBs(usdAmount) {
-        const tasa = getTasaBCV();
-        return tasa * usdAmount;
+    function enviarTokenPorEmail(token) {
+        const subject = '🔐 Token de acceso AguaMagica';
+        const body = `Tu token de acceso es: ${token}\n\nEste token es válido por 5 minutos.\n\nSaludos,\nAguaMagica`;
+        const mailtoLink = `mailto:${CONFIG.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(mailtoLink, '_blank');
+        return true;
     }
 
     // =============================================
     // LOGIN
     // =============================================
     function login() {
-        const input = document.getElementById('passwordInput').value;
-        if (input === CONFIG.password) {
+        const password = document.getElementById('passwordInput').value;
+        const token = document.getElementById('tokenInput').value;
+
+        // Primera fase: verificar contraseña
+        if (password === CONFIG.password) {
+            // Generar y enviar token
+            const tokenGenerado = generarToken();
+            enviarTokenPorEmail(tokenGenerado);
+            document.getElementById('loginToken').style.display = 'block';
+            document.getElementById('tokenInput').style.display = 'block';
+            document.getElementById('tokenInput').focus();
+            document.getElementById('passwordInput').disabled = true;
+            document.getElementById('loginError').style.display = 'none';
+            return;
+        }
+
+        // Segunda fase: verificar token
+        if (token === tokenActual && token.length === 5) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
-            
             initializeDB();
             loadDB();
             updateUI();
             updateClock();
             setInterval(updateClock, 1000);
             checkOrderParam();
-        } else {
-            document.getElementById('loginError').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('loginError').style.display = 'none';
-            }, 3000);
+            return;
         }
-    }
 
-    function logout() {
-        if (confirm('¿Cerrar sesión?')) {
-            document.getElementById('mainApp').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('passwordInput').value = '';
-        }
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('loginError').textContent = '❌ Contraseña o token incorrecto';
+        setTimeout(() => {
+            document.getElementById('loginError').style.display = 'none';
+        }, 3000);
     }
 
     // =============================================
@@ -797,7 +773,37 @@
     function checkOrderParam() {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('pedido')) {
-            setTimeout(() => openOrderScreen(), 500);
+            setTimeout(() => openOrderScreenPublic(), 500);
+        }
+    }
+
+    // =============================================
+    // ABRIR PEDIDO PÚBLICO (SIN CONTRASEÑA)
+    // =============================================
+    function openOrderScreenPublic() {
+        // Cargar datos antes de mostrar
+        loadDB();
+        document.getElementById('clientOrderScreen').style.display = 'flex';
+        loadProductsOrder();
+        limpiarCamposPedido();
+        document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+        renderBannerPublico();
+        actualizarEnlaceWhatsApp();
+    }
+
+    // =============================================
+    // LOGOUT
+    // =============================================
+    function logout() {
+        if (confirm('¿Cerrar sesión?')) {
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('tokenInput').value = '';
+            document.getElementById('tokenInput').style.display = 'none';
+            document.getElementById('passwordInput').disabled = false;
+            document.getElementById('loginToken').style.display = 'none';
+            tokenActual = '';
         }
     }
 
@@ -813,9 +819,7 @@
                     const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
                     document.getElementById('deliveryAddressOrder').value = `📍 Ubicación: ${mapsUrl}`;
                 },
-                function() {
-                    // Silencioso
-                }
+                function() {}
             );
         }
     }
@@ -826,11 +830,14 @@
     function openOrderScreen() {
         document.getElementById('clientOrderScreen').style.display = 'flex';
         loadProductsOrder();
-        renderOrderAds();
+        renderBannerPublico();
         limpiarCamposPedido();
-        document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${getTasaBCV().toFixed(2)} Bs`;
         document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
         actualizarEnlaceWhatsApp();
+    }
+
+    function closeOrderScreen() {
+        document.getElementById('clientOrderScreen').style.display = 'none';
     }
 
     function limpiarCamposPedido() {
@@ -847,10 +854,6 @@
         document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('paidAmount').value = '';
         document.querySelector('input[name="segment"][value="Hogar"]').checked = true;
-    }
-
-    function closeOrderScreen() {
-        document.getElementById('clientOrderScreen').style.display = 'none';
     }
 
     function showPaymentInfo() {
@@ -908,6 +911,89 @@
             document.getElementById('paidAmount').value = totalBs.toFixed(2);
         }
         actualizarEnlaceWhatsApp();
+    }
+
+    // =============================================
+    // TASA BCV
+    // =============================================
+    function getTasaBCV() {
+        let tasa = parseFloat(localStorage.getItem('aguamagica_tasa'));
+        if (!tasa || isNaN(tasa)) {
+            tasa = db.tasaBcv || 0;
+        }
+        return tasa;
+    }
+
+    function updateTasaBCV() {
+        const input = document.getElementById('tasaBcvInput');
+        const val = parseFloat(input.value);
+        if (val > 0) {
+            db.tasaBcv = val;
+            localStorage.setItem('aguamagica_tasa', val.toString());
+            saveDB();
+            document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${val.toFixed(2)} Bs`;
+        }
+    }
+
+    function getMontoBs(usdAmount) {
+        const tasa = getTasaBCV();
+        return tasa * usdAmount;
+    }
+
+    // =============================================
+    // BANNER PUBLICITARIO
+    // =============================================
+    function renderBannerPublico() {
+        const container = document.getElementById('bannerPublicitario');
+        const banner = db.banner || { content: '', link: '', active: false };
+        
+        if (banner.active && banner.content) {
+            container.innerHTML = `
+                <a href="${banner.link || '#'}" target="_blank">
+                    <img src="${banner.content}" alt="Publicidad" style="max-height:250px;width:100%;object-fit:cover;">
+                </a>
+            `;
+        } else {
+            container.innerHTML = `<div class="banner-placeholder">📢 Espacio Publicitario</div>`;
+        }
+    }
+
+    function renderDashboardBanner() {
+        const container = document.getElementById('dashboardBanner');
+        const banner = db.banner || { content: '', link: '', active: false };
+        
+        if (banner.active && banner.content) {
+            container.innerHTML = `
+                <a href="${banner.link || '#'}" target="_blank">
+                    <img src="${banner.content}" alt="Publicidad" style="max-height:250px;width:100%;object-fit:cover;">
+                </a>
+            `;
+        } else {
+            container.innerHTML = `<div class="banner-placeholder">📢 Espacio Publicitario</div>`;
+        }
+    }
+
+    function saveBanner() {
+        const url = document.getElementById('bannerUrl').value.trim();
+        const link = document.getElementById('bannerLink').value.trim();
+        const active = document.getElementById('bannerActive').checked;
+        
+        db.banner = { content: url, link: link, active: active };
+        saveDB();
+        renderBannerPublico();
+        renderDashboardBanner();
+        
+        const preview = document.getElementById('bannerPreview');
+        if (active && url) {
+            preview.innerHTML = `
+                <div style="border:1px solid #2e7d32;padding:10px;border-radius:5px;background:#e8f5e9;">
+                    <strong>✅ Banner activo:</strong><br>
+                    <img src="${url}" style="max-height:100px;max-width:100%;margin-top:5px;">
+                </div>
+            `;
+        } else {
+            preview.innerHTML = `<div style="color:#999;">Banner inactivo</div>`;
+        }
     }
 
     // =============================================
@@ -999,6 +1085,134 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         
         const link = document.getElementById('whatsappDirectLink');
         link.href = whatsappUrl;
+    }
+
+    // =============================================
+    // GUARDAR PEDIDO
+    // =============================================
+    function guardarPedido() {
+        const clientName = document.getElementById('clientNameOrder').value.trim() || 'Cliente';
+        const clientPhone = document.getElementById('clientPhoneOrder').value.trim() || 'No especificado';
+        const clientEmail = document.getElementById('clientEmailOrder').value.trim() || 'No especificado';
+        const segment = document.querySelector('input[name="segment"]:checked')?.value || 'Hogar';
+        const peopleCount = document.getElementById('peopleCountOrder').value || '1';
+        const productSelect = document.getElementById('productSelectOrder');
+        const productName = productSelect.options[productSelect.selectedIndex]?.text || 'No seleccionado';
+        const quantity = document.getElementById('quantityOrder').value || '0';
+        const deliveryAddress = document.getElementById('deliveryAddressOrder').value.trim() || 'No especificada';
+        const deliveryTime = document.getElementById('deliveryTimeOrder').value || 'No especificada';
+        const paymentMethod = document.getElementById('paymentMethodOrder').value || 'No especificado';
+        const instructions = document.getElementById('instructionsOrder').value.trim() || 'Sin instrucciones';
+        const total = document.getElementById('totalDisplayOrder').textContent || '$0.00';
+
+        const price = parseFloat(productSelect.value) || 0;
+        const totalUsd = price * parseInt(quantity) || 0;
+        const totalBs = getMontoBs(totalUsd);
+
+        const orderData = {
+            clientName, clientPhone, clientEmail, segment,
+            peopleCount: parseInt(peopleCount) || 1,
+            product: productName, quantity: parseInt(quantity) || 0,
+            total, totalBs: totalBs.toFixed(2),
+            deliveryAddress, deliveryTime, paymentMethod, instructions,
+            paymentDetails: paymentMethod === 'PagoMóvil' ? {
+                bankIssuer: document.getElementById('bankIssuer').value || '',
+                reference: document.getElementById('referenceNumber').value || '',
+                paymentDate: document.getElementById('paymentDate').value || '',
+                paidAmount: document.getElementById('paidAmount').value || '0'
+            } : null,
+            date: new Date().toISOString(),
+            status: 'enviado'
+        };
+
+        db.orders.push(orderData);
+
+        // Verificar si el cliente existe
+        const existingClient = db.clients.find(c => c.phone === clientPhone);
+        if (!existingClient) {
+            db.clients.push({
+                name: clientName, phone: clientPhone, email: clientEmail,
+                segment, peopleCount: parseInt(peopleCount) || 1,
+                history: [], responses: [],
+                firstOrder: new Date().toISOString(),
+                lastOrder: new Date().toISOString()
+            });
+        } else {
+            existingClient.lastOrder = new Date().toISOString();
+            existingClient.peopleCount = parseInt(peopleCount) || 1;
+            existingClient.segment = segment;
+            existingClient.email = clientEmail;
+        }
+
+        db.responses.push({
+            client: clientName, phone: clientPhone, email: clientEmail,
+            message: generarMensaje(), date: new Date().toISOString(),
+            type: 'pedido', order: orderData
+        });
+
+        saveDB();
+    }
+
+    // =============================================
+    // CLIENTES - CARGA MASIVA
+    // =============================================
+    function addBulkClients() {
+        const input = document.getElementById('clientBulkInput').value;
+        const lines = input.split('\n').filter(l => l.trim());
+        const resultDiv = document.getElementById('bulkResult');
+        
+        if (lines.length === 0) {
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div style="color:#c62828;">⚠️ No hay datos para cargar</div>';
+            return;
+        }
+
+        let added = 0;
+        let errors = [];
+
+        lines.forEach((line, index) => {
+            const parts = line.split(',').map(s => s.trim());
+            if (parts.length >= 2) {
+                const name = parts[0];
+                const phone = parts[1].replace(/\s/g, '');
+                const email = parts[2] || '';
+                const segment = parts[3] || 'Hogar';
+                if (name && phone) {
+                    db.clients.push({
+                        name, phone, email, segment, peopleCount: 1,
+                        history: [], responses: [],
+                        firstOrder: new Date().toISOString(),
+                        lastOrder: new Date().toISOString()
+                    });
+                    added++;
+                } else {
+                    errors.push(`Línea ${index + 1}: Datos incompletos`);
+                }
+            } else {
+                errors.push(`Línea ${index + 1}: Formato incorrecto`);
+            }
+        });
+
+        if (added > 0) {
+            saveDB();
+            document.getElementById('clientBulkInput').value = '';
+        }
+
+        resultDiv.style.display = 'block';
+        if (added > 0 && errors.length === 0) {
+            resultDiv.innerHTML = `<div style="color:#2e7d32;">✅ ${added} clientes agregados exitosamente!</div>`;
+        } else if (added > 0 && errors.length > 0) {
+            resultDiv.innerHTML = `
+                <div style="color:#f57c00;">⚠️ ${added} clientes agregados, ${errors.length} errores</div>
+                <div style="font-size:0.8em;color:#666;">${errors.join('<br>')}</div>
+            `;
+        } else {
+            resultDiv.innerHTML = `<div style="color:#c62828;">❌ No se pudo agregar ningún cliente. Verifica el formato.</div>`;
+        }
+
+        setTimeout(() => {
+            resultDiv.style.display = 'none';
+        }, 5000);
     }
 
     // =============================================
@@ -1147,111 +1361,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     }
 
     // =============================================
-    // PUBLICIDAD
-    // =============================================
-    function renderDashboardAds() {
-        const container = document.getElementById('dashboardAds');
-        container.innerHTML = '';
-        
-        db.ads.dashboard.forEach((ad) => {
-            const div = document.createElement('div');
-            div.className = 'ad-item';
-            if (ad.active && ad.content) {
-                div.innerHTML = `
-                    <a href="${ad.link || '#'}" target="_blank">
-                        <img src="${ad.content}" alt="Publicidad" style="max-height:200px;width:100%;object-fit:cover;">
-                    </a>
-                `;
-            } else {
-                div.innerHTML = `<div class="ad-placeholder">📢 Tu Anuncio Aquí</div>`;
-            }
-            container.appendChild(div);
-        });
-    }
-
-    function renderOrderAds() {
-        const container = document.getElementById('orderAdsContainer');
-        container.innerHTML = '';
-        
-        db.ads.order.forEach((ad) => {
-            const div = document.createElement('div');
-            div.className = 'order-ad-item';
-            if (ad.active && ad.content) {
-                div.innerHTML = `
-                    <a href="${ad.link || '#'}" target="_blank">
-                        <img src="${ad.content}" alt="Publicidad" style="max-height:80px;width:100%;object-fit:cover;">
-                    </a>
-                `;
-            } else {
-                div.innerHTML = `<div class="ad-placeholder">📢 Tu Anuncio Aquí</div>`;
-            }
-            container.appendChild(div);
-        });
-    }
-
-    function renderAdsManager() {
-        // Dashboard Ads Manager - 5 espacios
-        const dashboardDiv = document.getElementById('dashboardAdsManager');
-        dashboardDiv.innerHTML = '<div class="grid-5">';
-        db.ads.dashboard.forEach((ad, index) => {
-            dashboardDiv.innerHTML += `
-                <div class="ad-manager-item">
-                    <strong>Espacio ${index + 1}</strong>
-                    <input type="text" id="dashAdUrl_${index}" value="${ad.content || ''}" placeholder="URL de imagen/video">
-                    <input type="text" id="dashAdLink_${index}" value="${ad.link || ''}" placeholder="Hipervínculo URL">
-                    ${ad.content ? `<img src="${ad.content}" class="preview-thumb" alt="Vista previa" onerror="this.style.display='none'">` : ''}
-                    <label style="font-size:0.85em;display:block;margin-top:5px;">
-                        <input type="checkbox" id="dashAdActive_${index}" ${ad.active ? 'checked' : ''}> Activo
-                    </label>
-                    <button class="btn btn-sm btn-success" onclick="saveDashboardAd(${index})">Guardar</button>
-                </div>
-            `;
-        });
-        dashboardDiv.innerHTML += '</div>';
-
-        // Order Ads Manager - 3 espacios
-        const orderDiv = document.getElementById('orderAdsManager');
-        orderDiv.innerHTML = '<div class="grid-3">';
-        db.ads.order.forEach((ad, index) => {
-            orderDiv.innerHTML += `
-                <div class="ad-manager-item">
-                    <strong>Espacio ${index + 1}</strong>
-                    <input type="text" id="orderAdUrl_${index}" value="${ad.content || ''}" placeholder="URL de imagen/video">
-                    <input type="text" id="orderAdLink_${index}" value="${ad.link || ''}" placeholder="Hipervínculo URL">
-                    ${ad.content ? `<img src="${ad.content}" class="preview-thumb" alt="Vista previa" onerror="this.style.display='none'">` : ''}
-                    <label style="font-size:0.85em;display:block;margin-top:5px;">
-                        <input type="checkbox" id="orderAdActive_${index}" ${ad.active ? 'checked' : ''}> Activo
-                    </label>
-                    <button class="btn btn-sm btn-success" onclick="saveOrderAd(${index})">Guardar</button>
-                </div>
-            `;
-        });
-        orderDiv.innerHTML += '</div>';
-    }
-
-    function saveDashboardAd(index) {
-        const url = document.getElementById(`dashAdUrl_${index}`).value.trim();
-        const link = document.getElementById(`dashAdLink_${index}`).value.trim();
-        const active = document.getElementById(`dashAdActive_${index}`).checked;
-        
-        db.ads.dashboard[index] = { id: index, type: 'image', content: url, link: link, active: active };
-        saveDB();
-        renderDashboardAds();
-        renderAdsManager();
-    }
-
-    function saveOrderAd(index) {
-        const url = document.getElementById(`orderAdUrl_${index}`).value.trim();
-        const link = document.getElementById(`orderAdLink_${index}`).value.trim();
-        const active = document.getElementById(`orderAdActive_${index}`).checked;
-        
-        db.ads.order[index] = { id: index, type: 'image', content: url, link: link, active: active };
-        saveDB();
-        renderOrderAds();
-        renderAdsManager();
-    }
-
-    // =============================================
     // GESTIÓN DE DATOS
     // =============================================
     function loadDB() {
@@ -1291,15 +1400,33 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${tasa.toFixed(2)} Bs`;
         document.getElementById('tasaBcvInput').value = tasa;
         
+        // Cargar configuración del banner
+        if (db.banner) {
+            document.getElementById('bannerUrl').value = db.banner.content || '';
+            document.getElementById('bannerLink').value = db.banner.link || '';
+            document.getElementById('bannerActive').checked = db.banner.active || false;
+            
+            const preview = document.getElementById('bannerPreview');
+            if (db.banner.active && db.banner.content) {
+                preview.innerHTML = `
+                    <div style="border:1px solid #2e7d32;padding:10px;border-radius:5px;background:#e8f5e9;">
+                        <strong>✅ Banner activo:</strong><br>
+                        <img src="${db.banner.content}" style="max-height:100px;max-width:100%;margin-top:5px;">
+                    </div>
+                `;
+            } else {
+                preview.innerHTML = `<div style="color:#999;">Banner inactivo</div>`;
+            }
+        }
+        
         updateClientList();
         updateSavedMessages();
         updateProductList();
         updateOrderHistory();
         updateReports();
         updateAlerts();
-        renderDashboardAds();
-        renderOrderAds();
-        renderAdsManager();
+        renderDashboardBanner();
+        renderBannerPublico();
     }
 
     // =============================================
@@ -1346,7 +1473,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         });
         
         if (filtered.length === 0) {
-            div.innerHTML = '<p style="color:#999;text-align:center;">No hay clientes</p>';
+            div.innerHTML = '<p style="color:#999;text-align:center;">No hay clientes registrados</p>';
         }
     }
 
@@ -1364,36 +1491,6 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
 
     function emailClient(email) {
         window.open(`mailto:${email}`, '_blank');
-    }
-
-    function addBulkClients() {
-        const input = document.getElementById('clientBulkInput').value;
-        const lines = input.split('\n').filter(l => l.trim());
-        let added = 0;
-        
-        lines.forEach(line => {
-            const parts = line.split(',').map(s => s.trim());
-            if (parts.length >= 2) {
-                const name = parts[0];
-                const phone = parts[1].replace(/\s/g, '');
-                const email = parts[2] || '';
-                const segment = parts[3] || 'Hogar';
-                if (name && phone) {
-                    db.clients.push({
-                        name, phone, email, segment, peopleCount: 1,
-                        history: [], responses: [],
-                        firstOrder: new Date().toISOString(),
-                        lastOrder: new Date().toISOString()
-                    });
-                    added++;
-                }
-            }
-        });
-        
-        if (added > 0) {
-            saveDB();
-            document.getElementById('clientBulkInput').value = '';
-        }
     }
 
     function viewClient(index) {
@@ -1493,14 +1590,20 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     }
 
     // =============================================
-    // CAMPAÑAS
+    // CAMPAÑAS - ENVÍO MASIVO
     // =============================================
     function sendBulkMessage() {
         const selected = document.querySelectorAll('.client-item input[type="checkbox"]:checked');
-        if (selected.length === 0) return;
+        if (selected.length === 0) {
+            alert('⚠️ Selecciona al menos un cliente');
+            return;
+        }
         
         const message = document.getElementById('messageEditor').value;
-        if (!message) return;
+        if (!message) {
+            alert('⚠️ Escribe un mensaje primero');
+            return;
+        }
 
         const hour = new Date().getHours();
         let greeting = '';
@@ -1508,6 +1611,7 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         else if (hour >= 12 && hour < 19) greeting = '☀️ Buenas tardes';
         else greeting = '🌙 Buenas noches';
 
+        let sent = 0;
         selected.forEach(checkbox => {
             const index = Array.from(document.querySelectorAll('.client-item input[type="checkbox"]')).indexOf(checkbox);
             const client = db.clients[index];
@@ -1522,10 +1626,12 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
                     date: new Date().toISOString(),
                     type: 'campaign'
                 });
+                sent++;
             }
         });
         
         saveDB();
+        alert(`✅ Mensaje enviado a ${sent} clientes por WhatsApp`);
     }
 
     // =============================================
@@ -1613,12 +1719,12 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         }
         
         if (filtered.length === 0) {
-            div.innerHTML = '<p style="color:#999;">No hay pedidos</p>';
+            div.innerHTML = '<p style="color:#999;">No hay pedidos en este período</p>';
             return;
         }
         
         div.innerHTML = `
-            <p><strong>Total:</strong> ${filtered.length}</p>
+            <p><strong>Total pedidos:</strong> ${filtered.length}</p>
             ${filtered.slice().reverse().map(o => `
                 <div style="border-bottom:1px solid #eee;padding:10px;">
                     <strong>${o.clientName}</strong> - ${o.product}
@@ -1802,12 +1908,11 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
         document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         if (tabId === 'alertas') updateAlerts();
-        if (tabId === 'publicidad') renderAdsManager();
-        if (tabId === 'reportes') updateReports();
         if (tabId === 'configuracion') {
             document.getElementById('tasaBcvInput').value = getTasaBCV();
             document.getElementById('tasaBcvDisplay').textContent = `Tasa: $1 = ${getTasaBCV().toFixed(2)} Bs`;
         }
+        if (tabId === 'reportes') updateReports();
     }
 
     function closeModal() {
@@ -1833,14 +1938,15 @@ ${greeting} *${clientName}*, gracias por tu pedido 🙏
     // INICIALIZACIÓN
     // =============================================
     if (window.location.search.includes('pedido')) {
-        document.querySelector('.login-box h3').textContent = '🔑 Ingresa para hacer tu pedido';
+        // Cargar datos y mostrar pedido público
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDB();
+            loadDB();
+            setTimeout(() => {
+                openOrderScreenPublic();
+            }, 500);
+        });
     }
-
-    setInterval(() => {
-        if (document.getElementById('mainApp').style.display !== 'none') {
-            updateAlerts();
-        }
-    }, 30000);
 
     // Actualizar enlace de WhatsApp cuando cambia cualquier campo
     document.addEventListener('DOMContentLoaded', function() {
