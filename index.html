@@ -40,7 +40,12 @@
         .login-box h2 {
             text-align: center;
             color: #0d47a1;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
+        }
+        .login-box h3 {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
         }
         .login-box input {
             width: 100%;
@@ -75,6 +80,12 @@
             margin-top: 10px;
             display: none;
         }
+        .login-info {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9em;
+        }
 
         /* Sidebar */
         .sidebar {
@@ -106,6 +117,11 @@
         .sidebar ul li i {
             margin-right: 10px;
             width: 20px;
+        }
+        .sidebar ul li.logout {
+            color: #ff6b6b;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 20px;
         }
 
         /* Main Content */
@@ -153,6 +169,8 @@
             cursor: pointer;
             transition: 0.3s;
             margin: 5px;
+            display: inline-block;
+            text-decoration: none;
         }
         .btn:hover {
             transform: scale(1.05);
@@ -174,10 +192,20 @@
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
         }
         .client-item input[type="checkbox"] {
             width: 20px;
             margin-right: 10px;
+        }
+        .client-item .client-info {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .client-item .client-actions {
+            display: flex;
+            gap: 5px;
         }
         
         .modal {
@@ -237,6 +265,7 @@
             justify-content: space-between;
             padding: 10px;
             border-bottom: 1px solid #eee;
+            align-items: center;
         }
         
         .qr-container {
@@ -266,6 +295,7 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            position: relative;
         }
         .order-container .logo {
             text-align: center;
@@ -304,6 +334,10 @@
                 height: auto;
                 position: relative;
             }
+            .sidebar ul li {
+                display: inline-block;
+                padding: 10px 15px;
+            }
             .main-content {
                 margin-left: 0;
             }
@@ -314,6 +348,16 @@
                 flex-direction: column;
                 text-align: center;
             }
+            .header div {
+                margin-top: 10px;
+            }
+            .client-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .client-item .client-actions {
+                margin-top: 5px;
+            }
         }
     </style>
 </head>
@@ -323,10 +367,11 @@
     <div id="loginScreen">
         <div class="login-box">
             <h2>💧 AguaMagica</h2>
-            <h3 style="text-align:center;color:#666;margin-bottom:20px;">Panel de Control</h3>
+            <h3>Panel de Control</h3>
             <input type="password" id="passwordInput" placeholder="Ingresa la contraseña" onkeydown="if(event.key==='Enter') login()">
             <button class="login-btn" onclick="login()"><i class="fas fa-lock"></i> Acceder</button>
             <div id="loginError" class="login-error">❌ Contraseña incorrecta</div>
+            <div class="login-info">🔑 Contraseña: agua2026</div>
         </div>
     </div>
 
@@ -396,7 +441,7 @@
                 <li onclick="showTab('productos')"><i class="fas fa-box"></i> Productos</li>
                 <li onclick="showTab('reportes')"><i class="fas fa-chart-bar"></i> Reportes</li>
                 <li onclick="showTab('configuracion')"><i class="fas fa-cog"></i> Configuración</li>
-                <li onclick="logout()" style="color:#ff6b6b;"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</li>
+                <li class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</li>
             </ul>
         </div>
 
@@ -407,7 +452,7 @@
                 <div>
                     <span id="currentTime"></span>
                     <button class="btn btn-success" onclick="sendBulkMessage()"><i class="fab fa-whatsapp"></i> Enviar Campaña</button>
-                    <button class="btn btn-info" onclick="openOrderScreen()"><i class="fas fa-shopping-cart"></i> Ver Pedidos</button>
+                    <button class="btn btn-info" onclick="openOrderScreen()"><i class="fas fa-shopping-cart"></i> Pedidos</button>
                 </div>
             </div>
 
@@ -531,7 +576,9 @@
     </div>
 
     <script>
-        // ===== CONFIGURACIÓN =====
+        // =============================================
+        // CONFIGURACIÓN
+        // =============================================
         const CONFIG = {
             password: 'agua2026',
             whatsappNumber: '584141485985',
@@ -540,7 +587,9 @@
             repoName: 'aguamagica-panel'
         };
 
-        // ===== BASE DE DATOS =====
+        // =============================================
+        // BASE DE DATOS
+        // =============================================
         let db = {
             clients: [],
             messages: [],
@@ -550,12 +599,34 @@
             campaigns: []
         };
 
-        // ===== LOGIN =====
+        // =============================================
+        // INICIALIZAR DATOS DE EJEMPLO
+        // =============================================
+        function initializeDB() {
+            if (!localStorage.getItem('aguamagica_db')) {
+                db.products = [
+                    { name: 'Agua 5L', price: 2.50 },
+                    { name: 'Agua 10L', price: 4.00 },
+                    { name: 'Agua 20L', price: 7.50 }
+                ];
+                db.messages = [
+                    { name: 'Bienvenida', content: '¡Bienvenido a AguaMagica! 🚀' },
+                    { name: 'Promoción', content: '🔥 OFERTA: 2x1 en agua 5L' }
+                ];
+                saveDB();
+            }
+        }
+
+        // =============================================
+        // LOGIN
+        // =============================================
         function login() {
             const input = document.getElementById('passwordInput').value;
             if (input === CONFIG.password) {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
+                
+                initializeDB();
                 loadDB();
                 updateUI();
                 updateClock();
@@ -577,7 +648,9 @@
             }
         }
 
-        // ===== DETECTAR PARÁMETRO DE PEDIDO =====
+        // =============================================
+        // DETECTAR PARÁMETRO DE PEDIDO
+        // =============================================
         function checkOrderParam() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('pedido')) {
@@ -585,7 +658,9 @@
             }
         }
 
-        // ===== SISTEMA DE PEDIDOS PARA CLIENTES =====
+        // =============================================
+        // SISTEMA DE PEDIDOS PARA CLIENTES
+        // =============================================
         function openOrderScreen() {
             document.getElementById('clientOrderScreen').style.display = 'flex';
             loadProductsOrder();
@@ -615,7 +690,7 @@
             });
             
             if (db.products.length === 0) {
-                itemsDiv.innerHTML = '<p style="color:#999;">No hay productos cargados</p>';
+                itemsDiv.innerHTML = '<p style="color:#999;">No hay productos cargados. Agrega productos desde el panel.</p>';
             }
             
             updateOrderTotal();
@@ -625,7 +700,7 @@
             const price = parseFloat(document.getElementById('productSelectOrder').value);
             const quantity = parseInt(document.getElementById('quantityOrder').value) || 0;
             const total = price * quantity;
-            document.getElementById('totalDisplayOrder').textContent = `Total: $${total.toFixed(2)}`;
+            document.getElementById('totalDisplayOrder').textContent = `Total: $${isNaN(total) ? '0.00' : total.toFixed(2)}`;
         }
 
         function sendOrderWhatsApp() {
@@ -671,23 +746,13 @@
             closeOrderScreen();
         }
 
-        // ===== GESTIÓN DE DATOS =====
+        // =============================================
+        // GESTIÓN DE DATOS
+        // =============================================
         function loadDB() {
             const saved = localStorage.getItem('aguamagica_db');
             if (saved) {
                 db = JSON.parse(saved);
-            } else {
-                // Datos de ejemplo
-                db.products = [
-                    { name: 'Agua 5L', price: 2.50 },
-                    { name: 'Agua 10L', price: 4.00 },
-                    { name: 'Agua 20L', price: 7.50 }
-                ];
-                db.messages = [
-                    { name: 'Bienvenida', content: '¡Bienvenido a AguaMagica! 🚀' },
-                    { name: 'Promoción', content: '🔥 OFERTA: 2x1 en agua 5L' }
-                ];
-                saveDB();
             }
             updateUI();
         }
@@ -715,7 +780,7 @@
             }, 0);
             document.getElementById('monthSales').textContent = `$${totalSales.toFixed(2)}`;
             
-            // Actualizar lista de clientes
+            // Actualizar listas
             updateClientList();
             updateSavedMessages();
             updateProductList();
@@ -723,7 +788,9 @@
             updateReports();
         }
 
-        // ===== CLIENTES =====
+        // =============================================
+        // CLIENTES
+        // =============================================
         function updateClientList() {
             const search = document.getElementById('clientSearch').value.toLowerCase();
             const div = document.getElementById('clientList');
@@ -739,12 +806,12 @@
                 const divItem = document.createElement('div');
                 divItem.className = 'client-item';
                 divItem.innerHTML = `
-                    <div>
+                    <div class="client-info">
                         <input type="checkbox" onchange="selectClient(${realIndex})">
                         <strong>${client.name}</strong> - ${client.phone}
-                        <span style="font-size:0.8em;color:#999;">(${client.responses?.length || 0} respuestas)</span>
+                        <span style="font-size:0.8em;color:#999;margin-left:5px;">(${client.responses?.length || 0} respuestas)</span>
                     </div>
-                    <div>
+                    <div class="client-actions">
                         <button class="btn btn-info" onclick="viewClient(${realIndex})"><i class="fas fa-eye"></i></button>
                         <button class="btn btn-danger" onclick="deleteClient(${realIndex})"><i class="fas fa-trash"></i></button>
                     </div>
@@ -819,7 +886,9 @@
             // Para selección de clientes en campañas
         }
 
-        // ===== MENSAJES =====
+        // =============================================
+        // MENSAJES
+        // =============================================
         function saveMessage() {
             const content = document.getElementById('messageEditor').value;
             if (content) {
@@ -874,7 +943,6 @@
 
             console.log('📤 Sincronizando con GitHub...', githubData);
             
-            // Guardar en historial
             db.messages.push({
                 name: `Sync ${new Date().toLocaleString()}`,
                 content: content,
@@ -886,4 +954,265 @@
             alert(`✅ Mensaje sincronizado con GitHub!\nUsuario: ${CONFIG.githubUser}\nRepositorio: ${CONFIG.repoName}`);
         }
 
-        // =
+        // =============================================
+        // ENVÍO DE CAMPAÑAS
+        // =============================================
+        function sendBulkMessage() {
+            const selected = document.querySelectorAll('.client-item input[type="checkbox"]:checked');
+            if (selected.length === 0) {
+                alert('⚠️ Selecciona al menos un cliente');
+                return;
+            }
+            
+            const message = document.getElementById('messageEditor').value;
+            if (!message) {
+                alert('⚠️ Escribe un mensaje primero');
+                return;
+            }
+
+            const fullMessage = `${message}\n\n📦 Pedido: [Producto] - [Cantidad]\n⏰ Hora de entrega: [Selecciona]\n\n📱 WhatsApp: https://wa.me/${CONFIG.whatsappNumber}\n📸 ${CONFIG.instagramLink}`;
+
+            let sent = 0;
+            selected.forEach(checkbox => {
+                const index = Array.from(document.querySelectorAll('.client-item input[type="checkbox"]')).indexOf(checkbox);
+                const client = db.clients[index];
+                if (client) {
+                    const url = `https://wa.me/${client.phone}?text=${encodeURIComponent(fullMessage)}`;
+                    window.open(url, '_blank');
+                    
+                    db.responses.push({
+                        client: client.name,
+                        phone: client.phone,
+                        message: fullMessage,
+                        date: new Date().toISOString(),
+                        type: 'whatsapp'
+                    });
+                    sent++;
+                }
+            });
+            
+            saveDB();
+            alert(`✅ Mensaje enviado a ${sent} clientes`);
+        }
+
+        // =============================================
+        // PRODUCTOS
+        // =============================================
+        function addProduct() {
+            const name = document.getElementById('productName').value.trim();
+            const price = parseFloat(document.getElementById('productPrice').value);
+            
+            if (name && price > 0) {
+                db.products.push({ name, price });
+                saveDB();
+                document.getElementById('productName').value = '';
+                document.getElementById('productPrice').value = '';
+                alert('✅ Producto agregado!');
+            } else {
+                alert('⚠️ Ingresa nombre y precio válido');
+            }
+        }
+
+        function updateProductList() {
+            const div = document.getElementById('productList');
+            div.innerHTML = '<h4>Productos disponibles:</h4>';
+            
+            if (db.products.length === 0) {
+                div.innerHTML += '<p style="color:#999;">No hay productos cargados</p>';
+                return;
+            }
+            
+            db.products.forEach((product, index) => {
+                const item = document.createElement('div');
+                item.className = 'product-item';
+                item.innerHTML = `
+                    <span>${product.name}</span>
+                    <span>$${product.price.toFixed(2)}</span>
+                    <button class="btn btn-danger" onclick="deleteProduct(${index})"><i class="fas fa-trash"></i></button>
+                `;
+                div.appendChild(item);
+            });
+        }
+
+        function deleteProduct(index) {
+            if (confirm('¿Eliminar este producto?')) {
+                db.products.splice(index, 1);
+                saveDB();
+            }
+        }
+
+        // =============================================
+        // PEDIDOS
+        // =============================================
+        function updateOrderHistory() {
+            const period = document.getElementById('periodFilter').value;
+            const div = document.getElementById('orderHistory');
+            let filtered = [...db.orders];
+            
+            const now = new Date();
+            switch(period) {
+                case 'hour':
+                    filtered = db.orders.filter(o => new Date(o.date).getHours() === now.getHours());
+                    break;
+                case 'day':
+                    filtered = db.orders.filter(o => new Date(o.date).toDateString() === now.toDateString());
+                    break;
+                case 'week':
+                    const weekStart = new Date(now);
+                    weekStart.setDate(now.getDate() - now.getDay());
+                    filtered = db.orders.filter(o => new Date(o.date) >= weekStart);
+                    break;
+                case 'biweek':
+                    const biweekStart = new Date(now);
+                    biweekStart.setDate(now.getDate() - 15);
+                    filtered = db.orders.filter(o => new Date(o.date) >= biweekStart);
+                    break;
+                case 'month':
+                    filtered = db.orders.filter(o => new Date(o.date).getMonth() === now.getMonth());
+                    break;
+                case 'quarter':
+                    const quarterStart = new Date(now);
+                    quarterStart.setMonth(now.getMonth() - 3);
+                    filtered = db.orders.filter(o => new Date(o.date) >= quarterStart);
+                    break;
+                case 'semester':
+                    const semesterStart = new Date(now);
+                    semesterStart.setMonth(now.getMonth() - 6);
+                    filtered = db.orders.filter(o => new Date(o.date) >= semesterStart);
+                    break;
+                case 'year':
+                    filtered = db.orders.filter(o => new Date(o.date).getFullYear() === now.getFullYear());
+                    break;
+            }
+            
+            if (filtered.length === 0) {
+                div.innerHTML = '<p style="color:#999;">No hay pedidos en este período</p>';
+                return;
+            }
+            
+            div.innerHTML = `
+                <p><strong>Total pedidos:</strong> ${filtered.length}</p>
+                ${filtered.slice().reverse().map(o => `
+                    <div style="border-bottom:1px solid #eee;padding:10px;">
+                        <strong>${o.product}</strong> - ${o.quantity} unidades
+                        <br>${o.total} - ${o.deliveryTime}
+                        <br><small>${new Date(o.date).toLocaleString()}</small>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function filterOrders() {
+            updateOrderHistory();
+        }
+
+        // =============================================
+        // REPORTES
+        // =============================================
+        function updateReports() {
+            const div = document.getElementById('reportsContent');
+            const totalClients = db.clients.length;
+            const totalOrders = db.orders.length;
+            const totalMessages = db.responses.length;
+            
+            // Ventas totales
+            const totalSales = db.orders.reduce((sum, o) => {
+                const num = parseFloat(o.total.replace(/[^0-9.]/g, ''));
+                return sum + (isNaN(num) ? 0 : num);
+            }, 0);
+            
+            // Productos más vendidos
+            const productCount = {};
+            db.orders.forEach(o => {
+                productCount[o.product] = (productCount[o.product] || 0) + parseInt(o.quantity);
+            });
+            const topProducts = Object.entries(productCount).sort((a,b) => b[1] - a[1]).slice(0,5);
+            
+            div.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card"><h3>Total Clientes</h3><p>${totalClients}</p></div>
+                    <div class="stat-card"><h3>Total Pedidos</h3><p>${totalOrders}</p></div>
+                    <div class="stat-card"><h3>Ventas Totales</h3><p>$${totalSales.toFixed(2)}</p></div>
+                    <div class="stat-card"><h3>Mensajes Enviados</h3><p>${totalMessages}</p></div>
+                </div>
+                <h4>🏆 Productos Más Vendidos</h4>
+                ${topProducts.length > 0 ? topProducts.map(([name, count]) => `
+                    <div style="padding:8px;border-bottom:1px solid #eee;">
+                        ${name}: ${count} unidades
+                    </div>
+                `).join('') : '<p style="color:#999;">Sin datos de ventas</p>'}
+            `;
+        }
+
+        // =============================================
+        // QR Y LINKS
+        // =============================================
+        function generateQR() {
+            const url = 'https://aguamagica.github.io/aguamagica-panel/?pedido';
+            const qrDiv = document.getElementById('qrResult');
+            qrDiv.innerHTML = `
+                <div style="padding:20px;background:white;display:inline-block;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}" alt="QR Code">
+                    <p><small>${url}</small></p>
+                </div>
+            `;
+        }
+
+        function copyLink() {
+            const link = document.getElementById('shortLink');
+            link.select();
+            document.execCommand('copy');
+            alert('✅ Link copiado!');
+        }
+
+        function copyOrderLink() {
+            const link = document.getElementById('orderLink');
+            link.select();
+            document.execCommand('copy');
+            alert('✅ Link de pedidos copiado!');
+        }
+
+        // =============================================
+        // NAVEGACIÓN
+        // =============================================
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('clientModal').style.display = 'none';
+        }
+
+        // =============================================
+        // RELOJ
+        // =============================================
+        function updateClock() {
+            document.getElementById('currentTime').textContent = new Date().toLocaleString();
+        }
+
+        // =============================================
+        // CERRAR MODAL CLICK FUERA
+        // =============================================
+        window.onclick = function(event) {
+            const modal = document.getElementById('clientModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        // =============================================
+        // INICIALIZACIÓN
+        // =============================================
+        console.log('💧 AguaMagica - Sistema Integral');
+        console.log('📱 WhatsApp:', CONFIG.whatsappNumber);
+        console.log('🔗 GitHub:', CONFIG.githubUser);
+        console.log('🔑 Contraseña:', CONFIG.password);
+
+        // Si la URL tiene el parámetro "pedido"
+        if (window.location.search.includes('pedido')) {
+            document.querySelector('.login-box h3').textContent = '🔑 Ingresa para hacer tu pedido';
+        }
+    </script>
+</body>
+</html>
