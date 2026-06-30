@@ -34,6 +34,8 @@
         .login-btn:hover { transform: scale(1.02); opacity: 0.9; }
         .login-error { color: #c62828; text-align: center; margin-top: 10px; display: none; }
         .login-token { color: #4CAF50; text-align: center; margin-top: 10px; font-size: 0.9em; display: none; }
+        .login-token-error { color: #c62828; text-align: center; margin-top: 10px; font-size: 0.9em; display: none; }
+        .timer-text { color: #666; font-size: 0.85em; margin-top: 5px; text-align: center; }
 
         .sidebar {
             width: 250px; height: 100vh;
@@ -251,12 +253,6 @@
             font-size: 0.9em;
         }
 
-        .timer-text {
-            color: #666;
-            font-size: 0.85em;
-            margin-top: 5px;
-        }
-
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: auto; position: relative; }
             .sidebar ul li { display: inline-block; padding: 10px 15px; }
@@ -284,6 +280,7 @@
             <button class="login-btn" onclick="login()"><i class="fas fa-lock"></i> Acceder</button>
             <div id="loginError" class="login-error">❌ Credenciales incorrectas</div>
             <div id="loginToken" class="login-token">📧 Se ha enviado un token a gestionmagicasd@gmail.com</div>
+            <div id="loginTokenError" class="login-token-error">❌ Token incorrecto o expirado</div>
             <div id="timerToken" class="timer-text"></div>
         </div>
     </div>
@@ -715,6 +712,7 @@
     // =============================================
     let tokenActual = '';
     let tokenExpiracion = null;
+    let timerInterval = null;
 
     function generarToken() {
         tokenActual = Math.floor(10000 + Math.random() * 90000).toString();
@@ -725,7 +723,6 @@
     function enviarTokenPorEmail(token) {
         const subject = '🔐 Token de acceso AguaMagica';
         const body = `Tu token de acceso es: ${token}\n\nEste token es válido por 5 minutos.\n\nSaludos,\nAguaMagica`;
-        // Usar mailto para enviar
         const mailtoLink = `mailto:${CONFIG.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         window.open(mailtoLink, '_blank');
         return true;
@@ -736,28 +733,39 @@
         if (new Date() > tokenExpiracion) {
             tokenActual = '';
             tokenExpiracion = null;
-            document.getElementById('loginToken').textContent = '⏰ El token ha expirado. Solicita uno nuevo.';
-            document.getElementById('loginToken').style.color = '#c62828';
             return false;
         }
         return token === tokenActual;
     }
 
     function iniciarTimerToken() {
+        if (timerInterval) clearInterval(timerInterval);
         let segundos = 300; // 5 minutos
         const timerDiv = document.getElementById('timerToken');
+        timerDiv.style.display = 'block';
         
-        const intervalo = setInterval(() => {
+        timerInterval = setInterval(() => {
             const minutos = Math.floor(segundos / 60);
             const segs = segundos % 60;
             timerDiv.textContent = `⏱️ El token expira en ${minutos}:${segs.toString().padStart(2, '0')}`;
             segundos--;
             
             if (segundos < 0) {
-                clearInterval(intervalo);
+                clearInterval(timerInterval);
+                timerInterval = null;
                 timerDiv.textContent = '⏰ Token expirado';
+                document.getElementById('loginTokenError').style.display = 'block';
+                document.getElementById('loginTokenError').textContent = '⏰ El token ha expirado. Ingresa la contraseña nuevamente.';
                 tokenActual = '';
                 tokenExpiracion = null;
+                // Resetear login
+                faseLogin = 'password';
+                document.getElementById('passwordInput').disabled = false;
+                document.getElementById('tokenInput').style.display = 'none';
+                document.getElementById('tokenInput').value = '';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('loginToken').style.display = 'none';
+                document.getElementById('loginError').style.display = 'none';
             }
         }, 1000);
     }
@@ -779,8 +787,7 @@
                 enviarTokenPorEmail(tokenGenerado);
                 
                 document.getElementById('loginToken').style.display = 'block';
-                document.getElementById('loginToken').textContent = '📧 Se ha enviado un token a gestionmagicasd@gmail.com';
-                document.getElementById('loginToken').style.color = '#4CAF50';
+                document.getElementById('loginTokenError').style.display = 'none';
                 document.getElementById('tokenInput').style.display = 'block';
                 document.getElementById('tokenInput').value = '';
                 document.getElementById('tokenInput').focus();
@@ -804,6 +811,10 @@
         if (faseLogin === 'token') {
             if (verificarToken(token)) {
                 // Acceso concedido
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
                 initializeDB();
@@ -814,21 +825,28 @@
                 checkOrderParam();
                 return;
             } else {
-                document.getElementById('loginError').style.display = 'block';
-                document.getElementById('loginError').textContent = '❌ Token incorrecto o expirado';
+                document.getElementById('loginTokenError').style.display = 'block';
+                document.getElementById('loginTokenError').textContent = '❌ Token incorrecto';
                 setTimeout(() => {
-                    document.getElementById('loginError').style.display = 'none';
+                    document.getElementById('loginTokenError').style.display = 'none';
                 }, 3000);
                 
                 // Si el token expiró, resetear
                 if (!tokenActual) {
-                    document.getElementById('loginToken').textContent = '⏰ El token ha expirado. Ingresa la contraseña nuevamente.';
-                    document.getElementById('loginToken').style.color = '#c62828';
+                    if (timerInterval) {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                    }
+                    document.getElementById('loginToken').style.display = 'none';
+                    document.getElementById('loginTokenError').style.display = 'block';
+                    document.getElementById('loginTokenError').textContent = '⏰ El token ha expirado. Ingresa la contraseña nuevamente.';
                     faseLogin = 'password';
                     document.getElementById('passwordInput').disabled = false;
                     document.getElementById('tokenInput').style.display = 'none';
+                    document.getElementById('tokenInput').value = '';
                     document.getElementById('passwordInput').value = '';
                     document.getElementById('timerToken').textContent = '';
+                    document.getElementById('timerToken').style.display = 'none';
                 }
                 return;
             }
@@ -840,6 +858,10 @@
     // =============================================
     function logout() {
         if (confirm('¿Cerrar sesión?')) {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
             document.getElementById('mainApp').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('passwordInput').value = '';
@@ -847,7 +869,9 @@
             document.getElementById('tokenInput').style.display = 'none';
             document.getElementById('passwordInput').disabled = false;
             document.getElementById('loginToken').style.display = 'none';
+            document.getElementById('loginTokenError').style.display = 'none';
             document.getElementById('timerToken').textContent = '';
+            document.getElementById('timerToken').style.display = 'none';
             tokenActual = '';
             tokenExpiracion = null;
             faseLogin = 'password';
